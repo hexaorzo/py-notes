@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Lists — Lecture Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Code+Pro:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f14;
+    --surface: #17171f;
+    --card: #1e1e2a;
+    --accent: #7eb8f7;
+    --accent2: #e8415a;
+    --accent3: #a8e6cf;
+    --accent4: #f7c59f;
+    --text: #e8e6df;
+    --muted: #8a8799;
+    --code-bg: #111118;
+    --border: #2e2e40;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    padding: 2rem 1rem;
+  }
+
+  .page { max-width: 960px; margin: 0 auto; }
+
+  /* HEADER */
+  header {
+    border-left: 5px solid var(--accent);
+    padding: 2rem 2rem 2rem 2.5rem;
+    margin-bottom: 3rem;
+    background: var(--surface);
+    border-radius: 0 12px 12px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  header::after {
+    content: "[ ]";
+    position: absolute;
+    right: 2rem; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Source Code Pro', monospace;
+    font-size: 5rem;
+    color: rgba(126,184,247,0.06);
+    font-weight: 600;
+    letter-spacing: -0.05em;
+  }
+  header .subject {
+    font-family: 'Source Code Pro', monospace;
+    color: var(--accent);
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.1;
+  }
+  header .meta {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 0.75rem;
+  }
+
+  /* OVERVIEW BOX */
+  .overview {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+  @media (max-width: 640px) { .overview { grid-template-columns: 1fr; } }
+
+  .overview-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+  }
+  .overview-card h3 {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .overview-card ul {
+    list-style: none;
+    font-size: 0.88rem;
+    color: #c0bec8;
+  }
+  .overview-card ul li::before {
+    content: "▸ ";
+    color: var(--accent);
+  }
+  .overview-card ul li { margin-bottom: 0.2rem; }
+
+  /* COMPARISON TABLE */
+  .comp-table {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 3rem;
+  }
+  .comp-table h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    padding: 1rem 1.5rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    color: #fff;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.87rem;
+  }
+  th {
+    background: rgba(126,184,247,0.08);
+    color: var(--accent);
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.2rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 0.65rem 1.2rem;
+    color: #c8c6bf;
+    border-bottom: 1px solid rgba(46,46,64,0.5);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr.highlight td { background: rgba(126,184,247,0.05); color: #e8f4ff; }
+  .badge {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .badge.yes { background: rgba(168,230,207,0.15); color: var(--accent3); }
+  .badge.no  { background: rgba(232,65,90,0.12);  color: #e8909a; }
+
+  /* TOC */
+  .toc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+  }
+  .toc h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--accent3);
+    margin-bottom: 1rem;
+  }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 0.3rem;
+  }
+  .toc a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.83rem;
+    transition: color 0.2s;
+  }
+  .toc a:hover { color: var(--accent); }
+
+  /* SECTION */
+  .section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 1.75rem;
+    overflow: hidden;
+  }
+  .section-header {
+    background: var(--surface);
+    padding: 0.9rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    background: rgba(126,184,247,0.1);
+    padding: 0.18rem 0.55rem;
+    border-radius: 4px;
+    min-width: 2.5rem;
+    text-align: center;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .section-body {
+    padding: 1.4rem 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .section-body.wide { grid-template-columns: 1fr; }
+  .section-body.trio { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 640px) {
+    .section-body, .section-body.trio { grid-template-columns: 1fr; }
+    header h1 { font-size: 2rem; }
+    header::after { display: none; }
+  }
+
+  .block-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 0.45rem;
+  }
+  .concept { font-size: 0.9rem; color: #c0bec8; }
+  .concept ul { padding-left: 1.1rem; }
+  .concept li { margin-bottom: 0.22rem; }
+  .concept p { margin-bottom: 0.4rem; }
+
+  code, .inline-code {
+    font-family: 'Source Code Pro', monospace;
+    background: rgba(126,184,247,0.1);
+    color: var(--accent);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    font-size: 0.87em;
+  }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.8rem;
+    line-height: 1.65;
+    overflow-x: auto;
+    color: #c8f7c5;
+  }
+  pre .kw  { color: #cc99ff; }
+  pre .fn  { color: #7eb8f7; }
+  pre .str { color: #f7c59f; }
+  pre .cm  { color: #525268; font-style: italic; }
+  pre .num { color: #a8e6cf; }
+  pre .err { color: #e8415a; }
+
+  .mistake {
+    background: rgba(232,65,90,0.07);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 6px 6px 0;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.83rem;
+    color: #e8a0aa;
+    margin-top: 0.5rem;
+  }
+  .mistake strong { color: var(--accent2); }
+  .fix {
+    background: rgba(168,230,207,0.07);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 6px 6px 0;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.83rem;
+    color: #a0e8c8;
+    margin-top: 0.3rem;
+  }
+  .fix strong { color: var(--accent3); }
+  .warn {
+    background: rgba(247,197,159,0.07);
+    border-left: 3px solid var(--accent4);
+    border-radius: 0 6px 6px 0;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.83rem;
+    color: #f0d0b0;
+    margin-top: 0.5rem;
+  }
+  .warn strong { color: var(--accent4); }
+
+  /* CHEAT SHEET */
+  .cheatsheet {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 3rem;
+  }
+  .cheatsheet h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: #fff;
+    margin-bottom: 1.5rem;
+  }
+  .cs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
+    gap: 0.65rem;
+  }
+  .cs-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+  }
+  .cs-item .cs-code {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    margin-bottom: 0.22rem;
+  }
+  .cs-item .cs-desc { font-size: 0.78rem; color: var(--muted); }
+
+  .divider {
+    width: 40px; height: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    margin: 2.5rem auto;
+    opacity: 0.3;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="subject">📘 Python Programming · Lecture Notes</div>
+    <h1>Lists in Python</h1>
+    <div class="meta">Topics: Collections · Creation · Indexing · Slicing · Mutation · Methods · Aliasing · Comprehension</div>
+  </header>
+
+  <!-- OVERVIEW -->
+  <div class="overview">
+    <div class="overview-card">
+      <h3>Why Collections?</h3>
+      <ul>
+        <li>One variable stores only one value</li>
+        <li>Related values need grouping (marks, cities, prices)</li>
+        <li>Separate variables → repetitive, unscalable code</li>
+        <li>Grouped structures support loops and processing</li>
+      </ul>
+    </div>
+    <div class="overview-card">
+      <h3>List at a Glance</h3>
+      <ul>
+        <li>Ordered — preserves insertion sequence</li>
+        <li>Mutable — elements can be changed</li>
+        <li>Allows duplicates</li>
+        <li>Supports indexing, slicing, loops</li>
+        <li>Can store mixed data types</li>
+      </ul>
+    </div>
+    <div class="overview-card">
+      <h3>Syntax Distinctions</h3>
+      <ul>
+        <li><code>[]</code> → list</li>
+        <li><code>()</code> → tuple</li>
+        <li><code>{val, ...}</code> → set</li>
+        <li><code>{k: v}</code> → dictionary</li>
+        <li><code>{}</code> alone → <strong>dict</strong>, not set!</li>
+      </ul>
+    </div>
+    <div class="overview-card">
+      <h3>Sequence Types</h3>
+      <ul>
+        <li>String, List, Tuple are sequence types</li>
+        <li>All support indexing and slicing</li>
+        <li>Set and Dict are not positional</li>
+        <li>List follows naturally after String study</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- COMPARISON TABLE -->
+  <div class="comp-table">
+    <h2>Four Built-in Collection Types</h2>
+    <table>
+      <tr>
+        <th>Type</th>
+        <th>Ordered</th>
+        <th>Mutable</th>
+        <th>Duplicates</th>
+        <th>Access</th>
+        <th>Syntax</th>
+      </tr>
+      <tr class="highlight">
+        <td><strong>List</strong></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td>by index</td>
+        <td><code>[1, 2, 3]</code></td>
+      </tr>
+      <tr>
+        <td>Tuple</td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><span class="badge no">No</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td>by index</td>
+        <td><code>(1, 2, 3)</code></td>
+      </tr>
+      <tr>
+        <td>Set</td>
+        <td><span class="badge no">No</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><span class="badge no">No</span></td>
+        <td>membership</td>
+        <td><code>{1, 2, 3}</code></td>
+      </tr>
+      <tr>
+        <td>Dictionary</td>
+        <td>key-based</td>
+        <td><span class="badge yes">Yes</span></td>
+        <td>keys unique</td>
+        <td>by key</td>
+        <td><code>{"k": v}</code></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>Contents</h2>
+    <div class="toc-grid">
+      <a href="#s1">1. Creating Lists</a>
+      <a href="#s2">2. Indexing</a>
+      <a href="#s3">3. Negative Indexing</a>
+      <a href="#s4">4. len() & IndexError</a>
+      <a href="#s5">5. Slicing</a>
+      <a href="#s6">6. Slicing with Step</a>
+      <a href="#s7">7. Mutability</a>
+      <a href="#s8">8. Slice Assignment</a>
+      <a href="#s9">9. Concatenation & Repetition</a>
+      <a href="#s10">10. Membership: in / not in</a>
+      <a href="#s11">11. Traversal</a>
+      <a href="#s12">12. append()</a>
+      <a href="#s13">13. extend()</a>
+      <a href="#s14">14. insert()</a>
+      <a href="#s15">15. remove()</a>
+      <a href="#s16">16. pop()</a>
+      <a href="#s17">17. del & clear()</a>
+      <a href="#s18">18. index() & count()</a>
+      <a href="#s19">19. sort() & reverse()</a>
+      <a href="#s20">20. sort() vs sorted()</a>
+      <a href="#s21">21. Aliasing</a>
+      <a href="#s22">22. Copying</a>
+      <a href="#s23">23. Shallow Copy</a>
+      <a href="#s24">24. Loop + Mutation Traps</a>
+      <a href="#s25">25. Nested Lists</a>
+      <a href="#s26">26. String ↔ List</a>
+      <a href="#s27">27. List Comprehension</a>
+      <a href="#s28">28. Aggregate Functions</a>
+      <a href="#s29">29. List Unpacking</a>
+      <a href="#s30">30. Tricky Edge Cases</a>
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Creating Lists — Four Ways</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Methods</div>
+        <div class="concept">
+          <ul>
+            <li><strong>Literal</strong> — most common, direct values in <code>[]</code></li>
+            <li><strong>Empty</strong> — <code>[]</code> or <code>list()</code></li>
+            <li><strong>list() constructor</strong> — converts any iterable</li>
+            <li><strong>From range()</strong> — <code>list(range(n))</code></li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="warn"><strong>⚑ Note:</strong> <code>list("python")</code> splits into individual characters, not words</div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>L1 = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>]
+L2 = []
+L3 = <span class="fn">list</span>(<span class="str">"python"</span>)
+L4 = <span class="fn">list</span>(<span class="fn">range</span>(<span class="num">5</span>))
+<span class="fn">print</span>(L1)  <span class="cm"># [1, 2, 3, 4]</span>
+<span class="fn">print</span>(L2)  <span class="cm"># []</span>
+<span class="fn">print</span>(L3)  <span class="cm"># ['p','y','t','h','o','n']</span>
+<span class="fn">print</span>(L4)  <span class="cm"># [0, 1, 2, 3, 4]</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Indexing — Accessing by Position</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Every element has a position called an <strong>index</strong>.</li>
+            <li>Indexing starts from <strong>0</strong>, not 1.</li>
+            <li>First element → index 0; Last → index <code>n-1</code></li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> thinking index starts from 1</div>
+          <div class="fix"><strong>✓ Fix:</strong> first element is always <code>L[0]</code></div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>colors = [<span class="str">"red"</span>, <span class="str">"green"</span>, <span class="str">"blue"</span>, <span class="str">"yellow"</span>]
+<span class="fn">print</span>(colors[<span class="num">0</span>])  <span class="cm"># red</span>
+<span class="fn">print</span>(colors[<span class="num">1</span>])  <span class="cm"># green</span>
+<span class="fn">print</span>(colors[<span class="num">3</span>])  <span class="cm"># yellow (4th element)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">Negative Indexing — Access from the End</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>-1</code> → last element</li>
+            <li><code>-2</code> → second last, and so on</li>
+            <li>Avoids writing <code>L[len(L) - 1]</code></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>colors = [<span class="str">"red"</span>, <span class="str">"green"</span>, <span class="str">"blue"</span>, <span class="str">"yellow"</span>]
+<span class="fn">print</span>(colors[<span class="num">-1</span>])  <span class="cm"># yellow</span>
+<span class="fn">print</span>(colors[<span class="num">-2</span>])  <span class="cm"># blue</span>
+<span class="fn">print</span>(colors[<span class="num">-4</span>])  <span class="cm"># red</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">len() and IndexError</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>len(L)</code> → total count of elements</li>
+            <li><strong>Length ≠ last index</strong>. If len=5, last valid index is 4.</li>
+            <li>Accessing out-of-range index → <strong>IndexError</strong></li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> <code>L[len(L)]</code> → IndexError</div>
+          <div class="fix"><strong>✓ Fix:</strong> use <code>L[len(L) - 1]</code> or <code>L[-1]</code></div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>nums = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>, <span class="num">50</span>]
+<span class="fn">print</span>(<span class="fn">len</span>(nums))  <span class="cm"># 5</span>
+<span class="cm"># valid indices: 0,1,2,3,4</span>
+<span class="cm"># nums[5] → IndexError !</span>
+
+empty = []
+<span class="fn">print</span>(<span class="fn">len</span>(empty))  <span class="cm"># 0</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Slicing — L[start:stop]</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Extracts a <em>new sublist</em>; original is unchanged.</li>
+            <li><strong>start is included, stop is excluded.</strong></li>
+            <li>Omitting start → from beginning; omitting stop → till end.</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> thinking <code>L[1:4]</code> includes index 4</div>
+          <div class="fix"><strong>✓ Fix:</strong> stop is always excluded → gives indices 1, 2, 3</div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>nums = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>, <span class="num">50</span>, <span class="num">60</span>]
+nums[<span class="num">1</span>:<span class="num">4</span>]  <span class="cm"># [20, 30, 40]</span>
+nums[:<span class="num">3</span>]   <span class="cm"># [10, 20, 30]</span>
+nums[<span class="num">3</span>:]   <span class="cm"># [40, 50, 60]</span>
+nums[:]    <span class="cm"># [10, 20, 30, 40, 50, 60]</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Slicing with Step — L[start:stop:step]</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Step controls how many positions to skip.</li>
+            <li><code>::2</code> → alternate elements</li>
+            <li><code>::-1</code> → full reverse copy (common pattern)</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>nums = [<span class="num">10</span>,<span class="num">20</span>,<span class="num">30</span>,<span class="num">40</span>,<span class="num">50</span>,<span class="num">60</span>,<span class="num">70</span>,<span class="num">80</span>]
+nums[::<span class="num">2</span>]   <span class="cm"># [10,30,50,70]</span>
+nums[<span class="num">1</span>::<span class="num">2</span>]  <span class="cm"># [20,40,60,80]</span>
+nums[::<span class="num">-1</span>]  <span class="cm"># [80,70,...,10]</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">Lists are Mutable</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Elements <strong>can be changed after creation</strong> (unlike strings/tuples).</li>
+            <li>Mutability makes lists suitable for dynamic programs.</li>
+            <li>Use index assignment: <code>L[i] = new_value</code></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>values = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>]
+<span class="fn">print</span>(values)        <span class="cm"># [10, 20, 30, 40]</span>
+values[<span class="num">1</span>] = <span class="num">99</span>
+<span class="fn">print</span>(values)        <span class="cm"># [10, 99, 30, 40]</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8 -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">Slice Assignment</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Replaces a slice with a new sequence.</li>
+            <li>Replacement length <strong>need not match</strong> original slice length.</li>
+            <li>Python removes the slice and inserts all new elements.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>a = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>]
+a[<span class="num">1</span>:<span class="num">4</span>] = [<span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>]
+<span class="fn">print</span>(a)  <span class="cm"># [1, 20, 30, 40, 5]</span>
+
+b = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>]
+b[<span class="num">1</span>:<span class="num">3</span>] = [<span class="num">9</span>, <span class="num">9</span>, <span class="num">9</span>, <span class="num">9</span>]
+<span class="fn">print</span>(b)  <span class="cm"># [1, 9, 9, 9, 9, 4, 5]</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9 -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <span class="section-title">Concatenation and Repetition</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>+</code> joins two lists → new list</li>
+            <li><code>*</code> repeats elements → new list</li>
+            <li>Neither modifies the originals.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>a = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+b = [<span class="num">4</span>, <span class="num">5</span>]
+<span class="fn">print</span>(a + b)   <span class="cm"># [1, 2, 3, 4, 5]</span>
+<span class="fn">print</span>(a * <span class="num">3</span>)   <span class="cm"># [1,2,3,1,2,3,1,2,3]</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <span class="section-title">Membership: in and not in</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Checks if a value exists in a list → <code>True</code> / <code>False</code></li>
+            <li><code>in</code> → checks presence</li>
+            <li><code>not in</code> → checks absence</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>nums = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>]
+<span class="fn">print</span>(<span class="num">20</span> <span class="kw">in</span> nums)      <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="num">25</span> <span class="kw">in</span> nums)      <span class="cm"># False</span>
+<span class="fn">print</span>(<span class="num">50</span> <span class="kw">not in</span> nums)  <span class="cm"># True</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11 -->
+  <div class="section" id="s11">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <span class="section-title">Traversing a List</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Direct Traversal</div>
+        <pre>fruits = [<span class="str">"apple"</span>, <span class="str">"banana"</span>, <span class="str">"mango"</span>]
+<span class="kw">for</span> item <span class="kw">in</span> fruits:
+    <span class="fn">print</span>(item)
+<span class="cm"># use when only values needed</span></pre>
+      </div>
+      <div>
+        <div class="block-label">Index-Based Traversal</div>
+        <pre><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(fruits)):
+    <span class="fn">print</span>(i, fruits[i])
+<span class="cm"># use when position also matters</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12 -->
+  <div class="section" id="s12">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <span class="section-title">append() — Add One Element</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Adds exactly <strong>one object</strong> at the end.</li>
+            <li>Modifies the list in place; <strong>returns None</strong>.</li>
+            <li>If object is a list, it becomes a nested element.</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> <code>L = L.append(5)</code> → L becomes None</div>
+          <div class="fix"><strong>✓ Fix:</strong> just write <code>L.append(5)</code> — no assignment needed</div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>nums = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>]
+nums.<span class="fn">append</span>(<span class="num">40</span>)
+<span class="fn">print</span>(nums)   <span class="cm"># [10, 20, 30, 40]</span>
+
+a = [<span class="num">1</span>, <span class="num">2</span>]
+a.<span class="fn">append</span>([<span class="num">3</span>, <span class="num">4</span>])
+<span class="fn">print</span>(a)   <span class="cm"># [1, 2, [3, 4]]</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13 -->
+  <div class="section" id="s13">
+    <div class="section-header">
+      <span class="section-num">13</span>
+      <span class="section-title">extend() — Add Multiple Elements</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Adds elements <strong>one by one</strong> from any iterable.</li>
+            <li>When given a string, it appends each character separately.</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> confusing append and extend</div>
+          <div class="fix"><strong>✓ Key Rule:</strong> append → one object; extend → individual items</div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Comparison</div>
+        <pre>x = [<span class="num">1</span>, <span class="num">2</span>]; y = [<span class="num">1</span>, <span class="num">2</span>]
+x.<span class="fn">append</span>([<span class="num">3</span>, <span class="num">4</span>])
+y.<span class="fn">extend</span>([<span class="num">3</span>, <span class="num">4</span>])
+<span class="fn">print</span>(x)   <span class="cm"># [1, 2, [3, 4]]</span>
+<span class="fn">print</span>(y)   <span class="cm"># [1, 2, 3, 4]</span>
+
+b = [<span class="num">1</span>, <span class="num">2</span>]
+b.<span class="fn">extend</span>(<span class="str">"hi"</span>)
+<span class="fn">print</span>(b)   <span class="cm"># [1, 2, 'h', 'i']</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14 -->
+  <div class="section" id="s14">
+    <div class="section-header">
+      <span class="section-num">14</span>
+      <span class="section-title">insert(index, value)</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Inserts at a <strong>specified position</strong>.</li>
+            <li>Existing elements shift right.</li>
+            <li>If index > length, inserts at the end (no error).</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="warn"><strong>⚑ Edge case:</strong> <code>a.insert(100, 99)</code> on a 3-element list → inserts at end, not error</div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>nums = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>]
+nums.<span class="fn">insert</span>(<span class="num">1</span>, <span class="num">99</span>)
+<span class="fn">print</span>(nums)   <span class="cm"># [10, 99, 20, 30]</span>
+
+a = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>]
+a.<span class="fn">insert</span>(<span class="num">100</span>, <span class="num">99</span>)
+<span class="fn">print</span>(a)   <span class="cm"># [10, 20, 30, 99]</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 15 -->
+  <div class="section" id="s15">
+    <div class="section-header">
+      <span class="section-num">15</span>
+      <span class="section-title">remove(value) — Delete by Value</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Deletes the <strong>first occurrence</strong> of the value.</li>
+            <li>Second and later occurrences remain.</li>
+            <li>Raises <strong>ValueError</strong> if value not found.</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> expecting all duplicates to be removed</div>
+          <div class="fix"><strong>✓ Fix:</strong> use a loop or list comprehension for all removals</div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>nums = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">20</span>, <span class="num">40</span>]
+nums.<span class="fn">remove</span>(<span class="num">20</span>)
+<span class="fn">print</span>(nums)   <span class="cm"># [10, 30, 20, 40]</span>
+<span class="cm"># second 20 still present</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 16 -->
+  <div class="section" id="s16">
+    <div class="section-header">
+      <span class="section-num">16</span>
+      <span class="section-title">pop() — Delete by Index and Return</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Removes by <strong>index</strong> and <strong>returns</strong> the removed element.</li>
+            <li>No index → removes and returns the last element.</li>
+            <li>Accepts negative indices too.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>nums = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>]
+x = nums.<span class="fn">pop</span>(<span class="num">2</span>)
+<span class="fn">print</span>(x)      <span class="cm"># 30</span>
+<span class="fn">print</span>(nums)   <span class="cm"># [10, 20, 40]</span>
+
+a = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>]
+y = a.<span class="fn">pop</span>(<span class="num">-2</span>)
+<span class="fn">print</span>(y)   <span class="cm"># 30</span>
+<span class="fn">print</span>(a)   <span class="cm"># [10, 20, 40]</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 17 -->
+  <div class="section" id="s17">
+    <div class="section-header">
+      <span class="section-num">17</span>
+      <span class="section-title">del and clear()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>del L[i]</code> — deletes by index</li>
+            <li><code>del L[a:b]</code> — deletes a slice</li>
+            <li><code>L.clear()</code> — empties the list; list object still exists as <code>[]</code></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>nums = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>, <span class="num">50</span>]
+<span class="kw">del</span> nums[<span class="num">1</span>]
+<span class="fn">print</span>(nums)     <span class="cm"># [10, 30, 40, 50]</span>
+
+<span class="kw">del</span> nums[<span class="num">1</span>:<span class="num">3</span>]
+<span class="fn">print</span>(nums)     <span class="cm"># [10, 50]</span>
+
+nums.<span class="fn">clear</span>()
+<span class="fn">print</span>(nums)     <span class="cm"># []</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 18 -->
+  <div class="section" id="s18">
+    <div class="section-header">
+      <span class="section-num">18</span>
+      <span class="section-title">index() and count() — Search Methods</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>.index(v)</code> → position of <strong>first</strong> occurrence</li>
+            <li><code>.count(v)</code> → total number of occurrences</li>
+            <li><code>count(v) == 0</code> means value absent (safe check)</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="warn"><strong>⚑ Note:</strong> <code>len(L)</code> = total size; <code>L.count(x)</code> = frequency of x</div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>nums = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">20</span>, <span class="num">40</span>, <span class="num">20</span>]
+<span class="fn">print</span>(nums.<span class="fn">index</span>(<span class="num">20</span>))   <span class="cm"># 1 (first only)</span>
+<span class="fn">print</span>(nums.<span class="fn">count</span>(<span class="num">20</span>))   <span class="cm"># 3</span>
+
+a = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">10</span>, <span class="num">30</span>]
+<span class="fn">print</span>(<span class="fn">len</span>(a))            <span class="cm"># 4</span>
+<span class="fn">print</span>(a.<span class="fn">count</span>(<span class="num">10</span>))      <span class="cm"># 2</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 19 -->
+  <div class="section" id="s19">
+    <div class="section-header">
+      <span class="section-num">19</span>
+      <span class="section-title">sort() and reverse()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>.sort()</code> → ascending order, in place, returns None</li>
+            <li><code>.sort(reverse=True)</code> → descending</li>
+            <li><code>.reverse()</code> → reverses current order, in place, returns None</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> <code>L = L.sort()</code> → L becomes None</div>
+          <div class="fix"><strong>✓ Fix:</strong> just call <code>L.sort()</code></div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>nums = [<span class="num">40</span>, <span class="num">10</span>, <span class="num">30</span>, <span class="num">20</span>]
+nums.<span class="fn">sort</span>()
+<span class="fn">print</span>(nums)   <span class="cm"># [10, 20, 30, 40]</span>
+nums.<span class="fn">reverse</span>()
+<span class="fn">print</span>(nums)   <span class="cm"># [40, 30, 20, 10]</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 20 -->
+  <div class="section" id="s20">
+    <div class="section-header">
+      <span class="section-num">20</span>
+      <span class="section-title">sort() vs sorted() — Critical Distinction</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Key Difference</div>
+        <div class="concept">
+          <ul>
+            <li><code>.sort()</code> — modifies same list, returns None</li>
+            <li><code>sorted(L)</code> — returns a new sorted list, original unchanged</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="warn"><strong>⚑ Similarly:</strong> <code>L[::-1]</code> creates new reversed list; <code>L.reverse()</code> changes L in place and returns None</div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>nums = [<span class="num">40</span>, <span class="num">10</span>, <span class="num">30</span>, <span class="num">20</span>]
+x = <span class="fn">sorted</span>(nums)
+<span class="fn">print</span>(nums)   <span class="cm"># [40, 10, 30, 20] unchanged</span>
+<span class="fn">print</span>(x)      <span class="cm"># [10, 20, 30, 40]</span>
+
+a = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>]
+b = a[::<span class="num">-1</span>]
+c = a.<span class="fn">reverse</span>()
+<span class="fn">print</span>(a)   <span class="cm"># [4,3,2,1] (in-place)</span>
+<span class="fn">print</span>(b)   <span class="cm"># [4,3,2,1] (new list)</span>
+<span class="fn">print</span>(c)   <span class="cm"># None</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 21 -->
+  <div class="section" id="s21">
+    <div class="section-header">
+      <span class="section-num">21</span>
+      <span class="section-title">Aliasing — Two Names, One List</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>b = a</code> does NOT copy the list.</li>
+            <li>Both names point to the <strong>same object in memory</strong>.</li>
+            <li>Change through one name → reflected in the other.</li>
+            <li>This is called <strong>aliasing</strong>.</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> assuming <code>b = a</code> creates an independent copy</div>
+          <div class="fix"><strong>✓ Fix:</strong> use <code>b = a.copy()</code> or <code>b = a[:]</code></div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>a = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>]
+b = a
+b[<span class="num">0</span>] = <span class="num">999</span>
+<span class="fn">print</span>(a)   <span class="cm"># [999, 20, 30] ← ALSO changed!</span>
+<span class="fn">print</span>(b)   <span class="cm"># [999, 20, 30]</span>
+
+list1 = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+list2 = list1
+list1.<span class="fn">append</span>(<span class="num">4</span>)
+<span class="fn">print</span>(list2)  <span class="cm"># [1, 2, 3, 4]</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 22 -->
+  <div class="section" id="s22">
+    <div class="section-header">
+      <span class="section-num">22</span>
+      <span class="section-title">Actual Copy — .copy() or [:]</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Creates a <strong>new independent list</strong>.</li>
+            <li>Changes to copy do not affect original.</li>
+            <li>Two ways: <code>b = a.copy()</code> or <code>b = a[:]</code></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>a = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>]
+b = a.<span class="fn">copy</span>()
+b[<span class="num">0</span>] = <span class="num">999</span>
+<span class="fn">print</span>(a)   <span class="cm"># [10, 20, 30] ← unchanged</span>
+<span class="fn">print</span>(b)   <span class="cm"># [999, 20, 30]</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 23 -->
+  <div class="section" id="s23">
+    <div class="section-header">
+      <span class="section-num">23</span>
+      <span class="section-title">Shallow Copy — Nested List Trap</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>.copy()</code> works correctly for flat (1D) lists.</li>
+            <li>For nested lists: outer list is copied, but <strong>inner lists are still shared</strong>.</li>
+            <li>This is <strong>shallow copy behavior</strong>.</li>
+            <li>For full independence: use <code>copy.deepcopy()</code></li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="warn"><strong>⚑ Important:</strong> Modifying inner list elements affects both</div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>a = [[<span class="num">1</span>, <span class="num">2</span>], [<span class="num">3</span>, <span class="num">4</span>]]
+b = a.<span class="fn">copy</span>()
+b[<span class="num">0</span>][<span class="num">0</span>] = <span class="num">999</span>
+<span class="fn">print</span>(a)   <span class="cm"># [[999, 2], [3, 4]] ← AFFECTED!</span>
+<span class="fn">print</span>(b)   <span class="cm"># [[999, 2], [3, 4]]</span>
+
+<span class="cm"># Deep copy solution:</span>
+<span class="kw">import</span> copy
+b = copy.<span class="fn">deepcopy</span>(a)</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 24 -->
+  <div class="section" id="s24">
+    <div class="section-header">
+      <span class="section-num">24</span>
+      <span class="section-title">Mutation During Loop — Two Traps</span>
+    </div>
+    <div class="section-body wide">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <div>
+          <div class="block-label">Safe: range(len(L)) is pre-computed</div>
+          <pre>L = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>]
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(L)):
+    L.<span class="fn">append</span>(i)
+<span class="fn">print</span>(L)
+<span class="cm"># [1, 2, 3, 4, 0, 1, 2, 3]</span>
+<span class="cm"># len(L) computed ONCE = 4</span>
+<span class="cm"># loop runs exactly 4 times</span></pre>
+        </div>
+        <div>
+          <div class="block-label">Dangerous: iterating directly while mutating</div>
+          <pre>L = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>]
+i = <span class="num">0</span>
+<span class="kw">for</span> e <span class="kw">in</span> L:
+    L.<span class="fn">append</span>(i)
+    i += <span class="num">1</span>
+<span class="cm"># Newly added elements also</span>
+<span class="cm"># get iterated → INFINITE LOOP!</span>
+<span class="cm"># Avoid mutating while iterating</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 25 -->
+  <div class="section" id="s25">
+    <div class="section-header">
+      <span class="section-num">25</span>
+      <span class="section-title">Nested Lists — Lists Inside Lists</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>A list can contain other lists as elements.</li>
+            <li>Used for matrices, tables, grouped data.</li>
+            <li>Access: <code>L[row][col]</code></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>matrix = [
+    [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>],
+    [<span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>],
+    [<span class="num">7</span>, <span class="num">8</span>, <span class="num">9</span>]
+]
+<span class="fn">print</span>(matrix[<span class="num">0</span>])      <span class="cm"># [1, 2, 3]</span>
+<span class="fn">print</span>(matrix[<span class="num">1</span>][<span class="num">2</span>])  <span class="cm"># 6</span>
+<span class="fn">print</span>(matrix[<span class="num">2</span>][<span class="num">0</span>])  <span class="cm"># 7</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 26 -->
+  <div class="section" id="s26">
+    <div class="section-header">
+      <span class="section-num">26</span>
+      <span class="section-title">String ↔ List Conversion</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>list(s)</code> → breaks string into characters</li>
+            <li><code>"sep".join(L)</code> → joins list into string</li>
+            <li><code>join()</code> requires all elements to be strings</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> <code>''.join([1, 2, 3])</code> → TypeError</div>
+          <div class="fix"><strong>✓ Fix:</strong> elements must be strings: <code>''.join(['1','2','3'])</code></div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>s = <span class="str">"python"</span>
+L = <span class="fn">list</span>(s)
+<span class="fn">print</span>(L)            <span class="cm"># ['p','y','t','h','o','n']</span>
+<span class="fn">print</span>(<span class="str">''</span>.<span class="fn">join</span>(L))   <span class="cm"># 'python'</span>
+
+words = [<span class="str">"CSE"</span>, <span class="str">"SAARC"</span>, <span class="str">"Delhi"</span>]
+<span class="fn">print</span>(<span class="str">" | "</span>.<span class="fn">join</span>(words))
+<span class="cm"># 'CSE | SAARC | Delhi'</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 27 -->
+  <div class="section" id="s27">
+    <div class="section-header">
+      <span class="section-num">27</span>
+      <span class="section-title">List Comprehension</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Compact way to build a list: <code>[expr for item in iterable]</code></li>
+            <li>Can include a filter: <code>[expr for item in iterable if condition]</code></li>
+            <li>Replaces a for loop + append pattern in one line.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>squares = [x * x <span class="kw">for</span> x <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">6</span>)]
+<span class="fn">print</span>(squares)  <span class="cm"># [1, 4, 9, 16, 25]</span>
+
+evens = [x <span class="kw">for</span> x <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">21</span>) <span class="kw">if</span> x % <span class="num">2</span> == <span class="num">0</span>]
+
+words = [<span class="str">"cat"</span>, <span class="str">"elephant"</span>, <span class="str">"bat"</span>, <span class="str">"dog"</span>]
+small = [w <span class="kw">for</span> w <span class="kw">in</span> words <span class="kw">if</span> <span class="fn">len</span>(w) <= <span class="num">3</span>]
+<span class="fn">print</span>(small)  <span class="cm"># ['cat', 'bat', 'dog']</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 28 -->
+  <div class="section" id="s28">
+    <div class="section-header">
+      <span class="section-num">28</span>
+      <span class="section-title">Aggregate Functions: min, max, sum</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>min(L)</code> → smallest element</li>
+            <li><code>max(L)</code> → largest element</li>
+            <li><code>sum(L)</code> → total of all numeric elements</li>
+            <li>Reduce the need for manual looping in simple cases.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>nums = [<span class="num">12</span>, <span class="num">45</span>, <span class="num">7</span>, <span class="num">31</span>, <span class="num">18</span>]
+<span class="fn">print</span>(<span class="fn">min</span>(nums))   <span class="cm"># 7</span>
+<span class="fn">print</span>(<span class="fn">max</span>(nums))   <span class="cm"># 45</span>
+<span class="fn">print</span>(<span class="fn">sum</span>(nums))   <span class="cm"># 113</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 29 -->
+  <div class="section" id="s29">
+    <div class="section-header">
+      <span class="section-num">29</span>
+      <span class="section-title">List Unpacking and Comparison</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Unpacking</div>
+        <pre>vals = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>]
+a, b, c = vals
+<span class="fn">print</span>(a, b, c)   <span class="cm"># 10 20 30</span>
+<span class="cm"># number of vars must match length</span></pre>
+      </div>
+      <div>
+        <div class="block-label">Comparison</div>
+        <pre>a = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+b = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+c = [<span class="num">3</span>, <span class="num">2</span>, <span class="num">1</span>]
+<span class="fn">print</span>(a == b)   <span class="cm"># True</span>
+<span class="fn">print</span>(a == c)   <span class="cm"># False (order matters!)</span>
+<span class="fn">print</span>(a != c)   <span class="cm"># True</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 30 -->
+  <div class="section" id="s30">
+    <div class="section-header">
+      <span class="section-num">30</span>
+      <span class="section-title">Tricky Edge Cases — Quick Reference</span>
+    </div>
+    <div class="section-body wide">
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.2rem;">
+        <div>
+          <div class="block-label">Methods returning None</div>
+          <pre>L = [<span class="num">2</span>, <span class="num">1</span>, <span class="num">3</span>]
+L = L.<span class="fn">append</span>(<span class="num">5</span>)
+<span class="fn">print</span>(L)   <span class="cm"># None !</span>
+<span class="cm"># append/sort/reverse/clear</span>
+<span class="cm"># all return None</span></pre>
+        </div>
+        <div>
+          <div class="block-label">{} is dict, not set</div>
+          <pre>a = {}
+b = <span class="fn">set</span>()
+<span class="fn">print</span>(<span class="fn">type</span>(a))  <span class="cm"># dict</span>
+<span class="fn">print</span>(<span class="fn">type</span>(b))  <span class="cm"># set</span>
+<span class="cm"># Always use set() for empty set</span></pre>
+        </div>
+        <div>
+          <div class="block-label">extend() with string</div>
+          <pre>a = [<span class="num">1</span>, <span class="num">2</span>]
+a.<span class="fn">extend</span>(<span class="str">"hi"</span>)
+<span class="fn">print</span>(a)
+<span class="cm"># [1, 2, 'h', 'i']</span>
+<span class="cm"># String is iterable!</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHEAT SHEET -->
+  <div class="cheatsheet">
+    <h2>⚡ Quick-Reference Cheat Sheet</h2>
+    <div class="cs-grid">
+      <div class="cs-item"><div class="cs-code">L[i] / L[-1]</div><div class="cs-desc">Index / last element</div></div>
+      <div class="cs-item"><div class="cs-code">L[a:b] / L[a:b:s]</div><div class="cs-desc">Slice (stop excluded)</div></div>
+      <div class="cs-item"><div class="cs-code">L[::-1]</div><div class="cs-desc">New reversed copy</div></div>
+      <div class="cs-item"><div class="cs-code">len(L)</div><div class="cs-desc">Total elements (≠ last index)</div></div>
+      <div class="cs-item"><div class="cs-code">x in L / x not in L</div><div class="cs-desc">Membership check</div></div>
+      <div class="cs-item"><div class="cs-code">L.append(x)</div><div class="cs-desc">Add one object at end</div></div>
+      <div class="cs-item"><div class="cs-code">L.extend(iter)</div><div class="cs-desc">Add each element individually</div></div>
+      <div class="cs-item"><div class="cs-code">L.insert(i, x)</div><div class="cs-desc">Insert at position i</div></div>
+      <div class="cs-item"><div class="cs-code">L.remove(x)</div><div class="cs-desc">Remove first occurrence</div></div>
+      <div class="cs-item"><div class="cs-code">L.pop(i)</div><div class="cs-desc">Remove & return by index</div></div>
+      <div class="cs-item"><div class="cs-code">del L[i] / L[a:b]</div><div class="cs-desc">Delete by index or slice</div></div>
+      <div class="cs-item"><div class="cs-code">L.clear()</div><div class="cs-desc">Empty the list</div></div>
+      <div class="cs-item"><div class="cs-code">L.index(x)</div><div class="cs-desc">First position of x</div></div>
+      <div class="cs-item"><div class="cs-code">L.count(x)</div><div class="cs-desc">Occurrences of x</div></div>
+      <div class="cs-item"><div class="cs-code">L.sort()</div><div class="cs-desc">Sort in-place (returns None)</div></div>
+      <div class="cs-item"><div class="cs-code">sorted(L)</div><div class="cs-desc">New sorted list (original unchanged)</div></div>
+      <div class="cs-item"><div class="cs-code">L.reverse()</div><div class="cs-desc">Reverse in-place (returns None)</div></div>
+      <div class="cs-item"><div class="cs-code">L.copy() / L[:]</div><div class="cs-desc">Shallow copy (independent flat list)</div></div>
+      <div class="cs-item"><div class="cs-code">b = a</div><div class="cs-desc">Aliasing! NOT a copy</div></div>
+      <div class="cs-item"><div class="cs-code">min(L), max(L), sum(L)</div><div class="cs-desc">Aggregate functions</div></div>
+      <div class="cs-item"><div class="cs-code">[expr for x in L if cond]</div><div class="cs-desc">List comprehension</div></div>
+      <div class="cs-item"><div class="cs-code">a, b, c = L</div><div class="cs-desc">Unpacking (lengths must match)</div></div>
+      <div class="cs-item"><div class="cs-code">L[i][j]</div><div class="cs-desc">Access nested list element</div></div>
+      <div class="cs-item"><div class="cs-code">"sep".join(L)</div><div class="cs-desc">List → string (elements must be str)</div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
