@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Tuples & Sets — Lecture Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Code+Pro:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f14;
+    --surface: #17171f;
+    --card: #1e1e2a;
+    --accent: #7eb8f7;
+    --accent2: #e8415a;
+    --accent3: #a8e6cf;
+    --accent4: #f7c59f;
+    --accent5: #c9a8f7;
+    --text: #e8e6df;
+    --muted: #8a8799;
+    --code-bg: #111118;
+    --border: #2e2e40;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    padding: 2rem 1rem;
+  }
+
+  .page { max-width: 960px; margin: 0 auto; }
+
+  /* HEADER */
+  header {
+    border-left: 5px solid var(--accent5);
+    padding: 2rem 2rem 2rem 2.5rem;
+    margin-bottom: 3rem;
+    background: var(--surface);
+    border-radius: 0 12px 12px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  header::after {
+    content: "( )";
+    position: absolute;
+    right: 2rem; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Source Code Pro', monospace;
+    font-size: 5rem;
+    color: rgba(201,168,247,0.06);
+    font-weight: 600;
+    letter-spacing: -0.05em;
+  }
+  header .subject {
+    font-family: 'Source Code Pro', monospace;
+    color: var(--accent5);
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.1;
+  }
+  header .meta {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 0.75rem;
+  }
+
+  /* CHAPTER DIVIDER */
+  .chapter-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 3rem 0 2rem;
+  }
+  .chapter-divider .chapter-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .chapter-divider .chapter-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .chapter-divider .chapter-tag {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.7rem;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .chapter-tag.tuple { background: rgba(201,168,247,0.12); color: var(--accent5); }
+  .chapter-tag.set   { background: rgba(168,230,207,0.12); color: var(--accent3); }
+
+  /* OVERVIEW BOX */
+  .overview {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+  @media (max-width: 640px) { .overview { grid-template-columns: 1fr; } }
+
+  .overview-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+  }
+  .overview-card h3 {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent5);
+    margin-bottom: 0.75rem;
+  }
+  .overview-card h3.set-head { color: var(--accent3); }
+  .overview-card ul {
+    list-style: none;
+    font-size: 0.88rem;
+    color: #c0bec8;
+  }
+  .overview-card ul li::before {
+    content: "▸ ";
+    color: var(--accent5);
+  }
+  .overview-card ul.set-list li::before { color: var(--accent3); }
+  .overview-card ul li { margin-bottom: 0.2rem; }
+
+  /* COMPARISON TABLE */
+  .comp-table {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 3rem;
+  }
+  .comp-table h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    padding: 1rem 1.5rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    color: #fff;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+  th {
+    background: rgba(201,168,247,0.08);
+    color: var(--accent5);
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.2rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 0.65rem 1.2rem;
+    color: #c8c6bf;
+    border-bottom: 1px solid rgba(46,46,64,0.5);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr.highlight-t td { background: rgba(201,168,247,0.05); color: #e8e0ff; }
+  tr.highlight-s td { background: rgba(168,230,207,0.05); color: #e0ffef; }
+  .badge {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .badge.yes { background: rgba(168,230,207,0.15); color: var(--accent3); }
+  .badge.no  { background: rgba(232,65,90,0.12);  color: #e8909a; }
+
+  /* TOC */
+  .toc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+  }
+  .toc h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--accent5);
+    margin-bottom: 0.4rem;
+  }
+  .toc h2.set-toc { color: var(--accent3); margin-top: 1.2rem; }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 0.3rem;
+    margin-top: 0.6rem;
+  }
+  .toc a { color: var(--muted); text-decoration: none; font-size: 0.83rem; transition: color 0.2s; }
+  .toc a:hover { color: var(--accent5); }
+  .toc a.set-link:hover { color: var(--accent3); }
+
+  /* SECTION */
+  .section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 1.75rem;
+    overflow: hidden;
+  }
+  .section-header {
+    background: var(--surface);
+    padding: 0.9rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    color: var(--accent5);
+    background: rgba(201,168,247,0.1);
+    padding: 0.18rem 0.55rem;
+    border-radius: 4px;
+    min-width: 2.5rem;
+    text-align: center;
+  }
+  .section-num.set-num {
+    color: var(--accent3);
+    background: rgba(168,230,207,0.1);
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .section-body {
+    padding: 1.4rem 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .section-body.wide { grid-template-columns: 1fr; }
+  .section-body.trio { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 640px) {
+    .section-body, .section-body.trio { grid-template-columns: 1fr; }
+    header h1 { font-size: 2rem; }
+    header::after { display: none; }
+  }
+
+  .block-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 0.45rem;
+  }
+  .concept { font-size: 0.9rem; color: #c0bec8; }
+  .concept ul { padding-left: 1.1rem; }
+  .concept li { margin-bottom: 0.22rem; }
+  .concept p { margin-bottom: 0.4rem; }
+
+  code, .inline-code {
+    font-family: 'Source Code Pro', monospace;
+    background: rgba(201,168,247,0.1);
+    color: var(--accent5);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    font-size: 0.87em;
+  }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.8rem;
+    line-height: 1.65;
+    overflow-x: auto;
+    color: #c8f7c5;
+  }
+  pre .kw  { color: #cc99ff; }
+  pre .fn  { color: #7eb8f7; }
+  pre .str { color: #f7c59f; }
+  pre .cm  { color: #525268; font-style: italic; }
+  pre .num { color: #a8e6cf; }
+  pre .err { color: #e8415a; }
+
+  .mistake {
+    background: rgba(232,65,90,0.07);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 6px 6px 0;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.83rem;
+    color: #e8a0aa;
+    margin-top: 0.5rem;
+  }
+  .mistake strong { color: var(--accent2); }
+  .fix {
+    background: rgba(168,230,207,0.07);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 6px 6px 0;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.83rem;
+    color: #a0e8c8;
+    margin-top: 0.3rem;
+  }
+  .fix strong { color: var(--accent3); }
+  .warn {
+    background: rgba(247,197,159,0.07);
+    border-left: 3px solid var(--accent4);
+    border-radius: 0 6px 6px 0;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.83rem;
+    color: #f0d0b0;
+    margin-top: 0.5rem;
+  }
+  .warn strong { color: var(--accent4); }
+  .note {
+    background: rgba(201,168,247,0.07);
+    border-left: 3px solid var(--accent5);
+    border-radius: 0 6px 6px 0;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.83rem;
+    color: #d8c8f8;
+    margin-top: 0.5rem;
+  }
+  .note strong { color: var(--accent5); }
+
+  /* CHEAT SHEET */
+  .cheatsheet {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 2rem;
+  }
+  .cheatsheet h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: #fff;
+    margin-bottom: 1.5rem;
+  }
+  .cs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
+    gap: 0.65rem;
+  }
+  .cs-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+  }
+  .cs-item .cs-code {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.8rem;
+    color: var(--accent5);
+    margin-bottom: 0.22rem;
+  }
+  .cs-item .cs-code.set-code { color: var(--accent3); }
+  .cs-item .cs-desc { font-size: 0.78rem; color: var(--muted); }
+
+  .divider { width: 40px; height: 3px; background: var(--accent5); border-radius: 2px; margin: 2.5rem auto; opacity: 0.3; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="subject">📘 Python Programming · Lecture Notes</div>
+    <h1>Tuples &amp; Sets in Python</h1>
+    <div class="meta">Topics: Immutability · Packing &amp; Unpacking · Set Algebra · Hashability · Frozenset · Comprehensions</div>
+  </header>
+
+  <!-- OVERVIEW -->
+  <div class="overview">
+    <div class="overview-card">
+      <h3>Tuple at a Glance</h3>
+      <ul>
+        <li>Ordered — preserves insertion sequence</li>
+        <li>Immutable — elements cannot be changed</li>
+        <li>Allows duplicates</li>
+        <li>Supports indexing, slicing, loops</li>
+        <li>Can store mixed data types</li>
+      </ul>
+    </div>
+    <div class="overview-card">
+      <h3>Set at a Glance</h3>
+      <ul class="set-list">
+        <li>Unordered — no fixed positions</li>
+        <li>Mutable — elements can be added/removed</li>
+        <li>No duplicates — unique values only</li>
+        <li>No indexing or slicing</li>
+        <li>Elements must be hashable</li>
+      </ul>
+    </div>
+    <div class="overview-card">
+      <h3>When to Use Tuple</h3>
+      <ul>
+        <li>Data that should not change (coords, dates)</li>
+        <li>Returning multiple values from a function</li>
+        <li>Dictionary keys (compound key)</li>
+        <li>Grouping fixed records: (name, roll, dept)</li>
+      </ul>
+    </div>
+    <div class="overview-card">
+      <h3 class="set-head">When to Use Set</h3>
+      <ul class="set-list">
+        <li>Remove duplicates from a collection</li>
+        <li>Fast membership checking</li>
+        <li>Union, intersection, difference of groups</li>
+        <li>Distinct value counting</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- COMPARISON TABLE -->
+  <div class="comp-table">
+    <h2>String · List · Tuple · Set — Side by Side</h2>
+    <table>
+      <tr>
+        <th>Type</th><th>Ordered</th><th>Mutable</th><th>Duplicates</th><th>Indexing</th><th>Syntax</th>
+      </tr>
+      <tr>
+        <td>String</td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><span class="badge no">No</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><code>"hello"</code></td>
+      </tr>
+      <tr>
+        <td>List</td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><code>[1, 2, 3]</code></td>
+      </tr>
+      <tr class="highlight-t">
+        <td><strong>Tuple</strong></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><span class="badge no">No</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><code>(1, 2, 3)</code></td>
+      </tr>
+      <tr class="highlight-s">
+        <td><strong>Set</strong></td>
+        <td><span class="badge no">No</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><span class="badge no">No</span></td>
+        <td><span class="badge no">No</span></td>
+        <td><code>{1, 2, 3}</code></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>Part A — Tuples</h2>
+    <div class="toc-grid">
+      <a href="#t1">1. Creating Tuples</a>
+      <a href="#t2">2. Empty &amp; Singleton Tuple</a>
+      <a href="#t3">3. Tuple Packing</a>
+      <a href="#t4">4. Indexing &amp; Negative Index</a>
+      <a href="#t5">5. Length &amp; IndexError</a>
+      <a href="#t6">6. Slicing</a>
+      <a href="#t7">7. Slicing with Step</a>
+      <a href="#t8">8. Nested Tuples</a>
+      <a href="#t9">9. Traversal</a>
+      <a href="#t10">10. Membership Testing</a>
+      <a href="#t11">11. Concatenation &amp; Repetition</a>
+      <a href="#t12">12. Built-in Functions</a>
+      <a href="#t13">13. count() &amp; index()</a>
+      <a href="#t14">14. Immutability</a>
+      <a href="#t15">15. Mutation vs Reassignment</a>
+      <a href="#t16">16. Mutable Object Inside Tuple</a>
+      <a href="#t17">17. Tuple Unpacking</a>
+      <a href="#t18">18. Swap via Unpacking</a>
+      <a href="#t19">19. Returning Multiple Values</a>
+      <a href="#t20">20. *args and Tuple</a>
+      <a href="#t21">21. tuple() Constructor</a>
+      <a href="#t22">22. Tuple ↔ List Conversion</a>
+      <a href="#t23">23. Tuple as Dictionary Key</a>
+    </div>
+    <h2 class="set-toc">Part B — Sets</h2>
+    <div class="toc-grid">
+      <a href="#s1" class="set-link">24. Creating Sets</a>
+      <a href="#s2" class="set-link">25. Empty Set &amp; Duplicates</a>
+      <a href="#s3" class="set-link">26. Unordered — No Indexing</a>
+      <a href="#s4" class="set-link">27. Membership &amp; Traversal</a>
+      <a href="#s5" class="set-link">28. Hashability Rule</a>
+      <a href="#s6" class="set-link">29. add() vs update()</a>
+      <a href="#s7" class="set-link">30. remove() vs discard()</a>
+      <a href="#s8" class="set-link">31. pop() and clear()</a>
+      <a href="#s9" class="set-link">32. Aliasing &amp; copy()</a>
+      <a href="#s10" class="set-link">33. Union &amp; Intersection</a>
+      <a href="#s11" class="set-link">34. Difference &amp; Sym. Difference</a>
+      <a href="#s12" class="set-link">35. Subset, Superset, Equality</a>
+      <a href="#s13" class="set-link">36. Removing Duplicates from List</a>
+      <a href="#s14" class="set-link">37. Frozenset</a>
+      <a href="#s15" class="set-link">38. Set Comprehension</a>
+      <a href="#s16" class="set-link">39. Subtle Equality Behaviour</a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ PART A: TUPLES ═══════════════════════ -->
+  <div class="chapter-divider">
+    <span class="chapter-label">Part A</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag tuple">Tuples</span>
+  </div>
+
+  <!-- T1 -->
+  <div class="section" id="t1">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Creating Tuples — Basic Syntax</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Standard form uses <code>()</code> with comma-separated values.</li>
+            <li>Can hold integers, strings, floats, booleans, mixed types, even other tuples or lists.</li>
+            <li>Homogeneous — all same type.</li>
+            <li>Heterogeneous — mixed types.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>t1 = (<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>)
+t2 = (<span class="str">"red"</span>, <span class="str">"green"</span>, <span class="str">"blue"</span>)
+t3 = (<span class="num">10</span>, <span class="str">"python"</span>, <span class="num">3.5</span>, <span class="kw">True</span>)
+<span class="fn">print</span>(t1)   <span class="cm"># (10, 20, 30)</span>
+<span class="fn">print</span>(t2)   <span class="cm"># ('red', 'green', 'blue')</span>
+<span class="fn">print</span>(t3)   <span class="cm"># (10, 'python', 3.5, True)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T2 -->
+  <div class="section" id="t2">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Empty Tuple &amp; Singleton Tuple</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Critical Syntax Rule</div>
+        <div class="concept">
+          <ul>
+            <li><code>()</code> → empty tuple</li>
+            <li><code>(5,)</code> → one-element tuple (trailing comma required)</li>
+            <li><code>(5)</code> → just an integer in parentheses — NOT a tuple!</li>
+          </ul>
+        </div>
+        <div class="mistake"><strong>✗ Mistake:</strong> <code>b = (5)</code> — looks like a tuple but is an int.</div>
+        <div class="fix"><strong>✓ Fix:</strong> <code>b = (5,)</code> — trailing comma makes it a tuple.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>a = ()
+b = (<span class="num">5</span>,)
+c = (<span class="num">5</span>)
+<span class="fn">print</span>(<span class="fn">type</span>(a))  <span class="cm"># &lt;class 'tuple'&gt;</span>
+<span class="fn">print</span>(<span class="fn">type</span>(b))  <span class="cm"># &lt;class 'tuple'&gt;</span>
+<span class="fn">print</span>(<span class="fn">type</span>(c))  <span class="cm"># &lt;class 'int'&gt;</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T3 -->
+  <div class="section" id="t3">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">Tuple Packing</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Comma is the essential ingredient of a tuple — not parentheses.</li>
+            <li>Python auto-creates a tuple when values are separated by commas, even without <code>()</code>.</li>
+            <li>Parentheses improve readability and are strongly recommended.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>t = <span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>
+<span class="fn">print</span>(t)         <span class="cm"># (10, 20, 30)</span>
+<span class="fn">print</span>(<span class="fn">type</span>(t))   <span class="cm"># &lt;class 'tuple'&gt;</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T4 -->
+  <div class="section" id="t4">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Indexing &amp; Negative Indexing</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Indexing starts at <code>0</code> — same as list and string.</li>
+            <li>Negative index: <code>-1</code> → last, <code>-2</code> → second last, etc.</li>
+            <li>Useful when the end of the tuple is more relevant.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>colors = (<span class="str">"red"</span>, <span class="str">"green"</span>, <span class="str">"blue"</span>, <span class="str">"yellow"</span>)
+<span class="fn">print</span>(colors[<span class="num">0</span>])   <span class="cm"># red</span>
+<span class="fn">print</span>(colors[<span class="num">3</span>])   <span class="cm"># yellow</span>
+
+vals = (<span class="num">100</span>, <span class="num">200</span>, <span class="num">300</span>, <span class="num">400</span>)
+<span class="fn">print</span>(vals[<span class="num">-1</span>])   <span class="cm"># 400</span>
+<span class="fn">print</span>(vals[<span class="num">-2</span>])   <span class="cm"># 300</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T5 -->
+  <div class="section" id="t5">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Length &amp; IndexError</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>len(t)</code> returns total number of elements.</li>
+            <li>Valid positive indices: <code>0</code> to <code>len(t) - 1</code>.</li>
+            <li>Accessing beyond the valid range raises <code>IndexError</code>.</li>
+          </ul>
+        </div>
+        <div class="warn"><strong>⚠ Caution:</strong> Even though tuple is immutable, index errors still occur on out-of-range access.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>seq = (<span class="num">2</span>, <span class="str">"a"</span>, <span class="num">4</span>, (<span class="num">1</span>, <span class="num">2</span>))
+<span class="fn">print</span>(<span class="fn">len</span>(seq))   <span class="cm"># 4  → valid indices: 0,1,2,3</span>
+
+empty_t = ()
+<span class="fn">print</span>(<span class="fn">len</span>(empty_t))   <span class="cm"># 0</span>
+
+<span class="cm"># print(seq[4])  → IndexError!</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T6 -->
+  <div class="section" id="t6">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Slicing</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Syntax: <code>t[start:stop]</code> — start included, stop excluded.</li>
+            <li>Omitting start defaults to <code>0</code>; omitting stop defaults to end.</li>
+            <li>Slicing produces a <strong>new tuple</strong> — original is unchanged.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>t = (<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>, <span class="num">50</span>, <span class="num">60</span>)
+<span class="fn">print</span>(t[<span class="num">1</span>:<span class="num">4</span>])  <span class="cm"># (20, 30, 40)</span>
+<span class="fn">print</span>(t[:<span class="num">3</span>])   <span class="cm"># (10, 20, 30)</span>
+<span class="fn">print</span>(t[<span class="num">3</span>:])   <span class="cm"># (40, 50, 60)</span>
+<span class="fn">print</span>(t[:])    <span class="cm"># (10, 20, 30, 40, 50, 60)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T7 -->
+  <div class="section" id="t7">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">Slicing with Step</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Syntax: <code>t[start:stop:step]</code></li>
+            <li><code>t[::2]</code> → every other element (even-index)</li>
+            <li><code>t[1::2]</code> → odd-index elements</li>
+            <li><code>t[::-1]</code> → reversed copy of the tuple</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>t = (<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>, <span class="num">50</span>, <span class="num">60</span>, <span class="num">70</span>, <span class="num">80</span>)
+<span class="fn">print</span>(t[::<span class="num">2</span>])    <span class="cm"># (10, 30, 50, 70)</span>
+<span class="fn">print</span>(t[<span class="num">1</span>::<span class="num">2</span>])   <span class="cm"># (20, 40, 60, 80)</span>
+<span class="fn">print</span>(t[::<span class="num">-1</span>])   <span class="cm"># (80, 70, 60, 50, 40, 30, 20, 10)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T8 -->
+  <div class="section" id="t8">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">Nested Tuples</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>A tuple element can itself be another tuple.</li>
+            <li>Nested indexing: first pick outer element, then index into inner tuple.</li>
+            <li>Slicing works on the outer tuple; the inner tuple is treated as a single element.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>seq = (<span class="num">2</span>, <span class="str">"a"</span>, <span class="num">4</span>, (<span class="num">1</span>, <span class="num">2</span>))
+<span class="fn">print</span>(seq[<span class="num">3</span>])       <span class="cm"># (1, 2)</span>
+<span class="fn">print</span>(seq[<span class="num">3</span>][<span class="num">0</span>])    <span class="cm"># 1</span>
+<span class="fn">print</span>(seq[<span class="num">1</span>:<span class="num">4</span>:<span class="num">2</span>])   <span class="cm"># ('a', (1, 2))</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T9 -->
+  <div class="section" id="t9">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <span class="section-title">Traversal</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>A tuple is iterable, so <code>for item in t</code> works naturally.</li>
+            <li>Each element is visited in order.</li>
+            <li>Traversal is for reading/processing — the tuple itself cannot be modified.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>t = (<span class="num">2</span>, <span class="str">"a"</span>, <span class="num">4</span>, (<span class="num">1</span>, <span class="num">2</span>))
+<span class="kw">for</span> item <span class="kw">in</span> t:
+    <span class="fn">print</span>(item)
+<span class="cm"># 2</span>
+<span class="cm"># a</span>
+<span class="cm"># 4</span>
+<span class="cm"># (1, 2)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T10 -->
+  <div class="section" id="t10">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <span class="section-title">Membership Testing</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>x in t</code> → <code>True</code> if x is an element.</li>
+            <li><code>x not in t</code> → <code>True</code> if x is absent.</li>
+            <li>Works exactly like string and list membership testing.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>t = (<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>)
+<span class="fn">print</span>(<span class="num">20</span> <span class="kw">in</span> t)       <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="num">25</span> <span class="kw">in</span> t)       <span class="cm"># False</span>
+<span class="fn">print</span>(<span class="num">50</span> <span class="kw">not in</span> t)   <span class="cm"># True</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T11 -->
+  <div class="section" id="t11">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <span class="section-title">Concatenation &amp; Repetition</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>+</code> concatenates two tuples into a new tuple.</li>
+            <li><code>*</code> repeats a tuple n times into a new tuple.</li>
+            <li>Neither operation modifies the original tuple — new objects are created.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>a = (<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>)
+b = (<span class="num">4</span>, <span class="num">5</span>)
+<span class="fn">print</span>(a + b)   <span class="cm"># (1, 2, 3, 4, 5)</span>
+<span class="fn">print</span>(a * <span class="num">3</span>)   <span class="cm"># (1, 2, 3, 1, 2, 3, 1, 2, 3)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T12 -->
+  <div class="section" id="t12">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <span class="section-title">Built-in Functions on Tuples</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>len(t)</code> — number of elements</li>
+            <li><code>max(t)</code> — largest element</li>
+            <li><code>min(t)</code> — smallest element</li>
+            <li><code>sum(t)</code> — total (numeric tuples only)</li>
+          </ul>
+        </div>
+        <div class="warn"><strong>⚠ Note:</strong> <code>max()</code>, <code>min()</code>, <code>sum()</code> require compatible element types.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>nums = (<span class="num">3</span>, <span class="num">5</span>, <span class="num">0</span>, <span class="num">8</span>)
+<span class="fn">print</span>(<span class="fn">len</span>(nums))   <span class="cm"># 4</span>
+<span class="fn">print</span>(<span class="fn">max</span>(nums))   <span class="cm"># 8</span>
+<span class="fn">print</span>(<span class="fn">min</span>(nums))   <span class="cm"># 0</span>
+<span class="fn">print</span>(<span class="fn">sum</span>(nums))   <span class="cm"># 16</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T13 -->
+  <div class="section" id="t13">
+    <div class="section-header">
+      <span class="section-num">13</span>
+      <span class="section-title">Tuple Methods — count() and index()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Tuple has only two methods (no mutation methods needed).</li>
+            <li><code>count(x)</code> — number of times x appears.</li>
+            <li><code>index(x)</code> — position of first occurrence of x.</li>
+            <li><code>index(x)</code> raises <code>ValueError</code> if x is not found.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>t = (<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">20</span>, <span class="num">40</span>, <span class="num">20</span>)
+<span class="fn">print</span>(t.<span class="fn">count</span>(<span class="num">20</span>))   <span class="cm"># 3</span>
+<span class="fn">print</span>(t.<span class="fn">index</span>(<span class="num">20</span>))   <span class="cm"># 1  (first position)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T14 -->
+  <div class="section" id="t14">
+    <div class="section-header">
+      <span class="section-num">14</span>
+      <span class="section-title">Immutability — Most Important Property</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Once created, tuple elements cannot be reassigned.</li>
+            <li>Attempting <code>t[i] = x</code> raises a <code>TypeError</code>.</li>
+            <li>Tuple allows reading and grouping, but not replacement.</li>
+          </ul>
+        </div>
+        <div class="mistake"><strong>✗ Mistake:</strong> <code>t[1] = 4</code> → TypeError: 'tuple' does not support item assignment.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>t = (<span class="num">2</span>, <span class="str">"mit"</span>, <span class="num">3</span>)
+<span class="fn">print</span>(t[<span class="num">0</span>])   <span class="cm"># 2  — reading is fine</span>
+
+<span class="cm"># t[1] = 4   → TypeError!</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T15 -->
+  <div class="section" id="t15">
+    <div class="section-header">
+      <span class="section-num">15</span>
+      <span class="section-title">Mutation vs Reassignment</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Key Distinction</div>
+        <div class="concept">
+          <ul>
+            <li>A tuple object cannot be mutated (changed in place).</li>
+            <li>But a variable can be reassigned to point to a completely new tuple — this is NOT mutation.</li>
+            <li>The original tuple object is discarded; a new one is created.</li>
+          </ul>
+        </div>
+        <div class="note"><strong>📌 Note:</strong> Reassigning <code>t</code> changes what object the variable refers to — the old tuple is untouched.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>t = (<span class="num">2</span>, <span class="num">4</span>, <span class="num">3</span>)
+<span class="fn">print</span>(t)   <span class="cm"># (2, 4, 3)</span>
+
+t = (<span class="num">2</span>, <span class="num">5</span>, <span class="num">3</span>)   <span class="cm"># variable now refers to new tuple</span>
+<span class="fn">print</span>(t)   <span class="cm"># (2, 5, 3)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T16 -->
+  <div class="section" id="t16">
+    <div class="section-header">
+      <span class="section-num">16</span>
+      <span class="section-title">Mutable Object Inside a Tuple</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Subtle but Critical Point</div>
+        <div class="concept">
+          <ul>
+            <li>Tuple immutability applies to its own element <em>positions</em>.</li>
+            <li>If a mutable object (like a list) is stored inside the tuple, that inner object can still change.</li>
+            <li>The tuple structure stays the same; the list contents change.</li>
+          </ul>
+        </div>
+        <div class="warn"><strong>⚠ Warning:</strong> Tuple immutability does NOT make nested mutable objects immutable.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>t = (<span class="num">10</span>, [<span class="num">20</span>, <span class="num">30</span>], <span class="num">40</span>)
+<span class="fn">print</span>(t)            <span class="cm"># (10, [20, 30], 40)</span>
+
+t[<span class="num">1</span>].<span class="fn">append</span>(<span class="num">50</span>)    <span class="cm"># list inside changes!</span>
+<span class="fn">print</span>(t)            <span class="cm"># (10, [20, 30, 50], 40)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T17 -->
+  <div class="section" id="t17">
+    <div class="section-header">
+      <span class="section-num">17</span>
+      <span class="section-title">Tuple Packing &amp; Unpacking</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><strong>Packing</strong> — grouping multiple values into one tuple.</li>
+            <li><strong>Unpacking</strong> — distributing tuple elements into separate variables.</li>
+            <li>Number of variables must exactly match the number of elements.</li>
+          </ul>
+        </div>
+        <div class="mistake"><strong>✗ Mistake:</strong> <code>a, b = (10, 20, 30)</code> → ValueError: too many values.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>t = (<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>)  <span class="cm"># packing</span>
+
+a, b, c = t         <span class="cm"># unpacking</span>
+<span class="fn">print</span>(a)   <span class="cm"># 10</span>
+<span class="fn">print</span>(b)   <span class="cm"># 20</span>
+<span class="fn">print</span>(c)   <span class="cm"># 30</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T18 -->
+  <div class="section" id="t18">
+    <div class="section-header">
+      <span class="section-num">18</span>
+      <span class="section-title">Swapping Variables via Tuple Unpacking</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Python uses tuple packing and unpacking to swap two variables in one line.</li>
+            <li>No temporary variable is needed.</li>
+            <li>One of the most famous practical uses of tuple unpacking.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>x = <span class="num">1</span>
+y = <span class="num">2</span>
+
+x, y = y, x   <span class="cm"># right side packs into tuple, then unpacks</span>
+
+<span class="fn">print</span>(x)   <span class="cm"># 2</span>
+<span class="fn">print</span>(y)   <span class="cm"># 1</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T19 -->
+  <div class="section" id="t19">
+    <div class="section-header">
+      <span class="section-num">19</span>
+      <span class="section-title">Returning Multiple Values from a Function</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>A function can formally return only one object.</li>
+            <li>Returning a tuple allows multiple results to be grouped into that one object.</li>
+            <li>Caller can unpack directly into separate variables — very clean pattern.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre><span class="kw">def</span> <span class="fn">quotient_and_remainder</span>(x, y):
+    q = x // y
+    r = x % y
+    <span class="kw">return</span> (q, r)
+
+result = <span class="fn">quotient_and_remainder</span>(<span class="num">10</span>, <span class="num">3</span>)
+<span class="fn">print</span>(result)          <span class="cm"># (3, 1)</span>
+
+quot, rem = <span class="fn">quotient_and_remainder</span>(<span class="num">5</span>, <span class="num">2</span>)
+<span class="fn">print</span>(quot, rem)        <span class="cm"># 2 1</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T20 -->
+  <div class="section" id="t20">
+    <div class="section-header">
+      <span class="section-num">20</span>
+      <span class="section-title">*args and Tuple</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>When <code>*args</code> is used in a function definition, Python collects all extra positional arguments into a tuple.</li>
+            <li>Inside the function, <code>args</code> behaves as a tuple.</li>
+            <li>This is a standard and very important tuple application.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre><span class="kw">def</span> <span class="fn">mean</span>(*args):
+    total = <span class="num">0</span>
+    <span class="kw">for</span> x <span class="kw">in</span> args:
+        total += x
+    <span class="kw">return</span> total / <span class="fn">len</span>(args)
+
+<span class="fn">print</span>(<span class="fn">mean</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>))   <span class="cm"># 3.5</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T21 -->
+  <div class="section" id="t21">
+    <div class="section-header">
+      <span class="section-num">21</span>
+      <span class="section-title">tuple() Constructor</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>tuple(iterable)</code> converts any iterable into a tuple.</li>
+            <li>Works with lists, strings, ranges, sets, etc.</li>
+            <li>Useful when generated data must be stored in fixed sequence form.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>a = <span class="fn">tuple</span>([<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>])
+b = <span class="fn">tuple</span>(<span class="str">"python"</span>)
+c = <span class="fn">tuple</span>(<span class="fn">range</span>(<span class="num">5</span>))
+
+<span class="fn">print</span>(a)   <span class="cm"># (10, 20, 30)</span>
+<span class="fn">print</span>(b)   <span class="cm"># ('p', 'y', 't', 'h', 'o', 'n')</span>
+<span class="fn">print</span>(c)   <span class="cm"># (0, 1, 2, 3, 4)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T22 -->
+  <div class="section" id="t22">
+    <div class="section-header">
+      <span class="section-num">22</span>
+      <span class="section-title">Tuple ↔ List Conversion</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>list(t)</code> → converts tuple to a mutable list.</li>
+            <li><code>tuple(L)</code> → converts list to an immutable tuple.</li>
+            <li>Useful when data is initially fixed but later needs modification.</li>
+            <li>The original tuple is always unchanged after <code>list()</code>.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>t = (<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>)
+L = <span class="fn">list</span>(t)
+L[<span class="num">1</span>] = <span class="num">99</span>
+
+<span class="fn">print</span>(t)   <span class="cm"># (10, 20, 30)  — tuple unchanged</span>
+<span class="fn">print</span>(L)   <span class="cm"># [10, 99, 30]  — list modified</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- T23 -->
+  <div class="section" id="t23">
+    <div class="section-header">
+      <span class="section-num">23</span>
+      <span class="section-title">Tuple as a Dictionary Key</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Because tuple is immutable, it can be used as a dictionary key.</li>
+            <li>Only valid when all elements are hashable.</li>
+            <li>A tuple containing a list <strong>cannot</strong> be a dict key.</li>
+            <li>Excellent for compound (multi-field) keys.</li>
+          </ul>
+        </div>
+        <div class="mistake"><strong>✗ Invalid:</strong> <code>{(1, [2,3]): "x"}</code> → TypeError (list is unhashable).</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>points = {
+    (<span class="num">0</span>, <span class="num">0</span>): <span class="str">"origin"</span>,
+    (<span class="num">1</span>, <span class="num">2</span>): <span class="str">"A"</span>,
+    (<span class="num">3</span>, <span class="num">4</span>): <span class="str">"B"</span>
+}
+<span class="fn">print</span>(points[(<span class="num">1</span>, <span class="num">2</span>)])   <span class="cm"># A</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════ PART B: SETS ═══════════════════════ -->
+  <div class="chapter-divider">
+    <span class="chapter-label">Part B</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag set">Sets</span>
+  </div>
+
+  <!-- S1 -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <span class="section-num set-num">24</span>
+      <span class="section-title">Creating Sets — Two Ways</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><strong>Curly braces literal:</strong> <code>{val, val, ...}</code></li>
+            <li><strong>set() constructor:</strong> converts any iterable — list, string, tuple, range.</li>
+            <li>Duplicate values are automatically removed.</li>
+            <li>Strings become sets of unique characters.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>A = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>}
+B = {<span class="str">"red"</span>, <span class="str">"green"</span>, <span class="str">"blue"</span>}
+C = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">2</span>, <span class="num">1</span>}   <span class="cm"># dupes removed</span>
+
+D = <span class="fn">set</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">2</span>, <span class="num">1</span>])
+E = <span class="fn">set</span>(<span class="str">"hello"</span>)
+F = <span class="fn">set</span>((<span class="num">10</span>, <span class="num">20</span>, <span class="num">10</span>, <span class="num">30</span>))
+<span class="fn">print</span>(E)   <span class="cm"># {'h', 'e', 'l', 'o'}  (order varies)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- S2 -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <span class="section-num set-num">25</span>
+      <span class="section-title">Empty Set &amp; Duplicate Removal</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Critical Syntax Rule</div>
+        <div class="concept">
+          <ul>
+            <li><code>{}</code> creates an empty <strong>dictionary</strong>, NOT a set.</li>
+            <li><code>set()</code> creates an empty set.</li>
+            <li>Duplicate values are silently discarded on creation.</li>
+          </ul>
+        </div>
+        <div class="mistake"><strong>✗ Mistake:</strong> <code>a = {}</code> — this is a dict, not a set!</div>
+        <div class="fix"><strong>✓ Fix:</strong> <code>a = set()</code> for an empty set.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>a = {}
+b = <span class="fn">set</span>()
+<span class="fn">print</span>(<span class="fn">type</span>(a))   <span class="cm"># &lt;class 'dict'&gt;</span>
+<span class="fn">print</span>(<span class="fn">type</span>(b))   <span class="cm"># &lt;class 'set'&gt;</span>
+
+nums = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">1</span>, <span class="num">4</span>, <span class="num">4</span>}
+<span class="fn">print</span>(nums)         <span class="cm"># {1, 2, 3, 4}</span>
+<span class="fn">print</span>(<span class="fn">len</span>(nums))    <span class="cm"># 4</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3 -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <span class="section-num set-num">26</span>
+      <span class="section-title">Unordered — No Indexing</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>A set is not a sequence — elements have no fixed positions.</li>
+            <li>Indexing (<code>S[0]</code>) and slicing are <strong>not supported</strong>.</li>
+            <li>Set answers "Is this value present?" not "What is at position 0?"</li>
+          </ul>
+        </div>
+        <div class="mistake"><strong>✗ Mistake:</strong> <code>S[0]</code> → TypeError: 'set' object is not subscriptable.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>S = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>}
+
+<span class="cm"># print(S[0])  → TypeError!</span>
+
+<span class="cm"># Display order may vary each run:</span>
+<span class="fn">print</span>(S)   <span class="cm"># e.g. {10, 20, 30}</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- S4 -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <span class="section-num set-num">27</span>
+      <span class="section-title">Membership Testing &amp; Traversal</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>x in S</code> and <code>x not in S</code> work naturally and are very fast.</li>
+            <li>Set is extremely efficient for membership checking.</li>
+            <li>Traversal with <code>for item in S</code> works, but order is not guaranteed.</li>
+          </ul>
+        </div>
+        <div class="warn"><strong>⚠ Note:</strong> Never write logic that depends on a particular iteration order of a set.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>S = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>}
+<span class="fn">print</span>(<span class="num">20</span> <span class="kw">in</span> S)       <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="num">25</span> <span class="kw">in</span> S)       <span class="cm"># False</span>
+<span class="fn">print</span>(<span class="num">50</span> <span class="kw">not in</span> S)   <span class="cm"># True</span>
+
+colors = {<span class="str">"red"</span>, <span class="str">"green"</span>, <span class="str">"blue"</span>}
+<span class="kw">for</span> item <span class="kw">in</span> colors:
+    <span class="fn">print</span>(item)   <span class="cm"># order not fixed</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- S5 -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <span class="section-num set-num">28</span>
+      <span class="section-title">Hashability Rule — Valid Set Elements</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Set elements must be <strong>hashable</strong>.</li>
+            <li>Beginner shortcut: most immutable values can be set elements.</li>
+            <li><strong>Valid:</strong> int, float, str, bool, tuple (all hashable elements), frozenset.</li>
+            <li><strong>Invalid:</strong> list, set, dict, tuple containing unhashable elements.</li>
+          </ul>
+        </div>
+        <div class="mistake"><strong>✗ Invalid:</strong> <code>{[1,2], [3,4]}</code> → TypeError: unhashable type: 'list'.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>A = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+B = {<span class="str">"a"</span>, <span class="str">"b"</span>, <span class="str">"c"</span>}
+C = {(<span class="num">1</span>, <span class="num">2</span>), (<span class="num">3</span>, <span class="num">4</span>)}   <span class="cm"># tuples are ok</span>
+<span class="fn">print</span>(A, B, C)
+
+<span class="cm"># D = {[1,2], [3,4]}      → TypeError</span>
+<span class="cm"># E = {{1,2}, {3,4}}      → TypeError</span>
+<span class="cm"># F = {(1, [2,3])}        → TypeError</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- S6 -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <span class="section-num set-num">29</span>
+      <span class="section-title">add() vs update()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>add(x)</code> — inserts exactly one complete object into the set.</li>
+            <li><code>update(iterable)</code> — extracts elements from an iterable and inserts them one by one.</li>
+            <li>Key difference: <code>add((3,4))</code> inserts the tuple; <code>update((3,4))</code> inserts <code>3</code> and <code>4</code> separately.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>A = {<span class="num">1</span>, <span class="num">2</span>}
+B = {<span class="num">1</span>, <span class="num">2</span>}
+
+A.<span class="fn">add</span>((<span class="num">3</span>, <span class="num">4</span>))     <span class="cm"># tuple added as one object</span>
+B.<span class="fn">update</span>((<span class="num">3</span>, <span class="num">4</span>)) <span class="cm"># 3 and 4 added separately</span>
+
+<span class="fn">print</span>(A)   <span class="cm"># {1, 2, (3, 4)}</span>
+<span class="fn">print</span>(B)   <span class="cm"># {1, 2, 3, 4}</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- S7 -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <span class="section-num set-num">30</span>
+      <span class="section-title">remove() vs discard()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>remove(x)</code> — deletes x; raises <code>KeyError</code> if absent.</li>
+            <li><code>discard(x)</code> — deletes x if present; does <strong>nothing</strong> if absent.</li>
+            <li>Use <code>remove()</code> when presence is certain; <code>discard()</code> when uncertain.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>S = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>}
+S.<span class="fn">remove</span>(<span class="num">20</span>)
+<span class="fn">print</span>(S)   <span class="cm"># {10, 30, 40}</span>
+
+S.<span class="fn">discard</span>(<span class="num">99</span>)   <span class="cm"># 99 not there — no error</span>
+<span class="fn">print</span>(S)   <span class="cm"># {10, 30, 40}</span>
+
+<span class="cm"># S.remove(99)  → KeyError!</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- S8 -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <span class="section-num set-num">31</span>
+      <span class="section-title">pop() and clear()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>pop()</code> — removes and returns an <strong>arbitrary</strong> element (not the "last").</li>
+            <li><code>clear()</code> — removes all elements; the same set object becomes empty.</li>
+            <li>Because set is unordered, "last" has no meaning — never assume which element <code>pop()</code> removes.</li>
+          </ul>
+        </div>
+        <div class="warn"><strong>⚠ Note:</strong> Do not describe set <code>pop()</code> as removing the last element — that is only true for list.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>S = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>}
+x = S.<span class="fn">pop</span>()     <span class="cm"># removes arbitrary element</span>
+<span class="fn">print</span>(x)
+<span class="fn">print</span>(S)
+
+T = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+T.<span class="fn">clear</span>()
+<span class="fn">print</span>(T)   <span class="cm"># set()</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- S9 -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <span class="section-num set-num">32</span>
+      <span class="section-title">Aliasing vs copy()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>B = A</code> — aliasing; both names refer to the same set object.</li>
+            <li><code>B = A.copy()</code> — creates an independent shallow copy.</li>
+            <li>Sets, like lists, are mutable, so aliasing must be understood carefully.</li>
+          </ul>
+        </div>
+        <div class="mistake"><strong>✗ Alias trap:</strong> modifying <code>B</code> after <code>B = A</code> also modifies <code>A</code>.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>A = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+B = A          <span class="cm"># alias</span>
+B.<span class="fn">add</span>(<span class="num">4</span>)
+<span class="fn">print</span>(A)   <span class="cm"># {1, 2, 3, 4}  — A changed too!</span>
+
+A = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+B = A.<span class="fn">copy</span>()   <span class="cm"># real copy</span>
+B.<span class="fn">add</span>(<span class="num">4</span>)
+<span class="fn">print</span>(A)   <span class="cm"># {1, 2, 3}  — A unchanged</span>
+<span class="fn">print</span>(B)   <span class="cm"># {1, 2, 3, 4}</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- S10 -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <span class="section-num set-num">33</span>
+      <span class="section-title">Union &amp; Intersection</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><strong>Union</strong> (<code>|</code> or <code>union()</code>): all distinct elements from both sets.</li>
+            <li><strong>Intersection</strong> (<code>&amp;</code> or <code>intersection()</code>): only elements common to both.</li>
+            <li>Both return new set objects; original sets are unchanged.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>A = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>}
+B = {<span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>}
+
+<span class="fn">print</span>(A | B)               <span class="cm"># {1,2,3,4,5,6}</span>
+<span class="fn">print</span>(A.<span class="fn">union</span>(B))          <span class="cm"># {1,2,3,4,5,6}</span>
+
+<span class="fn">print</span>(A &amp; B)               <span class="cm"># {3, 4}</span>
+<span class="fn">print</span>(A.<span class="fn">intersection</span>(B))   <span class="cm"># {3, 4}</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- S11 -->
+  <div class="section" id="s11">
+    <div class="section-header">
+      <span class="section-num set-num">34</span>
+      <span class="section-title">Difference &amp; Symmetric Difference</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><strong>Difference</strong> (<code>-</code> or <code>difference()</code>): elements in A but not in B. Directional!</li>
+            <li><strong>Symmetric Difference</strong> (<code>^</code> or <code>symmetric_difference()</code>): elements in exactly one of the two sets (excludes common overlap).</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>A = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>}
+B = {<span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>}
+
+<span class="fn">print</span>(A - B)                      <span class="cm"># {1, 2}</span>
+<span class="fn">print</span>(A.<span class="fn">difference</span>(B))             <span class="cm"># {1, 2}</span>
+<span class="fn">print</span>(B - A)                      <span class="cm"># {5, 6}  (directional!)</span>
+
+<span class="fn">print</span>(A ^ B)                      <span class="cm"># {1, 2, 5, 6}</span>
+<span class="fn">print</span>(A.<span class="fn">symmetric_difference</span>(B))  <span class="cm"># {1, 2, 5, 6}</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- S12 -->
+  <div class="section" id="s12">
+    <div class="section-header">
+      <span class="section-num set-num">35</span>
+      <span class="section-title">Subset, Superset &amp; Equality</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>A == B</code> → same elements (order doesn't matter).</li>
+            <li><code>A &lt;= B</code> → A is a subset of B (proper or equal).</li>
+            <li><code>A &lt; B</code> → A is a <strong>proper</strong> subset (A ⊂ B, A ≠ B).</li>
+            <li><code>B &gt;= A</code> → B is a superset of A.</li>
+            <li><code>&lt;</code> and <code>&gt;</code> for sets mean subset/superset — not numeric comparison.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>A = {<span class="num">1</span>, <span class="num">2</span>}
+B = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>}
+C = {<span class="num">2</span>, <span class="num">1</span>}
+
+<span class="fn">print</span>(A == C)   <span class="cm"># True  (order irrelevant)</span>
+<span class="fn">print</span>(A &lt;= B)   <span class="cm"># True  (subset)</span>
+<span class="fn">print</span>(A &lt; B)    <span class="cm"># True  (proper subset)</span>
+<span class="fn">print</span>(B &gt;= A)   <span class="cm"># True  (superset)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- S13 -->
+  <div class="section" id="s13">
+    <div class="section-header">
+      <span class="section-num set-num">36</span>
+      <span class="section-title">Removing Duplicates from a List</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Common Practical Pattern</div>
+        <div class="concept">
+          <ul>
+            <li>Convert list → set (duplicates removed).</li>
+            <li>Convert set → list to get a list of unique values.</li>
+            <li>Original order is <strong>not preserved</strong> after this round-trip.</li>
+          </ul>
+        </div>
+        <div class="warn"><strong>⚠ Note:</strong> If order matters, use a different approach (e.g., dict.fromkeys). Set is for uniqueness, not order.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>L = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">10</span>, <span class="num">30</span>, <span class="num">20</span>, <span class="num">40</span>, <span class="num">30</span>]
+S = <span class="fn">set</span>(L)
+unique_list = <span class="fn">list</span>(S)
+
+<span class="fn">print</span>(<span class="str">"Original:"</span>, L)
+<span class="fn">print</span>(<span class="str">"Set:"</span>, S)
+<span class="fn">print</span>(<span class="str">"Unique list:"</span>, unique_list)
+<span class="cm"># order in unique_list may differ!</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- S14 -->
+  <div class="section" id="s14">
+    <div class="section-header">
+      <span class="section-num set-num">37</span>
+      <span class="section-title">Frozenset — Immutable Set Type</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>set</code> — mutable; supports <code>add()</code>, <code>remove()</code>, etc.</li>
+            <li><code>frozenset</code> — immutable; cannot be modified after creation.</li>
+            <li>Because it is immutable and hashable, a frozenset <strong>can</strong> be an element of another set or a dictionary key.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>A = <span class="fn">frozenset</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">2</span>, <span class="num">1</span>])
+<span class="fn">print</span>(A)          <span class="cm"># frozenset({1, 2, 3})</span>
+<span class="fn">print</span>(<span class="fn">type</span>(A))    <span class="cm"># &lt;class 'frozenset'&gt;</span>
+
+<span class="cm"># frozenset as dict key</span>
+d = {<span class="fn">frozenset</span>({<span class="num">1</span>,<span class="num">2</span>}): <span class="str">"pair"</span>}
+<span class="fn">print</span>(d)
+
+<span class="cm"># frozenset as element of a set</span>
+S = {<span class="fn">frozenset</span>({<span class="num">1</span>,<span class="num">2</span>}), <span class="fn">frozenset</span>({<span class="num">3</span>,<span class="num">4</span>})}
+<span class="fn">print</span>(S)</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- S15 -->
+  <div class="section" id="s15">
+    <div class="section-header">
+      <span class="section-num set-num">38</span>
+      <span class="section-title">Set Comprehension</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Syntax: <code>{expr for item in iterable}</code></li>
+            <li>With filter: <code>{expr for item in iterable if condition}</code></li>
+            <li>Uniqueness is automatic — duplicates generated by the expression are silently dropped.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>S = {x * x <span class="kw">for</span> x <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">6</span>)}
+<span class="fn">print</span>(S)   <span class="cm"># {1, 4, 9, 16, 25}</span>
+
+E = {x <span class="kw">for</span> x <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">11</span>) <span class="kw">if</span> x % <span class="num">2</span> == <span class="num">0</span>}
+<span class="fn">print</span>(E)   <span class="cm"># {2, 4, 6, 8, 10}</span>
+
+<span class="cm"># Duplicates dropped automatically:</span>
+D = {x % <span class="num">3</span> <span class="kw">for</span> x <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10</span>)}
+<span class="fn">print</span>(D)   <span class="cm"># {0, 1, 2}</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- S16 -->
+  <div class="section" id="s16">
+    <div class="section-header">
+      <span class="section-num set-num">39</span>
+      <span class="section-title">Subtle Equality Behaviour &amp; Operator vs Method</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Equality Subtlety</div>
+        <div class="concept">
+          <ul>
+            <li>Set uniqueness is based on equality, not appearance.</li>
+            <li><code>1</code>, <code>1.0</code>, and <code>True</code> compare equal in Python — a set will not store all three.</li>
+          </ul>
+        </div>
+        <pre>S = {<span class="num">1</span>, <span class="num">1.0</span>, <span class="kw">True</span>}
+<span class="fn">print</span>(S)   <span class="cm"># {1}  — only one entry kept</span></pre>
+      </div>
+      <div>
+        <div class="block-label">Operator vs Method Forms</div>
+        <div class="concept">
+          <ul>
+            <li><code>|</code> ↔ <code>union()</code></li>
+            <li><code>&amp;</code> ↔ <code>intersection()</code></li>
+            <li><code>-</code> ↔ <code>difference()</code></li>
+            <li><code>^</code> ↔ <code>symmetric_difference()</code></li>
+            <li>Operator form is shorter; method form is clearer for beginners.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHEAT SHEET — TUPLE -->
+  <div class="cheatsheet">
+    <h2>⚡ Tuple Quick-Reference Cheat Sheet</h2>
+    <div class="cs-grid">
+      <div class="cs-item"><div class="cs-code">(1, 2, 3)</div><div class="cs-desc">Standard tuple literal</div></div>
+      <div class="cs-item"><div class="cs-code">(5,)</div><div class="cs-desc">Singleton — trailing comma required</div></div>
+      <div class="cs-item"><div class="cs-code">a, b = 1, 2</div><div class="cs-desc">Tuple packing without parentheses</div></div>
+      <div class="cs-item"><div class="cs-code">t[i] / t[-1]</div><div class="cs-desc">Index / last element</div></div>
+      <div class="cs-item"><div class="cs-code">t[a:b] / t[a:b:s]</div><div class="cs-desc">Slice / slice with step</div></div>
+      <div class="cs-item"><div class="cs-code">t[::-1]</div><div class="cs-desc">Reversed copy</div></div>
+      <div class="cs-item"><div class="cs-code">len(t)</div><div class="cs-desc">Number of elements</div></div>
+      <div class="cs-item"><div class="cs-code">x in t / x not in t</div><div class="cs-desc">Membership check</div></div>
+      <div class="cs-item"><div class="cs-code">t.count(x)</div><div class="cs-desc">Occurrences of x</div></div>
+      <div class="cs-item"><div class="cs-code">t.index(x)</div><div class="cs-desc">First position of x</div></div>
+      <div class="cs-item"><div class="cs-code">a, b, c = t</div><div class="cs-desc">Unpacking (lengths must match)</div></div>
+      <div class="cs-item"><div class="cs-code">x, y = y, x</div><div class="cs-desc">Swap via unpacking</div></div>
+      <div class="cs-item"><div class="cs-code">return (q, r)</div><div class="cs-desc">Return multiple values</div></div>
+      <div class="cs-item"><div class="cs-code">def f(*args)</div><div class="cs-desc">Extra args collected as tuple</div></div>
+      <div class="cs-item"><div class="cs-code">tuple(iterable)</div><div class="cs-desc">Convert any iterable to tuple</div></div>
+      <div class="cs-item"><div class="cs-code">list(t)</div><div class="cs-desc">Convert to mutable list</div></div>
+      <div class="cs-item"><div class="cs-code">t[i] = x</div><div class="cs-desc">❌ TypeError — immutable!</div></div>
+      <div class="cs-item"><div class="cs-code">{(0,0): "origin"}</div><div class="cs-desc">Tuple as dict key (hashable)</div></div>
+      <div class="cs-item"><div class="cs-code">t[i][j]</div><div class="cs-desc">Access nested tuple element</div></div>
+      <div class="cs-item"><div class="cs-code">max(t) / min(t) / sum(t)</div><div class="cs-desc">Aggregate functions</div></div>
+    </div>
+  </div>
+
+  <!-- CHEAT SHEET — SET -->
+  <div class="cheatsheet" style="margin-top:1.5rem;">
+    <h2>⚡ Set Quick-Reference Cheat Sheet</h2>
+    <div class="cs-grid">
+      <div class="cs-item"><div class="cs-code set-code">{1, 2, 3}</div><div class="cs-desc">Set literal (no duplicates)</div></div>
+      <div class="cs-item"><div class="cs-code set-code">set()</div><div class="cs-desc">Empty set — NOT {}</div></div>
+      <div class="cs-item"><div class="cs-code set-code">set(iterable)</div><div class="cs-desc">Convert iterable to set</div></div>
+      <div class="cs-item"><div class="cs-code set-code">x in S / x not in S</div><div class="cs-desc">Fast membership check</div></div>
+      <div class="cs-item"><div class="cs-code set-code">S.add(x)</div><div class="cs-desc">Add one element</div></div>
+      <div class="cs-item"><div class="cs-code set-code">S.update(iter)</div><div class="cs-desc">Add each element from iterable</div></div>
+      <div class="cs-item"><div class="cs-code set-code">S.remove(x)</div><div class="cs-desc">Delete x — KeyError if absent</div></div>
+      <div class="cs-item"><div class="cs-code set-code">S.discard(x)</div><div class="cs-desc">Delete x — silent if absent</div></div>
+      <div class="cs-item"><div class="cs-code set-code">S.pop()</div><div class="cs-desc">Remove & return arbitrary element</div></div>
+      <div class="cs-item"><div class="cs-code set-code">S.clear()</div><div class="cs-desc">Empty the set</div></div>
+      <div class="cs-item"><div class="cs-code set-code">S.copy()</div><div class="cs-desc">Independent shallow copy</div></div>
+      <div class="cs-item"><div class="cs-code set-code">A | B / A.union(B)</div><div class="cs-desc">Union — all distinct elements</div></div>
+      <div class="cs-item"><div class="cs-code set-code">A & B / A.intersection(B)</div><div class="cs-desc">Intersection — common elements</div></div>
+      <div class="cs-item"><div class="cs-code set-code">A - B / A.difference(B)</div><div class="cs-desc">Difference — in A, not in B</div></div>
+      <div class="cs-item"><div class="cs-code set-code">A ^ B / A.symmetric_difference(B)</div><div class="cs-desc">Sym. diff — in exactly one set</div></div>
+      <div class="cs-item"><div class="cs-code set-code">A == B</div><div class="cs-desc">Same elements (order ignored)</div></div>
+      <div class="cs-item"><div class="cs-code set-code">A <= B / A < B</div><div class="cs-desc">Subset / proper subset</div></div>
+      <div class="cs-item"><div class="cs-code set-code">frozenset(iter)</div><div class="cs-desc">Immutable, hashable set type</div></div>
+      <div class="cs-item"><div class="cs-code set-code">{expr for x in iter}</div><div class="cs-desc">Set comprehension</div></div>
+      <div class="cs-item"><div class="cs-code set-code">S[0]</div><div class="cs-desc">❌ TypeError — no indexing!</div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
