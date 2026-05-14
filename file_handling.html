@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python File Handling — Lecture Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Code+Pro:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f14;
+    --surface: #17171f;
+    --card: #1e1e2a;
+    --accent: #7eb8f7;
+    --accent2: #e8415a;
+    --accent3: #a8e6cf;
+    --accent4: #f7c59f;
+    --text: #e8e6df;
+    --muted: #8a8799;
+    --code-bg: #111118;
+    --border: #2e2e40;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    padding: 2rem 1rem;
+  }
+
+  .page { max-width: 960px; margin: 0 auto; }
+
+  /* HEADER */
+  header {
+    border-left: 5px solid var(--accent);
+    padding: 2rem 2rem 2rem 2.5rem;
+    margin-bottom: 3rem;
+    background: var(--surface);
+    border-radius: 0 12px 12px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  header::after {
+    content: "📄";
+    position: absolute;
+    right: 2rem; top: 50%;
+    transform: translateY(-50%);
+    font-size: 5rem;
+    color: rgba(126,184,247,0.06);
+    font-weight: 600;
+  }
+  header .subject {
+    font-family: 'Source Code Pro', monospace;
+    color: var(--accent);
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.1;
+  }
+  header .meta {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 0.75rem;
+  }
+
+  /* OVERVIEW BOX */
+  .overview {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+  @media (max-width: 640px) { .overview { grid-template-columns: 1fr; } }
+
+  .overview-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+  }
+  .overview-card h3 {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .overview-card ul {
+    list-style: none;
+    font-size: 0.88rem;
+    color: #c0bec8;
+  }
+  .overview-card ul li::before {
+    content: "▸ ";
+    color: var(--accent);
+  }
+  .overview-card ul li { margin-bottom: 0.2rem; }
+
+  /* COMPARISON TABLE */
+  .comp-table {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 3rem;
+  }
+  .comp-table h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    padding: 1rem 1.5rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    color: #fff;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.87rem;
+  }
+  th {
+    background: rgba(126,184,247,0.08);
+    color: var(--accent);
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.2rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 0.65rem 1.2rem;
+    color: #c8c6bf;
+    border-bottom: 1px solid rgba(46,46,64,0.5);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr.highlight td { background: rgba(126,184,247,0.05); color: #e8f4ff; }
+  .badge {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .badge.yes { background: rgba(168,230,207,0.15); color: var(--accent3); }
+  .badge.no  { background: rgba(232,65,90,0.12);  color: #e8909a; }
+  .badge.warn { background: rgba(247,197,159,0.15); color: var(--accent4); }
+
+  /* TOC */
+  .toc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+  }
+  .toc h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--accent3);
+    margin-bottom: 1rem;
+  }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 0.3rem;
+  }
+  .toc a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.83rem;
+    transition: color 0.2s;
+  }
+  .toc a:hover { color: var(--accent); }
+
+  /* SECTION */
+  .section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 1.75rem;
+    overflow: hidden;
+  }
+  .section-header {
+    background: var(--surface);
+    padding: 0.9rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    background: rgba(126,184,247,0.1);
+    padding: 0.18rem 0.55rem;
+    border-radius: 4px;
+    min-width: 2.5rem;
+    text-align: center;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .section-body {
+    padding: 1.4rem 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .section-body.wide { grid-template-columns: 1fr; }
+  .section-body.trio { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 640px) {
+    .section-body, .section-body.trio { grid-template-columns: 1fr; }
+    header h1 { font-size: 2rem; }
+    header::after { display: none; }
+  }
+
+  .block-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 0.45rem;
+  }
+  .concept { font-size: 0.9rem; color: #c0bec8; }
+  .concept ul { padding-left: 1.1rem; }
+  .concept li { margin-bottom: 0.22rem; }
+  .concept p { margin-bottom: 0.4rem; }
+
+  code, .inline-code {
+    font-family: 'Source Code Pro', monospace;
+    background: rgba(126,184,247,0.1);
+    color: var(--accent);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    font-size: 0.87em;
+  }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.8rem;
+    line-height: 1.65;
+    overflow-x: auto;
+    color: #c8f7c5;
+  }
+  pre .kw  { color: #cc99ff; }
+  pre .fn  { color: #7eb8f7; }
+  pre .str { color: #f7c59f; }
+  pre .cm  { color: #525268; font-style: italic; }
+  pre .num { color: #a8e6cf; }
+  pre .err { color: #e8415a; }
+
+  .mistake {
+    background: rgba(232,65,90,0.07);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 6px 6px 0;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.83rem;
+    color: #e8a0aa;
+    margin-top: 0.5rem;
+  }
+  .mistake strong { color: var(--accent2); }
+  .fix {
+    background: rgba(168,230,207,0.07);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 6px 6px 0;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.83rem;
+    color: #a0e8c8;
+    margin-top: 0.3rem;
+  }
+  .fix strong { color: var(--accent3); }
+  .warn-box {
+    background: rgba(247,197,159,0.07);
+    border-left: 3px solid var(--accent4);
+    border-radius: 0 6px 6px 0;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.83rem;
+    color: #f0d0b0;
+    margin-top: 0.5rem;
+  }
+  .warn-box strong { color: var(--accent4); }
+  .obs {
+    background: rgba(126,184,247,0.05);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.83rem;
+    color: #b0ccee;
+    margin-top: 0.5rem;
+  }
+  .obs strong { color: var(--accent); }
+
+  /* CHEAT SHEET */
+  .cheatsheet {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 3rem;
+  }
+  .cheatsheet h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: #fff;
+    margin-bottom: 1.5rem;
+  }
+  .cs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
+    gap: 0.65rem;
+  }
+  .cs-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+  }
+  .cs-item .cs-code {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    margin-bottom: 0.22rem;
+  }
+  .cs-item .cs-desc { font-size: 0.78rem; color: var(--muted); }
+
+  .divider {
+    width: 40px; height: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    margin: 2.5rem auto;
+    opacity: 0.3;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="subject">📘 Python Programming · Lecture Notes</div>
+    <h1>File Handling in Python</h1>
+    <div class="meta">Topics: Persistence · open() · Modes · Paths · write() · read() · readline() · readlines() · strip() · with · CSV</div>
+  </header>
+
+  <!-- OVERVIEW -->
+  <div class="overview">
+    <div class="overview-card">
+      <h3>Why File Handling?</h3>
+      <ul>
+        <li>Variables, lists, dicts are lost when program ends</li>
+        <li>Files store data permanently on secondary storage</li>
+        <li>Allows reading and writing large records</li>
+        <li>Separates program logic from stored data</li>
+      </ul>
+    </div>
+    <div class="overview-card">
+      <h3>File Types in Python</h3>
+      <ul>
+        <li><strong>Text files</strong> — line-based readable data (.txt)</li>
+        <li><strong>CSV files</strong> — tabular row-column data (.csv)</li>
+        <li><strong>Others</strong> — .py, .pdf, .png (not covered here)</li>
+        <li>Beginner focus: text files → CSV files</li>
+      </ul>
+    </div>
+    <div class="overview-card">
+      <h3>Basic Workflow</h3>
+      <ul>
+        <li>Open the file with <code>open()</code></li>
+        <li>Perform read or write operations</li>
+        <li>Close the file with <code>close()</code></li>
+        <li>Or use <code>with open(...)</code> — preferred style</li>
+      </ul>
+    </div>
+    <div class="overview-card">
+      <h3>Key Ideas</h3>
+      <ul>
+        <li>File object ≠ actual file (it is the connection)</li>
+        <li>All data read from file is string by default</li>
+        <li>Numeric data must be converted before use</li>
+        <li>strip() removes trailing <code>\n</code> from lines</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- COMPARISON TABLE -->
+  <div class="comp-table">
+    <h2>File Modes at a Glance</h2>
+    <table>
+      <tr>
+        <th>Mode</th>
+        <th>Purpose</th>
+        <th>File Must Exist?</th>
+        <th>Old Content Preserved?</th>
+        <th>Where Writing Starts</th>
+      </tr>
+      <tr class="highlight">
+        <td><code>"r"</code></td>
+        <td>Read only</td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><code>"w"</code></td>
+        <td>Write (overwrite)</td>
+        <td><span class="badge no">No</span></td>
+        <td><span class="badge no">No</span></td>
+        <td>Beginning</td>
+      </tr>
+      <tr>
+        <td><code>"a"</code></td>
+        <td>Append</td>
+        <td><span class="badge no">No</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td>End</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>Contents</h2>
+    <div class="toc-grid">
+      <a href="#s1">1. Why File Handling</a>
+      <a href="#s2">2. What is a File?</a>
+      <a href="#s3">3. File Handling Workflow</a>
+      <a href="#s4">4. File Modes</a>
+      <a href="#s5">5. File Path</a>
+      <a href="#s6">6. write()</a>
+      <a href="#s7">7. Writing Multiple Lines</a>
+      <a href="#s8">8. writelines()</a>
+      <a href="#s9">9. read()</a>
+      <a href="#s10">10. readline()</a>
+      <a href="#s11">11. readlines()</a>
+      <a href="#s12">12. Direct File Traversal</a>
+      <a href="#s13">13. Reading Numbers</a>
+      <a href="#s14">14. Importance of strip()</a>
+      <a href="#s15">15. Append Mode</a>
+      <a href="#s16">16. with open(...)</a>
+      <a href="#s17">17. Encoding</a>
+      <a href="#s18">18. Example — Count Lines/Words/Chars</a>
+      <a href="#s19">19. Example — Filter Records</a>
+      <a href="#s20">20. Common Errors</a>
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Why File Handling is Needed</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">The Problem</div>
+        <div class="concept">
+          <ul>
+            <li>All variables, lists, dictionaries live in memory</li>
+            <li>Memory is wiped when the program terminates</li>
+            <li>Output disappears; computed results are lost</li>
+            <li>Data must be re-entered every run</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.8rem;"><strong>Key Insight:</strong> File handling separates program logic from stored data — the same program becomes reusable for different input files.</div>
+      </div>
+      <div>
+        <div class="block-label">Without vs With Files</div>
+        <pre><span class="cm"># WITHOUT — hardcoded, disposable</span>
+marks = [<span class="num">78</span>, <span class="num">85</span>, <span class="num">91</span>, <span class="num">67</span>]
+total = <span class="fn">sum</span>(marks)
+<span class="fn">print</span>(total)   <span class="cm"># output vanishes after run</span>
+
+<span class="cm"># WITH — persistent</span>
+<span class="cm"># marks stored in marks.txt</span>
+<span class="cm"># Python reads, processes, saves results</span>
+<span class="cm"># results available for future use</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">What is a File?</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Definition</div>
+        <div class="concept">
+          <p>A file is a named storage unit kept on secondary storage (hard disk, SSD, USB).</p>
+          <ul>
+            <li><strong>Text file</strong> — stores readable characters line by line</li>
+            <li><strong>CSV file</strong> — stores tabular data separated by commas</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.8rem;"><strong>Observation:</strong> Text files are useful for simple line-based data. CSV files are useful when data has rows and columns.</div>
+      </div>
+      <div>
+        <div class="block-label">Examples</div>
+        <pre><span class="cm"># Text file — students.txt</span>
+Aman
+Ravi
+Neha
+
+<span class="cm"># CSV file — marks.csv</span>
+name,marks,grade
+Aman,<span class="num">87</span>,A
+Ravi,<span class="num">76</span>,B
+Neha,<span class="num">91</span>,A</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">File Handling Workflow</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Steps</div>
+        <div class="concept">
+          <ul>
+            <li><strong>Step 1</strong> — Open the file using <code>open()</code></li>
+            <li><strong>Step 2</strong> — Perform read or write operations</li>
+            <li><strong>Step 3</strong> — Close the file using <code>close()</code></li>
+          </ul>
+        </div>
+        <div class="warn-box" style="margin-top:0.8rem;"><strong>⚑ Note:</strong> The file object <code>f</code> is not the file itself. It is the program-side connection through which Python communicates with the file on disk.</div>
+      </div>
+      <div>
+        <div class="block-label">General Structure</div>
+        <pre>f = <span class="fn">open</span>(<span class="str">"data.txt"</span>, <span class="str">"r"</span>)
+<span class="cm"># perform read or write here</span>
+f.<span class="fn">close</span>()
+
+<span class="cm"># open() — creates the connection</span>
+<span class="cm"># "data.txt" — file name</span>
+<span class="cm"># "r" — mode (read)</span>
+<span class="cm"># f — the file object</span>
+<span class="cm"># close() — ends the connection</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">File Modes — r, w, a</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Modes Explained</div>
+        <div class="concept">
+          <ul>
+            <li><code>"r"</code> — reads an existing file; file must exist</li>
+            <li><code>"w"</code> — writes and <strong>overwrites</strong> existing content; creates file if absent</li>
+            <li><code>"a"</code> — appends at the end without deleting old content</li>
+          </ul>
+        </div>
+        <div class="mistake" style="margin-top:0.8rem;"><strong>✗ Caution:</strong> <code>"w"</code> mode erases old content silently — dangerous if used carelessly.</div>
+        <div class="fix"><strong>✓ Rule:</strong> Decide before opening — are you reading, replacing, or adding?</div>
+      </div>
+      <div>
+        <div class="block-label">Examples</div>
+        <pre>f1 = <span class="fn">open</span>(<span class="str">"data.txt"</span>, <span class="str">"r"</span>)  <span class="cm"># read</span>
+f2 = <span class="fn">open</span>(<span class="str">"data.txt"</span>, <span class="str">"w"</span>)  <span class="cm"># write</span>
+f3 = <span class="fn">open</span>(<span class="str">"data.txt"</span>, <span class="str">"a"</span>)  <span class="cm"># append</span>
+
+<span class="cm"># "r" — file must already exist</span>
+<span class="cm"># "w" — creates if missing, wipes if present</span>
+<span class="cm"># "a" — creates if missing, preserves if present</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">File Path</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Path Types</div>
+        <div class="concept">
+          <ul>
+            <li><strong>Default</strong> — Python searches the current working directory</li>
+            <li><strong>Relative path</strong> — relative to current folder</li>
+            <li><strong>Absolute path</strong> — full path from root of drive</li>
+          </ul>
+        </div>
+        <div class="warn-box" style="margin-top:0.8rem;"><strong>⚑ Windows Caution:</strong> Use forward slashes <code>/</code> or a raw string <code>r"..."</code> to avoid backslash issues.</div>
+        <div class="obs" style="margin-top:0.5rem;"><strong>Observation:</strong> Many file errors occur not because the file is missing, but because Python is looking in the wrong folder.</div>
+      </div>
+      <div>
+        <div class="block-label">Examples</div>
+        <pre><span class="cm"># Default (same folder as script)</span>
+<span class="fn">open</span>(<span class="str">"data.txt"</span>, <span class="str">"r"</span>)
+
+<span class="cm"># Relative path</span>
+<span class="fn">open</span>(<span class="str">"files/data.txt"</span>, <span class="str">"r"</span>)
+
+<span class="cm"># Absolute path — Windows (safe forms)</span>
+<span class="fn">open</span>(<span class="str">"C:/Users/Rajesh/Desktop/data.txt"</span>, <span class="str">"r"</span>)
+<span class="fn">open</span>(<span class="kw">r</span><span class="str">"C:\Users\Rajesh\Desktop\data.txt"</span>, <span class="str">"r"</span>)</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Writing with write()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>write()</code> writes a single string into a file</li>
+            <li>Accepts <strong>only string data</strong> — not int, float, etc.</li>
+            <li>Numeric values must be wrapped in <code>str()</code></li>
+          </ul>
+        </div>
+        <div class="mistake" style="margin-top:0.8rem;"><strong>✗ Mistake:</strong> <code>f.write(100)</code> → TypeError: write() argument must be str, not int</div>
+        <div class="fix"><strong>✓ Fix:</strong> <code>f.write(str(100))</code></div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>f = <span class="fn">open</span>(<span class="str">"message.txt"</span>, <span class="str">"w"</span>)
+f.<span class="fn">write</span>(<span class="str">"Python file handling is useful."</span>)
+f.<span class="fn">close</span>()
+
+<span class="cm"># File content after execution:</span>
+<span class="cm"># Python file handling is useful.</span>
+
+<span class="cm"># Writing a number correctly:</span>
+f = <span class="fn">open</span>(<span class="str">"data.txt"</span>, <span class="str">"w"</span>)
+f.<span class="fn">write</span>(<span class="fn">str</span>(<span class="num">100</span>))
+f.<span class="fn">close</span>()</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">Writing Multiple Lines — \n</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Key Rule</div>
+        <div class="concept">
+          <ul>
+            <li><code>write()</code> does <strong>not</strong> add a newline automatically</li>
+            <li>The newline character <code>\n</code> must be written explicitly</li>
+            <li>Unlike <code>print()</code>, which adds <code>\n</code> by default</li>
+          </ul>
+        </div>
+        <div class="mistake" style="margin-top:0.8rem;"><strong>✗ Mistake:</strong> Forgetting <code>\n</code> runs all values together: <code>AmanRaviNeha</code></div>
+        <div class="fix"><strong>✓ Fix:</strong> Always append <code>\n</code> to each string before writing</div>
+      </div>
+      <div>
+        <div class="block-label">With vs Without \n</div>
+        <pre><span class="cm"># Correct — separate lines</span>
+f = <span class="fn">open</span>(<span class="str">"students.txt"</span>, <span class="str">"w"</span>)
+f.<span class="fn">write</span>(<span class="str">"Aman\n"</span>)
+f.<span class="fn">write</span>(<span class="str">"Ravi\n"</span>)
+f.<span class="fn">write</span>(<span class="str">"Neha\n"</span>)
+f.<span class="fn">close</span>()
+<span class="cm"># File: Aman / Ravi / Neha (3 lines)</span>
+
+<span class="cm"># Wrong — all on one line</span>
+f.<span class="fn">write</span>(<span class="str">"Aman"</span>)
+f.<span class="fn">write</span>(<span class="str">"Ravi"</span>)
+<span class="cm"># File: AmanRavi</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8 -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">Writing Multiple Lines with writelines()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>writelines()</code> accepts a list (or any iterable) of strings</li>
+            <li>Writes all strings one after another</li>
+            <li>Does <strong>not</strong> add newlines automatically — just like <code>write()</code></li>
+            <li>Each string in the list must already contain <code>\n</code></li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.8rem;"><strong>Observation:</strong> <code>writelines()</code> writes strings exactly as supplied — supply the newlines yourself.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre><span class="cm"># Correct — \n already in each string</span>
+names = [<span class="str">"Aman\n"</span>, <span class="str">"Ravi\n"</span>, <span class="str">"Neha\n"</span>]
+f = <span class="fn">open</span>(<span class="str">"students.txt"</span>, <span class="str">"w"</span>)
+f.<span class="fn">writelines</span>(names)
+f.<span class="fn">close</span>()
+<span class="cm"># File: Aman / Ravi / Neha (3 lines)</span>
+
+<span class="cm"># Wrong — no \n</span>
+names = [<span class="str">"Aman"</span>, <span class="str">"Ravi"</span>, <span class="str">"Neha"</span>]
+f.<span class="fn">writelines</span>(names)
+<span class="cm"># File: AmanRaviNeha</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9 -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <span class="section-title">Reading Complete File with read()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>read()</code> returns the <strong>entire file</strong> as one string</li>
+            <li>Even multi-line files are one string (with <code>\n</code> inside)</li>
+            <li>Return type is always <code>str</code></li>
+            <li>Best for small files where all content is needed at once</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.8rem;"><strong>Observation:</strong> <code>read()</code> is useful when the complete content is small enough to process together.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre><span class="cm"># message.txt contains:</span>
+<span class="cm"># Python is powerful.</span>
+<span class="cm"># File handling is important.</span>
+
+f = <span class="fn">open</span>(<span class="str">"message.txt"</span>, <span class="str">"r"</span>)
+data = f.<span class="fn">read</span>()
+f.<span class="fn">close</span>()
+
+<span class="fn">print</span>(data)
+<span class="cm"># Python is powerful.</span>
+<span class="cm"># File handling is important.</span>
+
+<span class="fn">print</span>(<span class="fn">type</span>(data))   <span class="cm"># &lt;class 'str'&gt;</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <span class="section-title">Reading One Line at a Time with readline()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>readline()</code> reads exactly one line per call</li>
+            <li>Each line read already includes a <code>\n</code> at the end</li>
+            <li><code>print()</code> adds its own <code>\n</code> → causes blank line between output</li>
+            <li>Use <code>print(line, end="")</code> to suppress the extra newline</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.8rem;"><strong>Observation:</strong> <code>readline()</code> is useful for controlled line-by-line reading.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>f = <span class="fn">open</span>(<span class="str">"students.txt"</span>, <span class="str">"r"</span>)
+line1 = f.<span class="fn">readline</span>()
+line2 = f.<span class="fn">readline</span>()
+line3 = f.<span class="fn">readline</span>()
+f.<span class="fn">close</span>()
+
+<span class="cm"># Cleaner output (no double spacing):</span>
+<span class="fn">print</span>(line1, end=<span class="str">""</span>)
+<span class="fn">print</span>(line2, end=<span class="str">""</span>)
+<span class="fn">print</span>(line3, end=<span class="str">""</span>)
+<span class="cm"># Aman</span>
+<span class="cm"># Ravi</span>
+<span class="cm"># Neha</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11 -->
+  <div class="section" id="s11">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <span class="section-title">Reading All Lines with readlines()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>readlines()</code> reads all lines at once into a <strong>list</strong></li>
+            <li>Each list element is one line (string, with <code>\n</code> included)</li>
+            <li>Return type is <code>list</code></li>
+            <li>For very large files, storing all lines at once may be inefficient</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.8rem;"><strong>Observation:</strong> <code>readlines()</code> connects file handling with list processing naturally.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>f = <span class="fn">open</span>(<span class="str">"students.txt"</span>, <span class="str">"r"</span>)
+lines = f.<span class="fn">readlines</span>()
+f.<span class="fn">close</span>()
+
+<span class="fn">print</span>(lines)
+<span class="cm"># ['Aman\n', 'Ravi\n', 'Neha\n']</span>
+
+<span class="fn">print</span>(<span class="fn">type</span>(lines))   <span class="cm"># &lt;class 'list'&gt;</span>
+
+<span class="cm"># Display cleanly:</span>
+<span class="kw">for</span> line <span class="kw">in</span> lines:
+    <span class="fn">print</span>(line, end=<span class="str">""</span>)
+<span class="cm"># Aman / Ravi / Neha</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12 -->
+  <div class="section" id="s12">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <span class="section-title">Direct File Traversal (Loop over File Object)</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>A file object can be iterated directly in a <code>for</code> loop</li>
+            <li>Each iteration yields one line (including <code>\n</code>)</li>
+            <li>Does not load the entire file into memory — efficient for large files</li>
+            <li>Cleanest style for line-by-line processing</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.8rem;"><strong>Observation:</strong> For line-based processing, direct traversal is usually the cleanest and most memory-efficient approach.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre><span class="cm"># marks.txt contains: 78, 85, 91, 67</span>
+
+f = <span class="fn">open</span>(<span class="str">"marks.txt"</span>, <span class="str">"r"</span>)
+<span class="kw">for</span> line <span class="kw">in</span> f:
+    <span class="fn">print</span>(line, end=<span class="str">""</span>)
+f.<span class="fn">close</span>()
+
+<span class="cm"># Output:</span>
+<span class="cm"># 78</span>
+<span class="cm"># 85</span>
+<span class="cm"># 91</span>
+<span class="cm"># 67</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13 -->
+  <div class="section" id="s13">
+    <div class="section-header">
+      <span class="section-num">13</span>
+      <span class="section-title">Reading Numbers from a File</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Key Rule</div>
+        <div class="concept">
+          <ul>
+            <li>All data read from a text file is a <strong>string</strong></li>
+            <li>Arithmetic cannot be done on strings</li>
+            <li>Must convert using <code>int()</code> or <code>float()</code> before calculation</li>
+            <li><code>strip()</code> is needed first to remove trailing <code>\n</code></li>
+          </ul>
+        </div>
+        <div class="mistake" style="margin-top:0.8rem;"><strong>✗ Mistake:</strong> <code>total += line</code> → TypeError (can't add string to int)</div>
+        <div class="fix"><strong>✓ Fix:</strong> <code>total += int(line.strip())</code></div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>f = <span class="fn">open</span>(<span class="str">"marks.txt"</span>, <span class="str">"r"</span>)
+total = <span class="num">0</span>
+count = <span class="num">0</span>
+<span class="kw">for</span> line <span class="kw">in</span> f:
+    mark = <span class="fn">int</span>(line.<span class="fn">strip</span>())
+    total += mark
+    count += <span class="num">1</span>
+f.<span class="fn">close</span>()
+
+average = total / count
+<span class="fn">print</span>(<span class="str">"Total ="</span>, total)      <span class="cm"># 321</span>
+<span class="fn">print</span>(<span class="str">"Average ="</span>, average)  <span class="cm"># 80.25</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14 -->
+  <div class="section" id="s14">
+    <div class="section-header">
+      <span class="section-num">14</span>
+      <span class="section-title">Importance of strip()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Why strip() Matters</div>
+        <div class="concept">
+          <ul>
+            <li>Lines read from a file include a trailing <code>\n</code></li>
+            <li>This causes problems in comparisons, conversions, and storage</li>
+            <li><code>strip()</code> removes leading and trailing whitespace including <code>\n</code></li>
+            <li>Essential before <code>int()</code>, <code>float()</code>, <code>==</code> comparisons</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.8rem;"><strong>Observation:</strong> <code>strip()</code> is almost always needed whenever processing values read from a file.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>line = <span class="str">"Aman\n"</span>
+<span class="fn">print</span>(<span class="fn">repr</span>(line))          <span class="cm"># 'Aman\n'</span>
+
+clean = line.<span class="fn">strip</span>()
+<span class="fn">print</span>(<span class="fn">repr</span>(clean))         <span class="cm"># 'Aman'</span>
+
+<span class="cm"># In file reading:</span>
+f = <span class="fn">open</span>(<span class="str">"students.txt"</span>, <span class="str">"r"</span>)
+<span class="kw">for</span> line <span class="kw">in</span> f:
+    name = line.<span class="fn">strip</span>()
+    <span class="fn">print</span>(<span class="str">"Name ="</span>, name)
+f.<span class="fn">close</span>()
+<span class="cm"># Name = Aman</span>
+<span class="cm"># Name = Ravi</span>
+<span class="cm"># Name = Neha</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 15 -->
+  <div class="section" id="s15">
+    <div class="section-header">
+      <span class="section-num">15</span>
+      <span class="section-title">Appending Data with Mode "a"</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Mode <code>"a"</code> opens a file for writing at the <strong>end</strong></li>
+            <li>Existing content is preserved — nothing is erased</li>
+            <li>If the file does not exist, it is created fresh</li>
+            <li>Ideal for log files, attendance, transaction records</li>
+          </ul>
+        </div>
+        <div class="warn-box" style="margin-top:0.8rem;"><strong>⚑ Note:</strong> If <code>"w"</code> is used instead of <code>"a"</code> when adding entries, all previous records will be permanently lost.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre><span class="cm"># First run — create file</span>
+f = <span class="fn">open</span>(<span class="str">"log.txt"</span>, <span class="str">"w"</span>)
+f.<span class="fn">write</span>(<span class="str">"Program started\n"</span>)
+f.<span class="fn">close</span>()
+
+<span class="cm"># Second run — append more</span>
+f = <span class="fn">open</span>(<span class="str">"log.txt"</span>, <span class="str">"a"</span>)
+f.<span class="fn">write</span>(<span class="str">"Data processed\n"</span>)
+f.<span class="fn">write</span>(<span class="str">"Program completed\n"</span>)
+f.<span class="fn">close</span>()
+
+<span class="cm"># Final file content:</span>
+<span class="cm"># Program started</span>
+<span class="cm"># Data processed</span>
+<span class="cm"># Program completed</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 16 -->
+  <div class="section" id="s16">
+    <div class="section-header">
+      <span class="section-num">16</span>
+      <span class="section-title">Recommended Style — with open(...)</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Why Prefer with open()?</div>
+        <div class="concept">
+          <ul>
+            <li>File is <strong>closed automatically</strong> when the block ends</li>
+            <li>Works correctly even if an error occurs inside the block</li>
+            <li>No need to manually call <code>close()</code></li>
+            <li>Cleaner, safer, and widely used in real Python programs</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.8rem;"><strong>Observation:</strong> Manual <code>open()</code> and <code>close()</code> help in understanding the workflow. But <code>with open(...)</code> should be preferred in actual programs.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre><span class="cm"># Writing</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"message.txt"</span>, <span class="str">"w"</span>) <span class="kw">as</span> f:
+    f.<span class="fn">write</span>(<span class="str">"Learning file handling."</span>)
+<span class="cm"># file automatically closed here</span>
+
+<span class="cm"># Reading</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"message.txt"</span>, <span class="str">"r"</span>) <span class="kw">as</span> f:
+    data = f.<span class="fn">read</span>()
+
+<span class="fn">print</span>(data)
+<span class="cm"># Learning file handling.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 17 -->
+  <div class="section" id="s17">
+    <div class="section-header">
+      <span class="section-num">17</span>
+      <span class="section-title">Encoding — Brief Introduction</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Text files store characters using an encoding system</li>
+            <li>For normal English text, default encoding usually works</li>
+            <li>For special characters or multilingual text, specify encoding explicitly</li>
+            <li><code>encoding="utf-8"</code> is the recommended standard</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.8rem;"><strong>Good Habit:</strong> Writing <code>encoding="utf-8"</code> even for simple files is a safe, professional practice.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre><span class="cm"># Writing with encoding</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"notes.txt"</span>, <span class="str">"w"</span>, encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    f.<span class="fn">write</span>(<span class="str">"Python supports Unicode text."</span>)
+
+<span class="cm"># Reading with same encoding</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"notes.txt"</span>, <span class="str">"r"</span>, encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    data = f.<span class="fn">read</span>()
+
+<span class="fn">print</span>(data)
+<span class="cm"># Python supports Unicode text.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 18 -->
+  <div class="section" id="s18">
+    <div class="section-header">
+      <span class="section-num">18</span>
+      <span class="section-title">Example — Count Lines, Words, Characters</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Problem</div>
+        <div class="concept">
+          <p>Read a text file and count: number of lines, words, and characters.</p>
+          <p>Assume <code>story.txt</code> contains:</p>
+          <ul>
+            <li>Python is simple.</li>
+            <li>File handling is useful.</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.8rem;"><strong>Observation:</strong> This example combines file handling, strings, loops, and counting logic into one clean program.</div>
+      </div>
+      <div>
+        <div class="block-label">Code &amp; Output</div>
+        <pre>line_count = <span class="num">0</span>
+word_count = <span class="num">0</span>
+char_count = <span class="num">0</span>
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"story.txt"</span>, <span class="str">"r"</span>, encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    <span class="kw">for</span> line <span class="kw">in</span> f:
+        line_count += <span class="num">1</span>
+        word_count += <span class="fn">len</span>(line.<span class="fn">split</span>())
+        char_count += <span class="fn">len</span>(line)
+
+<span class="fn">print</span>(<span class="str">"Lines ="</span>, line_count)     <span class="cm"># 2</span>
+<span class="fn">print</span>(<span class="str">"Words ="</span>, word_count)     <span class="cm"># 7</span>
+<span class="fn">print</span>(<span class="str">"Characters ="</span>, char_count) <span class="cm"># 43</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 19 -->
+  <div class="section" id="s19">
+    <div class="section-header">
+      <span class="section-num">19</span>
+      <span class="section-title">Example — Filter Records from a File</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Problem</div>
+        <div class="concept">
+          <p>File <code>marks.txt</code> has comma-separated student records. Print only students who scored ≥ 80.</p>
+          <p>File contents:</p>
+          <ul>
+            <li>Aman,87</li>
+            <li>Ravi,76</li>
+            <li>Neha,91</li>
+            <li>Karan,68</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.8rem;"><strong>Observation:</strong> Plain text files can store structured data, but manual splitting becomes necessary — this naturally leads to CSV handling.</div>
+      </div>
+      <div>
+        <div class="block-label">Code &amp; Output</div>
+        <pre><span class="kw">with</span> <span class="fn">open</span>(<span class="str">"marks.txt"</span>, <span class="str">"r"</span>, encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    <span class="kw">for</span> line <span class="kw">in</span> f:
+        parts = line.<span class="fn">strip</span>().<span class="fn">split</span>(<span class="str">","</span>)
+        name  = parts[<span class="num">0</span>]
+        marks = <span class="fn">int</span>(parts[<span class="num">1</span>])
+        <span class="kw">if</span> marks >= <span class="num">80</span>:
+            <span class="fn">print</span>(name, marks)
+
+<span class="cm"># Output:</span>
+<span class="cm"># Aman 87</span>
+<span class="cm"># Neha 91</span>
+
+<span class="cm"># Uses: traversal · strip() · split()</span>
+<span class="cm">#       list indexing · int() · condition</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 20 -->
+  <div class="section" id="s20">
+    <div class="section-header">
+      <span class="section-num">20</span>
+      <span class="section-title">Common File Handling Errors</span>
+    </div>
+    <div class="section-body wide">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
+        <div>
+          <div class="block-label">Error 1 — File Not Found</div>
+          <pre><span class="fn">open</span>(<span class="str">"unknown.txt"</span>, <span class="str">"r"</span>)
+<span class="cm"># FileNotFoundError</span></pre>
+          <div class="fix" style="margin-top:0.5rem;"><strong>✓ Fix:</strong> Verify the file name and path before opening in <code>"r"</code> mode.</div>
+        </div>
+        <div>
+          <div class="block-label">Error 2 — Accidental Overwrite</div>
+          <pre><span class="fn">open</span>(<span class="str">"records.txt"</span>, <span class="str">"w"</span>)
+<span class="cm"># All old content erased!</span></pre>
+          <div class="mistake" style="margin-top:0.5rem;"><strong>✗ Caution:</strong> <code>"w"</code> does not ask for confirmation — it silently overwrites.</div>
+        </div>
+        <div>
+          <div class="block-label">Error 3 — Writing Non-String</div>
+          <pre>f.<span class="fn">write</span>(<span class="num">100</span>)
+<span class="cm"># TypeError: must be str, not int</span></pre>
+          <div class="fix" style="margin-top:0.5rem;"><strong>✓ Fix:</strong> Always use <code>str(100)</code> when writing numeric data.</div>
+        </div>
+        <div>
+          <div class="block-label">Error 4 — Missing \n / Type Conversion</div>
+          <pre>f.<span class="fn">write</span>(<span class="str">"Aman"</span>)
+f.<span class="fn">write</span>(<span class="str">"Ravi"</span>)  <span class="cm"># → AmanRavi</span>
+
+total += line   <span class="cm"># → TypeError</span></pre>
+          <div class="fix" style="margin-top:0.5rem;"><strong>✓ Fix:</strong> Add <code>\n</code> when writing; use <code>int(line.strip())</code> before arithmetic.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHEAT SHEET -->
+  <div class="cheatsheet">
+    <h2>⚡ Quick-Reference Cheat Sheet</h2>
+    <div class="cs-grid">
+      <div class="cs-item"><div class="cs-code">open("f", "r")</div><div class="cs-desc">Open for reading (file must exist)</div></div>
+      <div class="cs-item"><div class="cs-code">open("f", "w")</div><div class="cs-desc">Open for writing (overwrites old content)</div></div>
+      <div class="cs-item"><div class="cs-code">open("f", "a")</div><div class="cs-desc">Open for appending (preserves old content)</div></div>
+      <div class="cs-item"><div class="cs-code">f.close()</div><div class="cs-desc">Close the file connection</div></div>
+      <div class="cs-item"><div class="cs-code">with open(...) as f:</div><div class="cs-desc">Auto-closes file; preferred style</div></div>
+      <div class="cs-item"><div class="cs-code">f.write(str)</div><div class="cs-desc">Write a string; no auto newline</div></div>
+      <div class="cs-item"><div class="cs-code">f.writelines(list)</div><div class="cs-desc">Write list of strings; no auto newline</div></div>
+      <div class="cs-item"><div class="cs-code">f.read()</div><div class="cs-desc">Read entire file as one string</div></div>
+      <div class="cs-item"><div class="cs-code">f.readline()</div><div class="cs-desc">Read one line (includes \n)</div></div>
+      <div class="cs-item"><div class="cs-code">f.readlines()</div><div class="cs-desc">Read all lines → list of strings</div></div>
+      <div class="cs-item"><div class="cs-code">for line in f:</div><div class="cs-desc">Direct traversal — best for large files</div></div>
+      <div class="cs-item"><div class="cs-code">line.strip()</div><div class="cs-desc">Remove leading/trailing whitespace + \n</div></div>
+      <div class="cs-item"><div class="cs-code">int(line.strip())</div><div class="cs-desc">Convert file string to integer</div></div>
+      <div class="cs-item"><div class="cs-code">str(number)</div><div class="cs-desc">Convert number before writing to file</div></div>
+      <div class="cs-item"><div class="cs-code">"text\n"</div><div class="cs-desc">Explicit newline needed in write/writelines</div></div>
+      <div class="cs-item"><div class="cs-code">encoding="utf-8"</div><div class="cs-desc">Good habit for all text file operations</div></div>
+      <div class="cs-item"><div class="cs-code">line.split(",")</div><div class="cs-desc">Split CSV-style line into parts</div></div>
+      <div class="cs-item"><div class="cs-code">parts[0], parts[1]</div><div class="cs-desc">Access individual fields after split</div></div>
+      <div class="cs-item"><div class="cs-code">print(line, end="")</div><div class="cs-desc">Suppress extra blank line from \n</div></div>
+      <div class="cs-item"><div class="cs-code">FileNotFoundError</div><div class="cs-desc">Raised when file doesn't exist in "r" mode</div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

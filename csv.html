@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSV File Handling — Lecture Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Code+Pro:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f14;
+    --surface: #17171f;
+    --card: #1e1e2a;
+    --accent: #f5a623;
+    --accent2: #e8415a;
+    --accent3: #4ecdc4;
+    --text: #e8e6df;
+    --muted: #8a8799;
+    --code-bg: #111118;
+    --border: #2e2e40;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    padding: 2rem 1rem;
+  }
+
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  header {
+    border-left: 5px solid var(--accent);
+    padding: 2rem 2rem 2rem 2.5rem;
+    margin-bottom: 3rem;
+    background: var(--surface);
+    border-radius: 0 12px 12px 0;
+  }
+
+  header .subject {
+    font-family: 'Source Code Pro', monospace;
+    color: var(--accent);
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.1;
+  }
+
+  header .meta {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 0.75rem;
+  }
+
+  .toc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .toc h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--accent3);
+    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+  }
+
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.4rem;
+  }
+
+  .toc a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 0.2rem 0;
+    transition: color 0.2s;
+  }
+  .toc a:hover { color: var(--accent); }
+
+  .section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+
+  .section-header {
+    background: var(--surface);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-num {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    background: rgba(245,166,35,0.12);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    min-width: 2.5rem;
+    text-align: center;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .section-body {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 640px) {
+    .section-body { grid-template-columns: 1fr; }
+    header h1 { font-size: 2rem; }
+  }
+
+  .section-body.wide {
+    grid-template-columns: 1fr;
+  }
+
+  .section-body.three {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  @media (max-width: 700px) {
+    .section-body.three { grid-template-columns: 1fr; }
+  }
+
+  .block-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 0.5rem;
+  }
+
+  .concept p, .concept ul {
+    font-size: 0.92rem;
+    color: #c8c6bf;
+  }
+  .concept ul { padding-left: 1.2rem; }
+  .concept li { margin-bottom: 0.25rem; }
+
+  code, .inline-code {
+    font-family: 'Source Code Pro', monospace;
+    background: rgba(78,205,196,0.1);
+    color: var(--accent3);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    font-size: 0.88em;
+  }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    color: #c8f7c5;
+  }
+
+  pre .kw  { color: #cc99ff; }
+  pre .fn  { color: #4ecdc4; }
+  pre .str { color: #f5c842; }
+  pre .cm  { color: #5a5a78; font-style: italic; }
+  pre .num { color: #f5a623; }
+
+  .mistake {
+    background: rgba(232,65,90,0.08);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 6px 6px 0;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+    color: #e8a0aa;
+    margin-top: 0.5rem;
+  }
+  .mistake strong { color: var(--accent2); }
+
+  .fix {
+    background: rgba(78,205,196,0.07);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 6px 6px 0;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+    color: #a0e8e4;
+    margin-top: 0.3rem;
+  }
+  .fix strong { color: var(--accent3); }
+
+  .obs {
+    background: rgba(245,166,35,0.06);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+    color: #e0c890;
+    margin-top: 0.75rem;
+  }
+  .obs strong { color: var(--accent); }
+
+  .divider {
+    width: 40px;
+    height: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    margin: 2.5rem auto;
+    opacity: 0.4;
+  }
+
+  /* Comparison table */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+  }
+  .compare-table th {
+    background: var(--surface);
+    color: var(--accent3);
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.5rem 0.8rem;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+  .compare-table td {
+    padding: 0.45rem 0.8rem;
+    border: 1px solid var(--border);
+    color: #c8c6bf;
+    vertical-align: top;
+  }
+  .compare-table tr:nth-child(even) td {
+    background: rgba(255,255,255,0.02);
+  }
+
+  /* Cheat sheet */
+  .cheatsheet {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 3rem;
+  }
+
+  .cheatsheet h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: #fff;
+    margin-bottom: 1.5rem;
+  }
+
+  .cs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .cs-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+  }
+
+  .cs-item .cs-code {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.82rem;
+    color: var(--accent3);
+    margin-bottom: 0.25rem;
+  }
+
+  .cs-item .cs-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="subject">📘 Python Programming · Lecture Notes</div>
+    <h1>CSV File Handling</h1>
+    <div class="meta">Topics: csv Module · reader · writer · DictReader · DictWriter · Filtering · Aggregation</div>
+  </header>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>Contents</h2>
+    <div class="toc-grid">
+      <a href="#s1">1. What is CSV?</a>
+      <a href="#s2">2. Why csv Module?</a>
+      <a href="#s3">3. Text File vs CSV File</a>
+      <a href="#s4">4. Importing csv</a>
+      <a href="#s5">5. csv.reader()</a>
+      <a href="#s6">6. Values are Strings</a>
+      <a href="#s7">7. Skipping the Header</a>
+      <a href="#s8">8. Total & Average</a>
+      <a href="#s9">9. Filtering Records</a>
+      <a href="#s10">10. csv.writer()</a>
+      <a href="#s11">11. writerows()</a>
+      <a href="#s12">12. DictReader</a>
+      <a href="#s13">13. Filtering with DictReader</a>
+      <a href="#s14">14. DictWriter</a>
+      <a href="#s15">15. newline="" Explained</a>
+      <a href="#s16">16. reader vs DictReader</a>
+      <a href="#s17">17. Common Mistakes</a>
+      <a href="#s18">18. Practice Problems</a>
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">What is a CSV File?</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><strong>CSV</strong> = Comma-Separated Values.</li>
+            <li>Stores <strong>tabular data</strong> (rows &amp; columns) as plain text.</li>
+            <li>Each line = one record; values separated by commas.</li>
+            <li>First line is usually the <strong>header</strong> (column names).</li>
+            <li>Widely supported by Excel, databases, and APIs.</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.9rem;"><strong>Key point:</strong> CSV is a plain text format, but it represents structured tabular data.</div>
+      </div>
+      <div>
+        <div class="block-label">Example CSV</div>
+        <pre><span class="cm"># students.csv</span>
+name,marks,grade
+Aman,<span class="num">87</span>,A
+Ravi,<span class="num">76</span>,B
+Neha,<span class="num">91</span>,A</pre>
+        <div style="margin-top:1rem;">
+          <div class="block-label">Why CSV is popular</div>
+          <div class="concept">
+            <ul>
+              <li>Simple and human-readable</li>
+              <li>Works with spreadsheet tools</li>
+              <li>Easy to share between programs</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Why Use the csv Module?</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Without csv module (manual)</div>
+        <pre><span class="kw">with</span> <span class="fn">open</span>(<span class="str">"students.txt"</span>, <span class="str">"r"</span>) <span class="kw">as</span> f:
+    <span class="kw">for</span> line <span class="kw">in</span> f:
+        parts = line.<span class="fn">strip</span>().<span class="fn">split</span>(<span class="str">","</span>)
+        name  = parts[<span class="num">0</span>]
+        marks = <span class="fn">int</span>(parts[<span class="num">1</span>])
+        grade = parts[<span class="num">2</span>]</pre>
+        <div class="mistake"><strong>✗ Breaks when:</strong> a value contains a comma (e.g. <code>"Smith, Jr"</code>)</div>
+      </div>
+      <div>
+        <div class="block-label">Why manual logic is fragile</div>
+        <div class="concept">
+          <ul>
+            <li>Must manually strip newlines</li>
+            <li>Must split by comma yourself</li>
+            <li>Fails if a field contains a comma</li>
+            <li>Header handling is manual</li>
+            <li>No standard write format</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.9rem;"><strong>Key point:</strong> The <code>csv</code> module handles quoting, escaping, and row structure automatically.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">Text File vs CSV File</span>
+    </div>
+    <div class="section-body wide">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Text File</th>
+            <th>CSV File</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Main purpose</td><td>General text storage</td><td>Row-column data storage</td></tr>
+          <tr><td>Structure</td><td>Free-form</td><td>Tabular (rows &amp; columns)</td></tr>
+          <tr><td>Separator</td><td>Not fixed</td><td>Usually comma</td></tr>
+          <tr><td>Processing</td><td>Manual logic needed</td><td><code>csv</code> module available</td></tr>
+          <tr><td>Common use</td><td>Notes, logs, paragraphs</td><td>Marks, records, reports</td></tr>
+        </tbody>
+      </table>
+      <div class="obs" style="margin-top:1rem;"><strong>Key point:</strong> Every CSV file is a text file, but not every text file is a CSV file.</div>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Importing the csv Module</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Import</div>
+        <pre><span class="kw">import</span> csv</pre>
+        <div style="margin-top:1rem;">
+          <div class="block-label">Key tools provided</div>
+          <div class="concept">
+            <ul>
+              <li><code>csv.reader()</code> — reads rows as lists</li>
+              <li><code>csv.writer()</code> — writes list rows</li>
+              <li><code>csv.DictReader()</code> — reads rows as dicts</li>
+              <li><code>csv.DictWriter()</code> — writes dict rows</li>
+            </ul>
+          </div>
+        </div>
+        <div class="mistake" style="margin-top:0.75rem;"><strong>✗ Mistake:</strong> Using <code>csv.reader()</code> without importing → <code>NameError</code></div>
+        <div class="fix"><strong>✓ Fix:</strong> Always write <code>import csv</code> at the top</div>
+      </div>
+      <div>
+        <div class="block-label">Basic template</div>
+        <pre><span class="kw">import</span> csv
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"students.csv"</span>, <span class="str">"r"</span>,
+           encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    reader = csv.<span class="fn">reader</span>(f)
+    <span class="kw">for</span> row <span class="kw">in</span> reader:
+        <span class="fn">print</span>(row)</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Reading CSV with csv.reader()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>csv.reader(f)</code> creates a reader object.</li>
+            <li>Each row is returned as a <strong>list of strings</strong>.</li>
+            <li>Header row is read like any other row.</li>
+            <li>Values are accessed by <strong>index</strong>: <code>row[0]</code>, <code>row[1]</code>…</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.9rem;"><strong>Key point:</strong> <code>csv.reader()</code> reads CSV row by row; each row is a list.</div>
+      </div>
+      <div>
+        <div class="block-label">Code &amp; Output</div>
+        <pre><span class="kw">import</span> csv
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"students.csv"</span>, <span class="str">"r"</span>,
+           encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    reader = csv.<span class="fn">reader</span>(f)
+    <span class="kw">for</span> row <span class="kw">in</span> reader:
+        <span class="fn">print</span>(row)
+
+<span class="cm"># ['name', 'marks', 'grade']</span>
+<span class="cm"># ['Aman', '87', 'A']</span>
+<span class="cm"># ['Ravi', '76', 'B']</span>
+<span class="cm"># ['Neha', '91', 'A']</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">CSV Values are Always Read as Strings</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Every value from a CSV file is a <strong>string</strong>, even numbers.</li>
+            <li><code>"87"</code> is NOT the integer <code>87</code>.</li>
+            <li>For arithmetic, you must <strong>convert explicitly</strong>.</li>
+          </ul>
+        </div>
+        <div class="mistake" style="margin-top:0.75rem;"><strong>✗ Mistake:</strong> <code>total += row[1]</code> → adds strings, not numbers</div>
+        <div class="fix"><strong>✓ Fix:</strong> <code>total += int(row[1])</code></div>
+        <div class="obs" style="margin-top:0.75rem;"><strong>Key point:</strong> Always convert numeric fields with <code>int()</code> or <code>float()</code> before computation.</div>
+      </div>
+      <div>
+        <div class="block-label">Proof</div>
+        <pre><span class="kw">for</span> row <span class="kw">in</span> reader:
+    <span class="fn">print</span>(row, <span class="fn">type</span>(row[<span class="num">1</span>]))
+
+<span class="cm"># ['name', 'marks'] &lt;class 'str'&gt;</span>
+<span class="cm"># ['Aman', '87']    &lt;class 'str'&gt;</span>
+<span class="cm"># ['Ravi', '76']    &lt;class 'str'&gt;</span></pre>
+        <div style="margin-top:1rem;">
+          <div class="block-label">Conversion</div>
+          <pre>marks = <span class="fn">int</span>(row[<span class="num">1</span>])     <span class="cm"># integer</span>
+price = <span class="fn">float</span>(row[<span class="num">2</span>])  <span class="cm"># decimal</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">Skipping the Header Row</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>The first row is often column names, not data.</li>
+            <li>Use <code>next(reader)</code> to consume it before the loop.</li>
+            <li>Store it in a variable if the header is needed later.</li>
+          </ul>
+        </div>
+        <div class="mistake" style="margin-top:0.75rem;"><strong>✗ Mistake:</strong> Calling <code>int(row[1])</code> on the header row → <code>ValueError: invalid literal 'marks'</code></div>
+        <div class="fix"><strong>✓ Fix:</strong> Call <code>next(reader)</code> before the loop</div>
+      </div>
+      <div>
+        <div class="block-label">Code</div>
+        <pre><span class="kw">import</span> csv
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"students.csv"</span>, <span class="str">"r"</span>,
+           encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    reader = csv.<span class="fn">reader</span>(f)
+    header = <span class="fn">next</span>(reader)   <span class="cm"># skip header</span>
+    <span class="kw">for</span> row <span class="kw">in</span> reader:
+        name  = row[<span class="num">0</span>]
+        marks = <span class="fn">int</span>(row[<span class="num">1</span>])
+        grade = row[<span class="num">2</span>]
+        <span class="fn">print</span>(name, marks, grade)
+
+<span class="cm"># Aman 87 A</span>
+<span class="cm"># Ravi 76 B</span>
+<span class="cm"># Neha 91 A</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8 -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">Calculating Total and Average</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Steps involved</div>
+        <div class="concept">
+          <ul>
+            <li>Skip header with <code>next(reader)</code></li>
+            <li>Convert marks to <code>int</code> per row</li>
+            <li>Accumulate total and count</li>
+            <li>Divide after the loop for average</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.9rem;"><strong>Key point:</strong> CSV reading + type conversion + accumulation is a very common pattern.</div>
+      </div>
+      <div>
+        <div class="block-label">Code &amp; Output</div>
+        <pre><span class="kw">import</span> csv
+total = <span class="num">0</span>; count = <span class="num">0</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"students.csv"</span>, <span class="str">"r"</span>,
+           encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    reader = csv.<span class="fn">reader</span>(f)
+    <span class="fn">next</span>(reader)
+    <span class="kw">for</span> row <span class="kw">in</span> reader:
+        marks  = <span class="fn">int</span>(row[<span class="num">1</span>])
+        total += marks
+        count += <span class="num">1</span>
+
+average = total / count
+<span class="fn">print</span>(<span class="str">"Total ="</span>,   total)    <span class="cm"># 322</span>
+<span class="fn">print</span>(<span class="str">"Average ="</span>, average)  <span class="cm"># 80.5</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9 -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <span class="section-title">Filtering Records</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Add an <code>if</code> condition inside the row loop.</li>
+            <li>Convert the field to the right type before comparing.</li>
+            <li>Process or print only rows that match the condition.</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.9rem;"><strong>Key point:</strong> CSV processing is commonly used for filtering, searching, summarising, and reporting.</div>
+      </div>
+      <div>
+        <div class="block-label">Print students with marks ≥ 80</div>
+        <pre><span class="kw">import</span> csv
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"students.csv"</span>, <span class="str">"r"</span>,
+           encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    reader = csv.<span class="fn">reader</span>(f)
+    <span class="fn">next</span>(reader)
+    <span class="kw">for</span> row <span class="kw">in</span> reader:
+        name  = row[<span class="num">0</span>]
+        marks = <span class="fn">int</span>(row[<span class="num">1</span>])
+        grade = row[<span class="num">2</span>]
+        <span class="kw">if</span> marks >= <span class="num">80</span>:
+            <span class="fn">print</span>(name, marks, grade)
+
+<span class="cm"># Aman 87 A</span>
+<span class="cm"># Neha 91 A</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <span class="section-title">Writing CSV with csv.writer()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Open file in <strong>write mode</strong> <code>"w"</code> with <code>newline=""</code>.</li>
+            <li><code>csv.writer(f)</code> creates a writer object.</li>
+            <li><code>writerow(list)</code> writes <strong>one row</strong> as a list.</li>
+            <li>First call is usually the header row.</li>
+          </ul>
+        </div>
+        <div class="mistake" style="margin-top:0.75rem;"><strong>✗ Mistake:</strong> Opening without <code>newline=""</code> may add extra blank lines between rows on Windows</div>
+        <div class="fix"><strong>✓ Fix:</strong> Always use <code>open(..., newline="")</code> when writing CSV</div>
+      </div>
+      <div>
+        <div class="block-label">Code</div>
+        <pre><span class="kw">import</span> csv
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"students.csv"</span>, <span class="str">"w"</span>,
+           newline=<span class="str">""</span>, encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    writer = csv.<span class="fn">writer</span>(f)
+    writer.<span class="fn">writerow</span>([<span class="str">"name"</span>, <span class="str">"marks"</span>, <span class="str">"grade"</span>])
+    writer.<span class="fn">writerow</span>([<span class="str">"Aman"</span>, <span class="num">87</span>, <span class="str">"A"</span>])
+    writer.<span class="fn">writerow</span>([<span class="str">"Ravi"</span>, <span class="num">76</span>, <span class="str">"B"</span>])
+    writer.<span class="fn">writerow</span>([<span class="str">"Neha"</span>, <span class="num">91</span>, <span class="str">"A"</span>])
+
+<span class="cm"># File: name,marks,grade</span>
+<span class="cm">#       Aman,87,A  ...</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11 -->
+  <div class="section" id="s11">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <span class="section-title">Writing Multiple Rows with writerows()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>writerow()</code> → writes <strong>one</strong> row (one list).</li>
+            <li><code>writerows()</code> → writes <strong>many</strong> rows (list of lists).</li>
+            <li>Useful when data is already collected in a nested list.</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.9rem;"><strong>Key point:</strong> <code>writerows()</code> saves you from calling <code>writerow()</code> in a loop.</div>
+      </div>
+      <div>
+        <div class="block-label">Code</div>
+        <pre><span class="kw">import</span> csv
+records = [
+    [<span class="str">"name"</span>, <span class="str">"marks"</span>, <span class="str">"grade"</span>],
+    [<span class="str">"Aman"</span>, <span class="num">87</span>, <span class="str">"A"</span>],
+    [<span class="str">"Ravi"</span>, <span class="num">76</span>, <span class="str">"B"</span>],
+    [<span class="str">"Neha"</span>, <span class="num">91</span>, <span class="str">"A"</span>]
+]
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"students.csv"</span>, <span class="str">"w"</span>,
+           newline=<span class="str">""</span>, encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    writer = csv.<span class="fn">writer</span>(f)
+    writer.<span class="fn">writerows</span>(records)</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12 -->
+  <div class="section" id="s12">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <span class="section-title">Reading as Dictionary — csv.DictReader()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Each row is returned as a <strong>dictionary</strong>.</li>
+            <li>Column names become <strong>dictionary keys</strong> automatically.</li>
+            <li>No need to call <code>next()</code> — header is consumed automatically.</li>
+            <li>Access values by name: <code>row["marks"]</code> instead of <code>row[1]</code>.</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.9rem;"><strong>Key point:</strong> DictReader improves readability because fields are accessed by meaningful column names.</div>
+      </div>
+      <div>
+        <div class="block-label">Code &amp; Output</div>
+        <pre><span class="kw">import</span> csv
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"students.csv"</span>, <span class="str">"r"</span>,
+           encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    reader = csv.<span class="fn">DictReader</span>(f)
+    <span class="kw">for</span> row <span class="kw">in</span> reader:
+        <span class="fn">print</span>(row)
+
+<span class="cm"># {'name':'Aman','marks':'87','grade':'A'}</span>
+<span class="cm"># {'name':'Ravi','marks':'76','grade':'B'}</span>
+<span class="cm"># {'name':'Neha','marks':'91','grade':'A'}</span></pre>
+        <div style="margin-top:0.75rem;">
+          <pre>name  = row[<span class="str">"name"</span>]
+marks = <span class="fn">int</span>(row[<span class="str">"marks"</span>])
+grade = row[<span class="str">"grade"</span>]</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13 -->
+  <div class="section" id="s13">
+    <div class="section-header">
+      <span class="section-num">13</span>
+      <span class="section-title">Filtering Records with DictReader</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Why DictReader is better for filtering</div>
+        <div class="concept">
+          <ul>
+            <li><code>row["name"]</code> is clearer than <code>row[0]</code>.</li>
+            <li>Code remains readable even with many columns.</li>
+            <li>Adding/removing columns in CSV doesn't break index-based access.</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.9rem;"><strong>Key point:</strong> Prefer DictReader when the CSV has meaningful column headers.</div>
+      </div>
+      <div>
+        <div class="block-label">Code — marks ≥ 80</div>
+        <pre><span class="kw">import</span> csv
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"students.csv"</span>, <span class="str">"r"</span>,
+           encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    reader = csv.<span class="fn">DictReader</span>(f)
+    <span class="kw">for</span> row <span class="kw">in</span> reader:
+        name  = row[<span class="str">"name"</span>]
+        marks = <span class="fn">int</span>(row[<span class="str">"marks"</span>])
+        grade = row[<span class="str">"grade"</span>]
+        <span class="kw">if</span> marks >= <span class="num">80</span>:
+            <span class="fn">print</span>(name, marks, grade)
+
+<span class="cm"># Aman 87 A</span>
+<span class="cm"># Neha 91 A</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14 -->
+  <div class="section" id="s14">
+    <div class="section-header">
+      <span class="section-num">14</span>
+      <span class="section-title">Writing Dictionaries — csv.DictWriter()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>fieldnames</code> defines the column order.</li>
+            <li><code>writeheader()</code> writes the header row first.</li>
+            <li><code>writerows(records)</code> writes a list of dicts.</li>
+            <li>Each dict key must match a field name.</li>
+          </ul>
+        </div>
+        <div class="obs" style="margin-top:0.9rem;"><strong>Key point:</strong> DictWriter is ideal when records are naturally stored as dictionaries.</div>
+      </div>
+      <div>
+        <div class="block-label">Code</div>
+        <pre><span class="kw">import</span> csv
+records = [
+    {<span class="str">"name"</span>:<span class="str">"Aman"</span>, <span class="str">"marks"</span>:<span class="num">87</span>, <span class="str">"grade"</span>:<span class="str">"A"</span>},
+    {<span class="str">"name"</span>:<span class="str">"Ravi"</span>, <span class="str">"marks"</span>:<span class="num">76</span>, <span class="str">"grade"</span>:<span class="str">"B"</span>},
+]
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"students.csv"</span>, <span class="str">"w"</span>,
+           newline=<span class="str">""</span>, encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    fields = [<span class="str">"name"</span>, <span class="str">"marks"</span>, <span class="str">"grade"</span>]
+    writer = csv.<span class="fn">DictWriter</span>(f, fieldnames=fields)
+    writer.<span class="fn">writeheader</span>()
+    writer.<span class="fn">writerows</span>(records)</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 15 -->
+  <div class="section" id="s15">
+    <div class="section-header">
+      <span class="section-num">15</span>
+      <span class="section-title">Why newline="" is Used When Writing</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Explanation</div>
+        <div class="concept">
+          <ul>
+            <li>Python's default file mode translates <code>\n</code> on Windows, adding extra blank lines to CSV output.</li>
+            <li><code>newline=""</code> disables that translation and lets the <code>csv</code> module handle line endings.</li>
+            <li>It does <strong>not</strong> mean rows won't advance to the next line.</li>
+            <li>Only needed when <strong>writing</strong>, not reading.</li>
+          </ul>
+        </div>
+        <div class="mistake" style="margin-top:0.75rem;"><strong>✗ Without newline="":</strong> blank lines appear between every row on Windows</div>
+        <div class="fix"><strong>✓ With newline="":</strong> clean output, one row per line</div>
+      </div>
+      <div>
+        <div class="block-label">Correct pattern</div>
+        <pre><span class="cm"># Always write CSV like this:</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"out.csv"</span>, <span class="str">"w"</span>,
+           newline=<span class="str">""</span>,        <span class="cm"># ← key</span>
+           encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    writer = csv.<span class="fn">writer</span>(f)
+    writer.<span class="fn">writerow</span>([<span class="str">"name"</span>, <span class="str">"marks"</span>])
+    writer.<span class="fn">writerow</span>([<span class="str">"Aman"</span>, <span class="num">87</span>])</pre>
+        <div class="obs" style="margin-top:0.75rem;"><strong>Rule:</strong> <code>newline=""</code> is recommended whenever you open a file for CSV writing.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 16 -->
+  <div class="section" id="s16">
+    <div class="section-header">
+      <span class="section-num">16</span>
+      <span class="section-title">csv.reader() vs csv.DictReader()</span>
+    </div>
+    <div class="section-body wide">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>csv.reader()</th>
+            <th>csv.DictReader()</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Row form</td><td>List</td><td>Dictionary</td></tr>
+          <tr><td>Access style</td><td>By index: <code>row[0]</code></td><td>By column name: <code>row["name"]</code></td></tr>
+          <tr><td>Header handling</td><td>Manual — use <code>next()</code></td><td>Automatic</td></tr>
+          <tr><td>Readability</td><td>Lower for many columns</td><td>Higher with named columns</td></tr>
+          <tr><td>Best use</td><td>Small/simple CSV</td><td>Structured CSV with headers</td></tr>
+        </tbody>
+      </table>
+      <div class="obs" style="margin-top:1rem;"><strong>Rule:</strong> Use <code>DictReader</code> when headers are meaningful; use <code>reader</code> when the file is simple or headerless.</div>
+    </div>
+  </div>
+
+  <!-- 17 -->
+  <div class="section" id="s17">
+    <div class="section-header">
+      <span class="section-num">17</span>
+      <span class="section-title">Common CSV Mistakes</span>
+    </div>
+    <div class="section-body wide">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+        <div>
+          <div class="mistake"><strong>✗</strong> Forgetting <code>import csv</code><br><small>→ NameError: name 'csv' is not defined</small></div>
+          <div class="fix" style="margin-top:0.3rem;"><strong>✓</strong> Always add <code>import csv</code> at the top</div>
+
+          <div class="mistake" style="margin-top:0.8rem;"><strong>✗</strong> Not skipping header before <code>int(row[1])</code><br><small>→ ValueError: invalid literal for int() with base 10: 'marks'</small></div>
+          <div class="fix" style="margin-top:0.3rem;"><strong>✓</strong> Call <code>next(reader)</code> before the loop</div>
+
+          <div class="mistake" style="margin-top:0.8rem;"><strong>✗</strong> <code>total += row[1]</code> instead of <code>int(row[1])</code><br><small>→ Concatenates strings instead of adding numbers</small></div>
+          <div class="fix" style="margin-top:0.3rem;"><strong>✓</strong> Convert: <code>total += int(row[1])</code></div>
+        </div>
+        <div>
+          <div class="mistake"><strong>✗</strong> Missing <code>newline=""</code> while writing<br><small>→ Extra blank lines in file on Windows</small></div>
+          <div class="fix" style="margin-top:0.3rem;"><strong>✓</strong> <code>open("f.csv", "w", newline="")</code></div>
+
+          <div class="mistake" style="margin-top:0.8rem;"><strong>✗</strong> Wrong field name in DictReader: <code>row["mark"]</code><br><small>→ KeyError: 'mark'</small></div>
+          <div class="fix" style="margin-top:0.3rem;"><strong>✓</strong> Check the exact column name in the file: <code>row["marks"]</code></div>
+
+          <div class="mistake" style="margin-top:0.8rem;"><strong>✗</strong> Opening for write without specifying mode<br><small>→ Default <code>"r"</code> mode → can't write</small></div>
+          <div class="fix" style="margin-top:0.3rem;"><strong>✓</strong> Use <code>open("f.csv", "w", newline="")</code></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 18 -->
+  <div class="section" id="s18">
+    <div class="section-header">
+      <span class="section-num">18</span>
+      <span class="section-title">Practice Problems</span>
+    </div>
+    <div class="section-body wide">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+        <div>
+          <div class="block-label">Problem 1 — Discount Report</div>
+          <div class="concept">
+            <p>Read <code>products.csv</code> using <code>DictReader</code>. For each product, compute the discounted price. Write the result to <code>discount_report.csv</code> using <code>DictWriter</code>.</p>
+          </div>
+          <pre style="margin-top:0.75rem;"><span class="cm"># products.csv</span>
+product,price,discount_percent
+Pen,<span class="num">20</span>,<span class="num">10</span>
+Notebook,<span class="num">80</span>,<span class="num">15</span>
+Bag,<span class="num">1200</span>,<span class="num">20</span>
+Bottle,<span class="num">250</span>,<span class="num">5</span></pre>
+          <div class="concept" style="margin-top:0.5rem; font-size:0.85rem; color:var(--muted);">
+            Skills: DictReader · type conversion · derived value · rounding · DictWriter
+          </div>
+        </div>
+        <div>
+          <div class="block-label">Problem 2 — Department Count</div>
+          <div class="concept">
+            <p>Read <code>employees.csv</code> using <code>DictReader</code>. Count how many employees belong to each department and print the result.</p>
+          </div>
+          <pre style="margin-top:0.75rem;"><span class="cm"># employees.csv</span>
+emp_id,name,department
+E101,Anita,HR
+E102,Rohit,IT
+E103,Kavya,IT
+E104,Manish,Finance
+E105,Neha,HR</pre>
+          <div class="concept" style="margin-top:0.5rem; font-size:0.85rem; color:var(--muted);">
+            Skills: DictReader · dictionary as counter · grouping records
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cheat Sheet -->
+  <div class="cheatsheet">
+    <h2>⚡ Quick-Reference Cheat Sheet</h2>
+    <div class="cs-grid">
+      <div class="cs-item"><div class="cs-code">import csv</div><div class="cs-desc">Required before any csv use</div></div>
+      <div class="cs-item"><div class="cs-code">csv.reader(f)</div><div class="cs-desc">Read rows as lists</div></div>
+      <div class="cs-item"><div class="cs-code">csv.writer(f)</div><div class="cs-desc">Write list rows to CSV</div></div>
+      <div class="cs-item"><div class="cs-code">csv.DictReader(f)</div><div class="cs-desc">Read rows as dictionaries</div></div>
+      <div class="cs-item"><div class="cs-code">csv.DictWriter(f, fieldnames)</div><div class="cs-desc">Write dict rows to CSV</div></div>
+      <div class="cs-item"><div class="cs-code">next(reader)</div><div class="cs-desc">Skip / store header row</div></div>
+      <div class="cs-item"><div class="cs-code">writer.writerow(list)</div><div class="cs-desc">Write one row</div></div>
+      <div class="cs-item"><div class="cs-code">writer.writerows(nested)</div><div class="cs-desc">Write multiple rows at once</div></div>
+      <div class="cs-item"><div class="cs-code">writer.writeheader()</div><div class="cs-desc">Write header (DictWriter)</div></div>
+      <div class="cs-item"><div class="cs-code">row[0] / row["col"]</div><div class="cs-desc">Index vs named access</div></div>
+      <div class="cs-item"><div class="cs-code">int(row[1])</div><div class="cs-desc">Convert string → int for math</div></div>
+      <div class="cs-item"><div class="cs-code">open(..., newline="")</div><div class="cs-desc">Prevent blank lines on write</div></div>
+      <div class="cs-item"><div class="cs-code">encoding="utf-8"</div><div class="cs-desc">Always specify encoding</div></div>
+      <div class="cs-item"><div class="cs-code">open(..., "r")</div><div class="cs-desc">Read mode for reading</div></div>
+      <div class="cs-item"><div class="cs-code">open(..., "w")</div><div class="cs-desc">Write mode (overwrites file)</div></div>
+      <div class="cs-item"><div class="cs-code">open(..., "a")</div><div class="cs-desc">Append mode (adds to file)</div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
