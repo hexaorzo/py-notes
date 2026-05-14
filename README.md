@@ -1,6 +1,8 @@
 # py-notes
 
 
+- [Functions, Lambda, Map & Filter](functions.html)
+
 ## Collections
 
 - [Strings](strings.html)

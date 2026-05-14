@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Functions — Study Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #141418;
+    --surface2: #1c1c23;
+    --border: #2a2a38;
+    --accent: #f0c040;
+    --accent2: #5b8fff;
+    --accent3: #ff6b8a;
+    --accent4: #4ecfa8;
+    --text: #e8e8f0;
+    --muted: #7a7a9a;
+    --code-bg: #0a0a12;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* === HEADER === */
+  header {
+    position: relative;
+    padding: 60px 48px 40px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(240,192,64,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header-tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.5s 0.1s forwards;
+  }
+
+  header h1 {
+    font-size: clamp(2.4rem, 5vw, 4.2rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -1px;
+    opacity: 0;
+    animation: fadeUp 0.5s 0.2s forwards;
+  }
+
+  header h1 span { color: var(--accent); }
+
+  .header-sub {
+    margin-top: 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    opacity: 0;
+    animation: fadeUp 0.5s 0.3s forwards;
+  }
+
+  /* === NAV TABS === */
+  .nav-tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 48px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+    opacity: 0;
+    animation: fadeUp 0.5s 0.4s forwards;
+  }
+
+  .nav-tabs::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 16px 24px;
+    border: none;
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* === MAIN CONTENT === */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 48px 80px;
+  }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* === SECTION HEADER === */
+  .section-header {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 40px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+
+  .section-title {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .section-title .highlight { color: var(--accent); }
+
+  /* === CONCEPT CARD === */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 28px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: #3a3a55; }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 22px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card-icon {
+    width: 32px; height: 32px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+
+  .card-badge {
+    margin-left: auto;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+
+  .badge-concept { background: rgba(91,143,255,0.15); color: var(--accent2); border: 1px solid rgba(91,143,255,0.3); }
+  .badge-warning { background: rgba(255,107,138,0.15); color: var(--accent3); border: 1px solid rgba(255,107,138,0.3); }
+  .badge-tip { background: rgba(78,207,168,0.15); color: var(--accent4); border: 1px solid rgba(78,207,168,0.3); }
+
+  .card-body {
+    padding: 20px 22px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .card-body.single { grid-template-columns: 1fr; }
+  .card-body.triple { grid-template-columns: 1fr 1fr 1fr; }
+
+  @media (max-width: 700px) {
+    .card-body, .card-body.triple { grid-template-columns: 1fr; }
+    main { padding: 24px 20px 60px; }
+    .nav-tabs { padding: 0 20px; }
+    header { padding: 40px 20px 28px; }
+  }
+
+  /* === PROSE === */
+  .prose {
+    font-size: 14px;
+    line-height: 1.75;
+    color: #c0c0d8;
+  }
+
+  .prose strong { color: var(--text); font-weight: 700; }
+  .prose em { color: var(--accent); font-style: normal; font-weight: 600; }
+
+  .prose ul {
+    list-style: none;
+    margin-top: 8px;
+  }
+
+  .prose ul li {
+    padding: 3px 0 3px 18px;
+    position: relative;
+  }
+
+  .prose ul li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* === CODE BLOCK === */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+  }
+
+  .code-lang {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .code-dots { display: flex; gap: 5px; }
+  .code-dots span { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+
+  pre {
+    font-family: 'Space Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.8;
+    padding: 16px;
+    overflow-x: auto;
+    white-space: pre;
+    color: #c8c8e8;
+  }
+
+  /* Syntax highlighting */
+  .kw { color: #ff6b8a; } /* keywords */
+  .fn { color: #5b8fff; } /* function names */
+  .st { color: #4ecfa8; } /* strings */
+  .cm { color: #555570; font-style: italic; } /* comments */
+  .nm { color: #f0c040; } /* numbers */
+  .bi { color: #e0a0ff; } /* builtins */
+  .op { color: #ff9966; } /* operators */
+
+  /* === OUTPUT BLOCK === */
+  .output-block {
+    background: #080810;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent4);
+    border-radius: 4px;
+    padding: 14px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.8;
+    color: var(--accent4);
+  }
+
+  .output-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  /* === ALERT BOXES === */
+  .alert {
+    border-radius: 4px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    line-height: 1.65;
+    margin-top: 16px;
+  }
+
+  .alert-warning {
+    background: rgba(255,107,138,0.08);
+    border: 1px solid rgba(255,107,138,0.25);
+    border-left: 3px solid var(--accent3);
+    color: #e8b0bc;
+  }
+
+  .alert-tip {
+    background: rgba(78,207,168,0.08);
+    border: 1px solid rgba(78,207,168,0.25);
+    border-left: 3px solid var(--accent4);
+    color: #a0e8d8;
+  }
+
+  .alert-info {
+    background: rgba(91,143,255,0.08);
+    border: 1px solid rgba(91,143,255,0.25);
+    border-left: 3px solid var(--accent2);
+    color: #a8bce8;
+  }
+
+  .alert strong { font-weight: 700; }
+  .alert-warning strong { color: var(--accent3); }
+  .alert-tip strong { color: var(--accent4); }
+  .alert-info strong { color: var(--accent2); }
+
+  /* === COMPARISON TABLE === */
+  .comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+
+  .comp-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 10px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .comp-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(42,42,56,0.6);
+    color: #c0c0d8;
+    line-height: 1.55;
+    vertical-align: top;
+  }
+
+  .comp-table tr:last-child td { border-bottom: none; }
+  .comp-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .comp-table code {
+    font-family: 'Space Mono', monospace;
+    font-size: 11.5px;
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+
+  /* === RULE PILL === */
+  .rule-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(240,192,64,0.1);
+    border: 1px solid rgba(240,192,64,0.3);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 4px 4px 4px 0;
+  }
+
+  /* === QUIZ SECTION === */
+  .quiz-q {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 22px;
+    margin-bottom: 16px;
+  }
+
+  .quiz-q .q-text {
+    font-size: 14.5px;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  .quiz-q .q-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+
+  .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+
+  .quiz-opt {
+    font-family: 'Space Mono', monospace;
+    font-size: 12.5px;
+    padding: 9px 14px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    color: #c8c8e8;
+    text-align: left;
+  }
+
+  .quiz-opt:hover { border-color: #4a4a66; background: #111118; }
+  .quiz-opt.correct { border-color: var(--accent4); background: rgba(78,207,168,0.1); color: var(--accent4); }
+  .quiz-opt.wrong { border-color: var(--accent3); background: rgba(255,107,138,0.1); color: var(--accent3); }
+
+  .quiz-explain {
+    display: none;
+    margin-top: 12px;
+    font-size: 13px;
+    line-height: 1.65;
+    padding: 12px 14px;
+    border-radius: 4px;
+    border: 1px solid rgba(91,143,255,0.3);
+    background: rgba(91,143,255,0.07);
+    color: #a8bce8;
+  }
+
+  /* === ANIMATIONS === */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section.active .card {
+    animation: fadeUp 0.35s both;
+  }
+
+  .section.active .card:nth-child(1) { animation-delay: 0.05s; }
+  .section.active .card:nth-child(2) { animation-delay: 0.1s; }
+  .section.active .card:nth-child(3) { animation-delay: 0.15s; }
+  .section.active .card:nth-child(4) { animation-delay: 0.2s; }
+  .section.active .card:nth-child(5) { animation-delay: 0.25s; }
+  .section.active .card:nth-child(6) { animation-delay: 0.3s; }
+
+  /* === DIVIDER === */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+
+  .sub-heading {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent2);
+    margin: 28px 0 14px;
+    letter-spacing: 0.2px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-tag">Python · Dr. Rajesh Ranjan (SAU)</div>
+  <h1>Functions <span>&amp;</span> Functional Tools</h1>
+  <p class="header-sub">// lambda · map · filter · closures · decorators · scope</p>
+</header>
+
+<nav class="nav-tabs">
+  <button class="tab-btn active" onclick="showTab('functions')">Functions</button>
+  <button class="tab-btn" onclick="showTab('lambda')">Lambda</button>
+  <button class="tab-btn" onclick="showTab('mapfilter')">Map &amp; Filter</button>
+  <button class="tab-btn" onclick="showTab('scope')">Scope &amp; LEGB</button>
+  <button class="tab-btn" onclick="showTab('advanced')">Closures &amp; Decorators</button>
+  <button class="tab-btn" onclick="showTab('quiz')">Quick Quiz</button>
+</nav>
+
+<main>
+
+<!-- ========== FUNCTIONS ========== -->
+<section id="functions" class="section active">
+  <div class="section-header">
+    <div>
+      <div class="section-number">01 / 05</div>
+      <h2 class="section-title">Python <span class="highlight">Functions</span></h2>
+    </div>
+  </div>
+
+  <!-- Concept -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(91,143,255,0.15)">🧩</div>
+      <span class="card-title">What is a Function?</span>
+      <span class="card-badge badge-concept">Core</span>
+    </div>
+    <div class="card-body single">
+      <div class="prose">
+        A function is a <strong>reusable block of code</strong> with a name, parameters, body, and return value.<br>
+        Think of it as: <em>Input → Process → Output</em>
+        <ul>
+          <li>Reduces code duplication</li>
+          <li>Improves modularity and readability</li>
+          <li>Easier to test and maintain</li>
+          <li>Maps to real-world rules: tax, discount, grade calculators</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- print vs return -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(255,107,138,0.15)">⚠️</div>
+      <span class="card-title">print() vs return — Non-Negotiable</span>
+      <span class="card-badge badge-warning">Critical</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre><span class="kw">def</span> <span class="fn">area_print</span>(r):
+    <span class="bi">print</span>(<span class="nm">3.14159</span> * r * r)  <span class="cm"># side effect only</span>
+
+<span class="kw">def</span> <span class="fn">area_return</span>(r):
+    <span class="kw">return</span> <span class="nm">3.14159</span> * r * r  <span class="cm"># value you can reuse</span>
+
+x = <span class="fn">area_print</span>(<span class="nm">3</span>)  <span class="cm"># x = None !</span>
+y = <span class="fn">area_return</span>(<span class="nm">3</span>)  <span class="cm"># y = 28.27...</span>
+<span class="bi">print</span>(y + <span class="nm">10</span>)       <span class="cm"># works fine</span></pre>
+        </div>
+        <div class="output-label" style="margin-top:12px">Output</div>
+        <div class="output-block">28.274...<br>x = None<br>y = 28.274...<br>y+10 = 38.274...</div>
+      </div>
+      <div>
+        <div class="alert alert-warning">
+          <strong>Mistake:</strong> Using a <code style="font-family:monospace;font-size:12px;background:#1a0a10;padding:1px 5px;border-radius:3px">print()</code>-based function in expressions — it returns <code style="font-family:monospace;font-size:12px;background:#1a0a10;padding:1px 5px;border-radius:3px">None</code>.
+        </div>
+        <div class="alert alert-tip" style="margin-top:10px">
+          <strong>Rule:</strong> Business logic <em>returns</em>; the UI layer <em>prints</em>. Always compute with <code style="font-family:monospace;font-size:12px;background:#062010;padding:1px 5px;border-radius:3px">return</code>, print outside.
+        </div>
+        <table class="comp-table" style="margin-top:16px">
+          <tr><th>print()</th><th>return</th></tr>
+          <tr><td>Side effect (display)</td><td>Sends value back to caller</td></tr>
+          <tr><td>Returns <code>None</code></td><td>Returns actual value</td></tr>
+          <tr><td>Can't chain / reuse</td><td>Can be stored, chained, tested</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Args / Params -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(240,192,64,0.15)">📦</div>
+      <span class="card-title">Parameters &amp; Arguments</span>
+      <span class="card-badge badge-concept">Core</span>
+    </div>
+    <div class="card-body triple">
+      <div>
+        <div class="sub-heading" style="margin-top:0;font-size:.9rem">Positional</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre><span class="fn">power</span>(<span class="nm">2</span>, <span class="nm">5</span>)  <span class="cm"># → 32</span>
+<span class="fn">power</span>(<span class="nm">5</span>, <span class="nm">2</span>)  <span class="cm"># → 25</span></pre>
+        </div>
+        <div class="alert alert-warning" style="margin-top:10px;font-size:12.5px">
+          <strong>Danger:</strong> Same-type swaps fail silently.
+        </div>
+      </div>
+      <div>
+        <div class="sub-heading" style="margin-top:0;font-size:.9rem">Keyword</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre><span class="fn">si</span>(p=<span class="nm">1000</span>, r=<span class="nm">5</span>, t=<span class="nm">2</span>)
+<span class="fn">si</span>(t=<span class="nm">2</span>, p=<span class="nm">1000</span>, r=<span class="nm">5</span>)
+<span class="cm"># order doesn't matter</span></pre>
+        </div>
+        <div class="alert alert-tip" style="margin-top:10px;font-size:12.5px">
+          <strong>Fix:</strong> Use keyword args to prevent silent swap bugs.
+        </div>
+      </div>
+      <div>
+        <div class="sub-heading" style="margin-top:0;font-size:.9rem">Default</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre><span class="kw">def</span> <span class="fn">greet</span>(name, msg=<span class="st">"Hello"</span>):
+    <span class="kw">return</span> <span class="bi">f</span><span class="st">"{msg}, {name}"</span>
+
+<span class="fn">greet</span>(<span class="st">"Raj"</span>)         <span class="cm"># Hello, Raj</span>
+<span class="fn">greet</span>(<span class="st">"Raj"</span>,<span class="st">"Hi"</span>)  <span class="cm"># Hi, Raj</span></pre>
+        </div>
+      </div>
+    </div>
+    <div style="padding:0 22px 18px">
+      <div class="alert alert-warning">
+        <strong>Rule:</strong> Non-default params must come BEFORE default params. <code style="font-family:monospace;font-size:12px;background:#1a0a10;padding:1px 5px;border-radius:3px">def f(a=10, b):</code> → SyntaxError. Correct: <code style="font-family:monospace;font-size:12px;background:#1a0a10;padding:1px 5px;border-radius:3px">def f(a, b=10):</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- *args / **kwargs -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(78,207,168,0.15)">🌊</div>
+      <span class="card-title">*args and **kwargs</span>
+      <span class="card-badge badge-concept">Flexible</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <div class="sub-heading" style="margin-top:0;font-size:.9rem">*args — variable positional</div>
+        <div class="prose" style="margin-bottom:10px">Collects extra positional args into a <strong>tuple</strong>.</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre><span class="kw">def</span> <span class="fn">add_all</span>(*nums):
+    <span class="kw">return</span> <span class="bi">sum</span>(nums)
+
+<span class="fn">add_all</span>(<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>)    <span class="cm"># → 6</span>
+<span class="fn">add_all</span>(<span class="nm">10</span>,<span class="nm">20</span>)   <span class="cm"># → 30</span>
+<span class="fn">add_all</span>()        <span class="cm"># → 0</span></pre>
+        </div>
+      </div>
+      <div>
+        <div class="sub-heading" style="margin-top:0;font-size:.9rem">**kwargs — variable keyword</div>
+        <div class="prose" style="margin-bottom:10px">Collects extra keyword args into a <strong>dict</strong>.</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre><span class="kw">def</span> <span class="fn">show</span>(**info):
+    <span class="kw">for</span> k, v <span class="kw">in</span> info.items():
+        <span class="bi">print</span>(k, <span class="st">"="</span>, v)
+
+<span class="fn">show</span>(name=<span class="st">"Raj"</span>, dept=<span class="st">"CSE"</span>)
+<span class="cm"># name = Raj</span>
+<span class="cm"># dept = CSE</span></pre>
+        </div>
+        <div class="alert alert-info" style="margin-top:10px">
+          <strong>Unpacking at call site:</strong><br>
+          <code style="font-family:monospace;font-size:12px">f(*list)</code> unpacks list as positional args.<br>
+          <code style="font-family:monospace;font-size:12px">f(**dict)</code> unpacks dict as keyword args.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mutable Default Bug -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(255,107,138,0.15)">🐛</div>
+      <span class="card-title">Mutable Default Argument Bug</span>
+      <span class="card-badge badge-warning">Gotcha</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <div class="prose" style="margin-bottom:10px">Default values are evaluated <strong>once</strong> at definition time. A mutable default (like <code style="font-family:monospace;font-size:12px;background:#0a0a12;padding:1px 5px;border-radius:3px">[]</code>) accumulates across calls.</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Broken ❌</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre><span class="kw">def</span> <span class="fn">add_item</span>(x, L=[]):
+    L.append(x)
+    <span class="kw">return</span> L
+
+<span class="fn">add_item</span>(<span class="nm">10</span>)  <span class="cm"># [10]</span>
+<span class="fn">add_item</span>(<span class="nm">20</span>)  <span class="cm"># [10, 20] ← surprise!</span>
+<span class="fn">add_item</span>(<span class="nm">30</span>)  <span class="cm"># [10, 20, 30] ← worse!</span></pre>
+        </div>
+      </div>
+      <div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Fixed ✅ — None sentinel</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre><span class="kw">def</span> <span class="fn">add_item</span>(x, L=<span class="kw">None</span>):
+    <span class="kw">if</span> L <span class="kw">is</span> <span class="kw">None</span>:
+        L = []
+    L.append(x)
+    <span class="kw">return</span> L
+
+<span class="fn">add_item</span>(<span class="nm">10</span>)  <span class="cm"># [10]</span>
+<span class="fn">add_item</span>(<span class="nm">20</span>)  <span class="cm"># [20]  ✓</span></pre>
+        </div>
+        <div class="alert alert-warning" style="margin-top:10px">
+          <strong>Note:</strong> Use <code style="font-family:monospace;font-size:12px;background:#1a0a10;padding:1px 5px;border-radius:3px">if L is None</code> not <code style="font-family:monospace;font-size:12px;background:#1a0a10;padding:1px 5px;border-radius:3px">if not L</code> — the latter resets even an intentionally empty list passed by the caller.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Multiple return / Returning multiple values -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(240,192,64,0.15)">↩️</div>
+      <span class="card-title">Return Patterns</span>
+      <span class="card-badge badge-concept">Core</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <div class="sub-heading" style="margin-top:0;font-size:.9rem">Multiple return paths</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre><span class="kw">def</span> <span class="fn">grade</span>(m):
+    <span class="kw">if</span> m &lt; <span class="nm">0</span> <span class="kw">or</span> m &gt; <span class="nm">100</span>:
+        <span class="kw">return</span> <span class="st">"INVALID"</span>
+    <span class="kw">if</span> m &gt;= <span class="nm">90</span>: <span class="kw">return</span> <span class="st">"A"</span>
+    <span class="kw">if</span> m &gt;= <span class="nm">75</span>: <span class="kw">return</span> <span class="st">"B"</span>
+    <span class="kw">return</span> <span class="st">"C"</span></pre>
+        </div>
+        <div class="alert alert-warning" style="margin-top:10px;font-size:12.5px"><strong>Mistake:</strong> Forgetting a final return path → implicit <code style="font-family:monospace;font-size:11px;background:#1a0a10;padding:1px 4px;border-radius:2px">None</code> returned.</div>
+      </div>
+      <div>
+        <div class="sub-heading" style="margin-top:0;font-size:.9rem">Returning multiple values (tuple)</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre><span class="kw">def</span> <span class="fn">stats</span>(nums):
+    <span class="kw">return</span> <span class="bi">min</span>(nums), <span class="bi">max</span>(nums), <span class="bi">sum</span>(nums)/<span class="bi">len</span>(nums)
+
+t = <span class="fn">stats</span>([<span class="nm">10</span>,<span class="nm">5</span>,<span class="nm">15</span>])   <span class="cm"># (5, 15, 10.0)</span>
+mn, mx, avg = <span class="fn">stats</span>([<span class="nm">10</span>,<span class="nm">5</span>,<span class="nm">15</span>])</pre>
+        </div>
+        <div class="alert alert-info" style="margin-top:10px;font-size:12.5px"><strong>Tip:</strong> Multiple return values are packed into a <strong>tuple</strong> automatically. Unpack with matching variable count.</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ========== LAMBDA ========== -->
+<section id="lambda" class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-number">02 / 05</div>
+      <h2 class="section-title"><span class="highlight">Lambda</span> Functions</h2>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(91,143,255,0.15)">λ</div>
+      <span class="card-title">What is a Lambda?</span>
+      <span class="card-badge badge-concept">Core</span>
+    </div>
+    <div class="card-body single">
+      <div class="prose">
+        A <em>lambda</em> is a small, <strong>anonymous function</strong> defined in a single expression. It can take any number of arguments but only one expression.
+        <ul>
+          <li>Syntax: <code style="font-family:monospace;font-size:12px;background:#0a0a12;padding:1px 6px;border-radius:3px">lambda params: expression</code></li>
+          <li>Returns the result of the expression implicitly</li>
+          <li>Cannot contain statements, assignments, or multiple lines</li>
+          <li>Best used as short, throw-away functions passed to other functions</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(240,192,64,0.15)">🔁</div>
+      <span class="card-title">Lambda vs def — When to Use Which</span>
+      <span class="card-badge badge-concept">Comparison</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <div class="sub-heading" style="margin-top:0;font-size:.9rem">Using def</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre><span class="kw">def</span> <span class="fn">square</span>(x):
+    <span class="kw">return</span> x * x
+
+<span class="fn">square</span>(<span class="nm">5</span>)  <span class="cm"># → 25</span></pre>
+        </div>
+        <div class="alert alert-info" style="margin-top:10px;font-size:12.5px">Use <code style="font-family:monospace;font-size:11px;background:#060c18;padding:1px 4px;border-radius:2px">def</code> when logic is complex, reused many times, or needs a docstring.</div>
+      </div>
+      <div>
+        <div class="sub-heading" style="margin-top:0;font-size:.9rem">Using lambda</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre><span class="fn">square</span> = <span class="kw">lambda</span> x: x * x
+
+<span class="fn">square</span>(<span class="nm">5</span>)  <span class="cm"># → 25</span>
+<span class="cm"># Inline usage (most common)</span>
+nums = [<span class="nm">3</span>,<span class="nm">1</span>,<span class="nm">4</span>,<span class="nm">2</span>]
+<span class="bi">sorted</span>(nums, key=<span class="kw">lambda</span> x: -x)
+<span class="cm"># → [4, 3, 2, 1]</span></pre>
+        </div>
+        <div class="alert alert-tip" style="margin-top:10px;font-size:12.5px">Use <code style="font-family:monospace;font-size:11px;background:#06180c;padding:1px 4px;border-radius:2px">lambda</code> for short, one-off functions passed as arguments.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(78,207,168,0.15)">🔑</div>
+      <span class="card-title">sorted() with key= — Lambda Power Move</span>
+      <span class="card-badge badge-tip">Practical</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre>nums = [<span class="nm">10</span>, <span class="nm">2</span>, <span class="nm">30</span>, <span class="nm">4</span>]
+words = [<span class="st">"banana"</span>, <span class="st">"kiwi"</span>, <span class="st">"fig"</span>]
+
+<span class="cm"># Sort by length</span>
+<span class="bi">sorted</span>(words, key=<span class="kw">lambda</span> s: <span class="bi">len</span>(s))
+<span class="cm"># → ['fig', 'kiwi', 'banana']</span>
+
+<span class="cm"># Sort by absolute value</span>
+<span class="bi">sorted</span>([<span class="nm">-5</span>,<span class="nm">2</span>,<span class="nm">-1</span>,<span class="nm">3</span>], key=<span class="kw">lambda</span> x: <span class="bi">abs</span>(x))
+<span class="cm"># → [-1, 2, 3, -5]</span>
+
+<span class="cm"># Case-insensitive sort</span>
+<span class="bi">sorted</span>([<span class="st">"Raj"</span>,<span class="st">"amit"</span>,<span class="st">"Zara"</span>], key=<span class="kw">lambda</span> s: s.lower())
+<span class="cm"># → ['amit', 'Raj', 'Zara']</span></pre>
+        </div>
+      </div>
+      <div>
+        <div class="prose">
+          <strong>How key= works:</strong>
+          <ul>
+            <li><code style="font-family:monospace;font-size:12px;background:#0a0a12;padding:1px 5px;border-radius:3px">sorted(iterable)</code> returns a <em>new list</em> — original unchanged</li>
+            <li><code style="font-family:monospace;font-size:12px;background:#0a0a12;padding:1px 5px;border-radius:3px">key=</code> expects a function mapping element → comparison value</li>
+            <li><code style="font-family:monospace;font-size:12px;background:#0a0a12;padding:1px 5px;border-radius:3px">reverse=True</code> for descending order</li>
+            <li>Sorting is <strong>stable</strong> — ties preserve original order</li>
+          </ul>
+        </div>
+        <div class="alert alert-warning" style="margin-top:14px">
+          <strong>Mistake:</strong> <code style="font-family:monospace;font-size:12px;background:#1a0a10;padding:1px 5px;border-radius:3px">nums = nums.sort()</code> → becomes None!<br>
+          <strong>Fix:</strong> Use <code style="font-family:monospace;font-size:12px;background:#1a0a10;padding:1px 5px;border-radius:3px">nums.sort()</code> (in-place) or <code style="font-family:monospace;font-size:12px;background:#1a0a10;padding:1px 5px;border-radius:3px">nums = sorted(nums)</code> (new list)
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ========== MAP & FILTER ========== -->
+<section id="mapfilter" class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-number">03 / 05</div>
+      <h2 class="section-title"><span class="highlight">map()</span> &amp; filter()</h2>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(91,143,255,0.15)">🗺️</div>
+      <span class="card-title">map() — Transform Every Element</span>
+      <span class="card-badge badge-concept">Core</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <div class="prose" style="margin-bottom:10px">
+          <strong>map(func, iterable)</strong> applies <code style="font-family:monospace;font-size:12px;background:#0a0a12;padding:1px 5px;border-radius:3px">func</code> to every element and returns a <em>lazy iterator</em>.
+        </div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre>nums = [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>]
+
+<span class="cm"># Square every element</span>
+squares = <span class="bi">list</span>(<span class="bi">map</span>(<span class="kw">lambda</span> x: x*x, nums))
+<span class="cm"># → [1, 4, 9, 16, 25]</span>
+
+<span class="cm"># Convert to strings</span>
+strs = <span class="bi">list</span>(<span class="bi">map</span>(<span class="bi">str</span>, nums))
+<span class="cm"># → ['1','2','3','4','5']</span>
+
+<span class="cm"># Apply to two lists</span>
+a = [<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>]; b = [<span class="nm">10</span>,<span class="nm">20</span>,<span class="nm">30</span>]
+<span class="bi">list</span>(<span class="bi">map</span>(<span class="kw">lambda</span> x,y: x+y, a, b))
+<span class="cm"># → [11, 22, 33]</span></pre>
+        </div>
+      </div>
+      <div>
+        <div class="alert alert-warning">
+          <strong>Mistake:</strong> <code style="font-family:monospace;font-size:12px;background:#1a0a10;padding:1px 5px;border-radius:3px">print(map(...))</code> shows <code style="font-family:monospace;font-size:12px">&lt;map object at 0x...&gt;</code><br>
+          <strong>Fix:</strong> Wrap in <code style="font-family:monospace;font-size:12px;background:#1a0a10;padding:1px 5px;border-radius:3px">list(...)</code> to materialise results.
+        </div>
+        <div class="sub-heading">How map() works visually</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Diagram</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre>Input:   [1,    2,    3,    4,    5]
+          ↓     ↓     ↓     ↓     ↓
+func:   x*x   x*x   x*x   x*x   x*x
+          ↓     ↓     ↓     ↓     ↓
+Output:  [1,    4,    9,   16,   25]</pre>
+        </div>
+        <div class="alert alert-info" style="margin-top:10px;font-size:12.5px">
+          <strong>map() vs list comprehension:</strong><br>
+          <code style="font-family:monospace;font-size:11px;background:#060c18;padding:1px 4px;border-radius:2px">list(map(lambda x: x*x, nums))</code><br>
+          ≡ <code style="font-family:monospace;font-size:11px;background:#060c18;padding:1px 4px;border-radius:2px">[x*x for x in nums]</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(255,107,138,0.15)">🔍</div>
+      <span class="card-title">filter() — Keep Elements Matching a Condition</span>
+      <span class="card-badge badge-concept">Core</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <div class="prose" style="margin-bottom:10px">
+          <strong>filter(func, iterable)</strong> keeps only elements where <code style="font-family:monospace;font-size:12px;background:#0a0a12;padding:1px 5px;border-radius:3px">func(element)</code> returns <code style="font-family:monospace;font-size:12px;background:#0a0a12;padding:1px 5px;border-radius:3px">True</code>. Also a lazy iterator.
+        </div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre>nums = [<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>,<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>]
+
+<span class="cm"># Keep even numbers</span>
+evens = <span class="bi">list</span>(<span class="bi">filter</span>(<span class="kw">lambda</span> x: x%<span class="nm">2</span>==<span class="nm">0</span>, nums))
+<span class="cm"># → [2, 4, 6]</span>
+
+<span class="cm"># Keep positive numbers</span>
+pos = <span class="bi">list</span>(<span class="bi">filter</span>(<span class="kw">lambda</span> x: x&gt;<span class="nm">0</span>, [-<span class="nm">1</span>,<span class="nm">2</span>,-<span class="nm">3</span>,<span class="nm">4</span>]))
+<span class="cm"># → [2, 4]</span>
+
+<span class="cm"># Keep strings longer than 3 chars</span>
+words = [<span class="st">"hi"</span>,<span class="st">"hello"</span>,<span class="st">"yes"</span>,<span class="st">"no"</span>]
+<span class="bi">list</span>(<span class="bi">filter</span>(<span class="kw">lambda</span> s: <span class="bi">len</span>(s)&gt;<span class="nm">3</span>, words))
+<span class="cm"># → ['hello']</span></pre>
+        </div>
+      </div>
+      <div>
+        <div class="sub-heading" style="margin-top:0;font-size:.9rem">How filter() works visually</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Diagram</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre>Input:   [1,    2,    3,    4,    5,    6]
+pred: x%2==0: F     T     F     T     F     T
+              ✗     ✓     ✗     ✓     ✗     ✓
+Output:        [2,         4,         6]</pre>
+        </div>
+        <div class="alert alert-info" style="margin-top:10px;font-size:12.5px">
+          <strong>filter() vs list comprehension:</strong><br>
+          <code style="font-family:monospace;font-size:11px;background:#060c18;padding:1px 4px;border-radius:2px">list(filter(lambda x: x%2==0, nums))</code><br>
+          ≡ <code style="font-family:monospace;font-size:11px;background:#060c18;padding:1px 4px;border-radius:2px">[x for x in nums if x%2==0]</code>
+        </div>
+        <div class="alert alert-tip" style="margin-top:10px;font-size:12.5px">
+          <strong>filter(None, iterable)</strong> removes all falsy values (0, "", None, [], False).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(78,207,168,0.15)">⛓️</div>
+      <span class="card-title">Chaining map() and filter()</span>
+      <span class="card-badge badge-tip">Practical</span>
+    </div>
+    <div class="card-body single">
+      <div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre>nums = [<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>,<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>,<span class="nm">7</span>,<span class="nm">8</span>]
+
+<span class="cm"># Filter evens, then square them</span>
+result = <span class="bi">list</span>(<span class="bi">map</span>(<span class="kw">lambda</span> x: x*x,
+               <span class="bi">filter</span>(<span class="kw">lambda</span> x: x%<span class="nm">2</span>==<span class="nm">0</span>, nums)))
+<span class="cm"># → [4, 16, 36, 64]</span>
+
+<span class="cm"># Equivalent list comprehension</span>
+result = [x*x <span class="kw">for</span> x <span class="kw">in</span> nums <span class="kw">if</span> x%<span class="nm">2</span>==<span class="nm">0</span>]</pre>
+        </div>
+        <div class="alert alert-info" style="margin-top:14px">
+          <strong>map vs filter summary:</strong> <code style="font-family:monospace;font-size:12px">map</code> transforms (same count in/out) · <code style="font-family:monospace;font-size:12px">filter</code> selects (fewer or equal out) · both return iterators, wrap in <code style="font-family:monospace;font-size:12px">list()</code> to view.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ========== SCOPE ========== -->
+<section id="scope" class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-number">04 / 05</div>
+      <h2 class="section-title">Scope &amp; <span class="highlight">LEGB</span> Rule</h2>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(91,143,255,0.15)">🔭</div>
+      <span class="card-title">LEGB — Name Resolution Order</span>
+      <span class="card-badge badge-concept">Core</span>
+    </div>
+    <div class="card-body single">
+      <div>
+        <div class="prose" style="margin-bottom:16px">Python looks up names in this order, stopping at the first match:</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+          <div style="background:rgba(240,192,64,0.1);border:1px solid rgba(240,192,64,0.25);border-radius:6px;padding:14px 12px;text-align:center">
+            <div style="font-size:1.5rem;margin-bottom:6px">L</div>
+            <div style="font-weight:700;font-size:13px">Local</div>
+            <div style="color:var(--muted);font-size:12px;margin-top:4px">Inside the current function</div>
+          </div>
+          <div style="background:rgba(91,143,255,0.1);border:1px solid rgba(91,143,255,0.25);border-radius:6px;padding:14px 12px;text-align:center">
+            <div style="font-size:1.5rem;margin-bottom:6px">E</div>
+            <div style="font-weight:700;font-size:13px">Enclosing</div>
+            <div style="color:var(--muted);font-size:12px;margin-top:4px">Outer function (closures)</div>
+          </div>
+          <div style="background:rgba(78,207,168,0.1);border:1px solid rgba(78,207,168,0.25);border-radius:6px;padding:14px 12px;text-align:center">
+            <div style="font-size:1.5rem;margin-bottom:6px">G</div>
+            <div style="font-weight:700;font-size:13px">Global</div>
+            <div style="color:var(--muted);font-size:12px;margin-top:4px">Module-level variables</div>
+          </div>
+          <div style="background:rgba(255,107,138,0.1);border:1px solid rgba(255,107,138,0.25);border-radius:6px;padding:14px 12px;text-align:center">
+            <div style="font-size:1.5rem;margin-bottom:6px">B</div>
+            <div style="font-weight:700;font-size:13px">Built-in</div>
+            <div style="color:var(--muted);font-size:12px;margin-top:4px">print, len, sum…</div>
+          </div>
+        </div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Shadowing built-in — Bug!</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre><span class="bi">sum</span> = <span class="nm">10</span>           <span class="cm"># shadows built-in sum()</span>
+<span class="bi">print</span>(<span class="bi">sum</span>)          <span class="cm"># 10  (ok)</span>
+<span class="bi">print</span>(<span class="bi">sum</span>([<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>]))  <span class="cm"># TypeError: int not callable!</span></pre>
+        </div>
+        <div class="alert alert-warning" style="margin-top:10px">
+          <strong>Never shadow:</strong> list, str, sum, max, min, id, type, input, print
+          <br><strong>Fix:</strong> Use descriptive names: total, items, text, result
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(255,107,138,0.15)">🌐</div>
+      <span class="card-title">global and nonlocal</span>
+      <span class="card-badge badge-warning">Tricky</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <div class="sub-heading" style="margin-top:0;font-size:.9rem">global keyword</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre>count = <span class="nm">0</span>
+
+<span class="kw">def</span> <span class="fn">bad_inc</span>():
+    count += <span class="nm">1</span>   <span class="cm"># UnboundLocalError!</span>
+
+<span class="kw">def</span> <span class="fn">good_inc</span>():
+    <span class="kw">global</span> count
+    count += <span class="nm">1</span>   <span class="cm"># works ✓</span>
+
+<span class="fn">good_inc</span>(); <span class="fn">good_inc</span>()
+<span class="bi">print</span>(count)  <span class="cm"># 2</span></pre>
+        </div>
+        <div class="alert alert-warning" style="margin-top:10px;font-size:12.5px">
+          <strong>Why UnboundLocalError?</strong> Python sees <code style="font-family:monospace;font-size:11px;background:#1a0a10;padding:1px 4px;border-radius:2px">count +=</code> and treats <code style="font-family:monospace;font-size:11px;background:#1a0a10;padding:1px 4px;border-radius:2px">count</code> as local — but it hasn't been assigned yet.
+        </div>
+      </div>
+      <div>
+        <div class="sub-heading" style="margin-top:0;font-size:.9rem">nonlocal keyword</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre><span class="kw">def</span> <span class="fn">make_counter</span>():
+    c = <span class="nm">0</span>
+    <span class="kw">def</span> <span class="fn">inc</span>():
+        <span class="kw">nonlocal</span> c  <span class="cm"># update enclosing c</span>
+        c += <span class="nm">1</span>
+        <span class="kw">return</span> c
+    <span class="kw">return</span> inc
+
+ctr = <span class="fn">make_counter</span>()
+<span class="bi">print</span>(<span class="fn">ctr</span>())  <span class="cm"># 1</span>
+<span class="bi">print</span>(<span class="fn">ctr</span>())  <span class="cm"># 2</span>
+<span class="bi">print</span>(<span class="fn">ctr</span>())  <span class="cm"># 3</span></pre>
+        </div>
+        <div class="alert alert-tip" style="margin-top:10px;font-size:12.5px">
+          <strong>nonlocal</strong> reaches into the enclosing function's scope (not global). Removing it causes UnboundLocalError.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ========== CLOSURES & DECORATORS ========== -->
+<section id="advanced" class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-number">05 / 05</div>
+      <h2 class="section-title">Closures &amp; <span class="highlight">Decorators</span></h2>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(78,207,168,0.15)">🔒</div>
+      <span class="card-title">Closures — Functions That Remember</span>
+      <span class="card-badge badge-concept">Core</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <div class="prose" style="margin-bottom:10px">
+          A <em>closure</em> is an inner function that captures variables from its enclosing scope. The captured variables persist even after the outer function returns.
+        </div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre><span class="kw">def</span> <span class="fn">make_adder</span>(k):
+    <span class="kw">def</span> <span class="fn">add</span>(x):
+        <span class="kw">return</span> x + k  <span class="cm"># k is "remembered"</span>
+    <span class="kw">return</span> add
+
+add5 = <span class="fn">make_adder</span>(<span class="nm">5</span>)
+add10 = <span class="fn">make_adder</span>(<span class="nm">10</span>)
+<span class="bi">print</span>(<span class="fn">add5</span>(<span class="nm">7</span>))   <span class="cm"># → 12</span>
+<span class="bi">print</span>(<span class="fn">add10</span>(<span class="nm">7</span>))  <span class="cm"># → 17</span></pre>
+        </div>
+      </div>
+      <div>
+        <div class="sub-heading" style="margin-top:0;font-size:.9rem">Practical: Formula Generators</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre><span class="kw">def</span> <span class="fn">make_discount</span>(pct):
+    <span class="kw">def</span> <span class="fn">apply</span>(price):
+        <span class="kw">return</span> price - (price * pct / <span class="nm">100</span>)
+    <span class="kw">return</span> apply
+
+d10 = <span class="fn">make_discount</span>(<span class="nm">10</span>)
+d20 = <span class="fn">make_discount</span>(<span class="nm">20</span>)
+<span class="bi">print</span>(<span class="fn">d10</span>(<span class="nm">1000</span>))  <span class="cm"># → 900.0</span>
+<span class="bi">print</span>(<span class="fn">d20</span>(<span class="nm">1000</span>))  <span class="cm"># → 800.0</span></pre>
+        </div>
+        <div class="alert alert-tip" style="margin-top:10px;font-size:12.5px">
+          Closures <strong>lock one parameter permanently</strong> — cleaner than global variables. Create a new closure for each variant.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(240,192,64,0.15)">🎁</div>
+      <span class="card-title">Decorators — Wrapping Functions</span>
+      <span class="card-badge badge-concept">Advanced</span>
+    </div>
+    <div class="card-body single">
+      <div class="prose" style="margin-bottom:14px">
+        A <em>decorator</em> is a function that takes a function and returns a new enhanced function. It adds behavior <strong>before/after</strong> the original call without modifying its source.
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div class="sub-heading" style="margin-top:0;font-size:.9rem">Basic decorator</div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div></div>
+<pre><span class="kw">def</span> <span class="fn">log_call</span>(func):
+    <span class="kw">def</span> <span class="fn">inner</span>(*args, **kwargs):
+        <span class="bi">print</span>(<span class="st">"Calling"</span>, func.__name__)
+        res = <span class="fn">func</span>(*args, **kwargs)
+        <span class="bi">print</span>(<span class="st">"Done"</span>)
+        <span class="kw">return</span> res         <span class="cm"># ← must return!</span>
+    <span class="kw">return</span> inner
+
+<span class="op">@</span><span class="fn">log_call</span>
+<span class="kw">def</span> <span class="fn">add</span>(a, b):
+    <span class="kw">return</span> a + b
+
+<span class="fn">add</span>(<span class="nm">10</span>, <span class="nm">5</span>)
+<span class="cm"># Calling add</span>
+<span class="cm"># Done</span>
+<span class="cm"># 15</span></pre>
+          </div>
+        </div>
+        <div>
+          <div class="sub-heading" style="margin-top:0;font-size:.9rem">Common uses</div>
+          <div class="prose">
+            <ul>
+              <li><strong>Logging</strong> — print before/after calls</li>
+              <li><strong>Timing</strong> — measure execution time</li>
+              <li><strong>Validation</strong> — check inputs before running</li>
+              <li><strong>Caching</strong> — memoize expensive results</li>
+            </ul>
+          </div>
+          <div class="alert alert-warning" style="margin-top:14px">
+            <strong>Bug #1:</strong> Forgetting <code style="font-family:monospace;font-size:12px;background:#1a0a10;padding:1px 5px;border-radius:3px">return res</code> inside wrapper → caller always gets <code style="font-family:monospace;font-size:12px;background:#1a0a10;padding:1px 5px;border-radius:3px">None</code>.
+          </div>
+          <div class="alert alert-warning" style="margin-top:10px">
+            <strong>Bug #2:</strong> Defining wrapper as <code style="font-family:monospace;font-size:12px;background:#1a0a10;padding:1px 5px;border-radius:3px">inner(name)</code> only → breaks for other function signatures. Always use <code style="font-family:monospace;font-size:12px;background:#1a0a10;padding:1px 5px;border-radius:3px">*args, **kwargs</code>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ========== QUIZ ========== -->
+<section id="quiz" class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-number">Quiz</div>
+      <h2 class="section-title">Quick <span class="highlight">Check</span></h2>
+    </div>
+  </div>
+
+  <div class="quiz-q">
+    <div class="q-num">Q01</div>
+    <div class="q-text">What does <code style="font-family:monospace;font-size:13px;background:#0a0a12;padding:1px 6px;border-radius:3px">list(map(lambda x: x*2, [1,2,3]))</code> return?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this, false, 0)">[1, 2, 3]</button>
+      <button class="quiz-opt" onclick="answer(this, true, 0)">[2, 4, 6]</button>
+      <button class="quiz-opt" onclick="answer(this, false, 0)">None</button>
+      <button class="quiz-opt" onclick="answer(this, false, 0)">&lt;map object&gt;</button>
+    </div>
+    <div class="quiz-explain" id="explain-0">✅ <strong>[2, 4, 6]</strong> — map applies lambda x: x*2 to each element, then list() materialises the iterator.</div>
+  </div>
+
+  <div class="quiz-q">
+    <div class="q-num">Q02</div>
+    <div class="q-text">What is the output of <code style="font-family:monospace;font-size:13px;background:#0a0a12;padding:1px 6px;border-radius:3px">list(filter(lambda x: x>3, [1,2,3,4,5]))</code>?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this, false, 1)">[1, 2, 3]</button>
+      <button class="quiz-opt" onclick="answer(this, false, 1)">[3, 4, 5]</button>
+      <button class="quiz-opt" onclick="answer(this, true, 1)">[4, 5]</button>
+      <button class="quiz-opt" onclick="answer(this, false, 1)">[1, 2]</button>
+    </div>
+    <div class="quiz-explain" id="explain-1">✅ <strong>[4, 5]</strong> — filter keeps only elements where the predicate is True. x>3 is True for 4 and 5 only.</div>
+  </div>
+
+  <div class="quiz-q">
+    <div class="q-num">Q03</div>
+    <div class="q-text">What happens when you call <code style="font-family:monospace;font-size:13px;background:#0a0a12;padding:1px 6px;border-radius:3px">add_item(10)</code> twice with the buggy <code style="font-family:monospace;font-size:13px;background:#0a0a12;padding:1px 6px;border-radius:3px">def add_item(x, L=[]):</code>?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this, false, 2)">Returns [10] both times</button>
+      <button class="quiz-opt" onclick="answer(this, true, 2)">Second call returns [10, 10]</button>
+      <button class="quiz-opt" onclick="answer(this, false, 2)">SyntaxError</button>
+      <button class="quiz-opt" onclick="answer(this, false, 2)">Returns None</button>
+    </div>
+    <div class="quiz-explain" id="explain-2">✅ The mutable default <code style="font-family:monospace;font-size:12px">[]</code> is shared across calls. Second call gets [10, 10]. Fix: use <code style="font-family:monospace;font-size:12px">L=None</code> sentinel.</div>
+  </div>
+
+  <div class="quiz-q">
+    <div class="q-num">Q04</div>
+    <div class="q-text">What does <code style="font-family:monospace;font-size:13px;background:#0a0a12;padding:1px 6px;border-radius:3px">sorted(["banana","fig","kiwi"], key=lambda s: len(s))</code> return?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this, false, 3)">['banana', 'kiwi', 'fig']</button>
+      <button class="quiz-opt" onclick="answer(this, true, 3)">['fig', 'kiwi', 'banana']</button>
+      <button class="quiz-opt" onclick="answer(this, false, 3)">['banana', 'fig', 'kiwi']</button>
+      <button class="quiz-opt" onclick="answer(this, false, 3)">SyntaxError</button>
+    </div>
+    <div class="quiz-explain" id="explain-3">✅ <strong>['fig', 'kiwi', 'banana']</strong> — sorted by string length: 3, 4, 6. Original list is unchanged.</div>
+  </div>
+
+  <div class="quiz-q">
+    <div class="q-num">Q05</div>
+    <div class="q-text">In a decorator, what happens if the wrapper forgets to <code style="font-family:monospace;font-size:13px;background:#0a0a12;padding:1px 6px;border-radius:3px">return res</code>?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this, false, 4)">The original function's value is returned anyway</button>
+      <button class="quiz-opt" onclick="answer(this, true, 4)">The caller always gets None</button>
+      <button class="quiz-opt" onclick="answer(this, false, 4)">A RuntimeError is raised</button>
+      <button class="quiz-opt" onclick="answer(this, false, 4)">The decorator is skipped</button>
+    </div>
+    <div class="quiz-explain" id="explain-4">✅ <strong>The caller always gets None</strong> — Python functions return None implicitly when no return statement is reached. Always return res inside the wrapper.</div>
+  </div>
+
+</section>
+
+</main>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+function answer(btn, correct, qIdx) {
+  const q = btn.closest('.quiz-q');
+  if (q.dataset.answered) return;
+  q.dataset.answered = '1';
+  const opts = q.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.disabled = true);
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) {
+    opts.forEach(o => {
+      if (o.onclick.toString().includes('true')) o.classList.add('correct');
+    });
+  }
+  const exp = document.getElementById('explain-' + qIdx);
+  if (exp) { exp.style.display = 'block'; }
+}
+</script>
+
+</body>
+</html>
