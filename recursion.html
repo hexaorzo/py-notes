@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recursion — Lecture Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Code+Pro:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f14;
+    --surface: #17171f;
+    --card: #1e1e2a;
+    --accent: #7eb8f7;
+    --accent2: #e8415a;
+    --accent3: #a8e6cf;
+    --accent4: #f7c59f;
+    --text: #e8e6df;
+    --muted: #8a8799;
+    --code-bg: #111118;
+    --border: #2e2e40;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    padding: 2rem 1rem;
+  }
+
+  .page { max-width: 960px; margin: 0 auto; }
+
+  /* HEADER */
+  header {
+    border-left: 5px solid var(--accent);
+    padding: 2rem 2rem 2rem 2.5rem;
+    margin-bottom: 3rem;
+    background: var(--surface);
+    border-radius: 0 12px 12px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  header::after {
+    content: "ƒ(x)";
+    position: absolute;
+    right: 2rem; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Source Code Pro', monospace;
+    font-size: 4.5rem;
+    color: rgba(126,184,247,0.06);
+    font-weight: 600;
+    letter-spacing: -0.05em;
+  }
+  header .subject {
+    font-family: 'Source Code Pro', monospace;
+    color: var(--accent);
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.1;
+  }
+  header .meta {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 0.75rem;
+  }
+
+  /* OVERVIEW BOX */
+  .overview {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+  @media (max-width: 640px) { .overview { grid-template-columns: 1fr; } }
+
+  .overview-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+  }
+  .overview-card h3 {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .overview-card ul {
+    list-style: none;
+    font-size: 0.88rem;
+    color: #c0bec8;
+  }
+  .overview-card ul li::before {
+    content: "▸ ";
+    color: var(--accent);
+  }
+  .overview-card ul li { margin-bottom: 0.2rem; }
+
+  /* COMPARISON TABLE */
+  .comp-table {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 3rem;
+  }
+  .comp-table h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    padding: 1rem 1.5rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    color: #fff;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.87rem;
+  }
+  th {
+    background: rgba(126,184,247,0.08);
+    color: var(--accent);
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.2rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 0.65rem 1.2rem;
+    color: #c8c6bf;
+    border-bottom: 1px solid rgba(46,46,64,0.5);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr.highlight td { background: rgba(126,184,247,0.05); color: #e8f4ff; }
+  .badge {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .badge.yes { background: rgba(168,230,207,0.15); color: var(--accent3); }
+  .badge.no  { background: rgba(232,65,90,0.12);  color: #e8909a; }
+
+  /* TOC */
+  .toc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+  }
+  .toc h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--accent3);
+    margin-bottom: 1rem;
+  }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 0.3rem;
+  }
+  .toc a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.83rem;
+    transition: color 0.2s;
+  }
+  .toc a:hover { color: var(--accent); }
+
+  /* SECTION */
+  .section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 1.75rem;
+    overflow: hidden;
+  }
+  .section-header {
+    background: var(--surface);
+    padding: 0.9rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    background: rgba(126,184,247,0.1);
+    padding: 0.18rem 0.55rem;
+    border-radius: 4px;
+    min-width: 2.5rem;
+    text-align: center;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .section-body {
+    padding: 1.4rem 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .section-body.wide { grid-template-columns: 1fr; }
+  .section-body.trio { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 640px) {
+    .section-body, .section-body.trio { grid-template-columns: 1fr; }
+    header h1 { font-size: 2rem; }
+    header::after { display: none; }
+  }
+
+  .block-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 0.45rem;
+  }
+  .concept { font-size: 0.9rem; color: #c0bec8; }
+  .concept ul { padding-left: 1.1rem; }
+  .concept li { margin-bottom: 0.22rem; }
+  .concept p { margin-bottom: 0.4rem; }
+
+  code, .inline-code {
+    font-family: 'Source Code Pro', monospace;
+    background: rgba(126,184,247,0.1);
+    color: var(--accent);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    font-size: 0.87em;
+  }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.8rem;
+    line-height: 1.65;
+    overflow-x: auto;
+    color: #c8f7c5;
+  }
+  pre .kw  { color: #cc99ff; }
+  pre .fn  { color: #7eb8f7; }
+  pre .str { color: #f7c59f; }
+  pre .cm  { color: #525268; font-style: italic; }
+  pre .num { color: #a8e6cf; }
+  pre .err { color: #e8415a; }
+  pre .out { color: #f7c59f; font-style: italic; }
+
+  .mistake {
+    background: rgba(232,65,90,0.07);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 6px 6px 0;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.83rem;
+    color: #e8a0aa;
+    margin-top: 0.5rem;
+  }
+  .mistake strong { color: var(--accent2); }
+  .fix {
+    background: rgba(168,230,207,0.07);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 6px 6px 0;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.83rem;
+    color: #a0e8c8;
+    margin-top: 0.3rem;
+  }
+  .fix strong { color: var(--accent3); }
+  .warn {
+    background: rgba(247,197,159,0.07);
+    border-left: 3px solid var(--accent4);
+    border-radius: 0 6px 6px 0;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.83rem;
+    color: #f0d0b0;
+    margin-top: 0.5rem;
+  }
+  .warn strong { color: var(--accent4); }
+
+  /* CHEAT SHEET */
+  .cheatsheet {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 3rem;
+  }
+  .cheatsheet h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: #fff;
+    margin-bottom: 1.5rem;
+  }
+  .cs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
+    gap: 0.65rem;
+  }
+  .cs-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+  }
+  .cs-item .cs-code {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    margin-bottom: 0.22rem;
+  }
+  .cs-item .cs-desc { font-size: 0.78rem; color: var(--muted); }
+
+  .divider {
+    width: 40px; height: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    margin: 2.5rem auto;
+    opacity: 0.3;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="subject">📘 Python Programming · Lecture Notes</div>
+    <h1>Recursion</h1>
+    <div class="meta">Topics: Base Case · Descent & Unwinding · Value-Producing · Action-Oriented · Strings · Lists · Tuples · Dicts · Common Errors</div>
+  </header>
+
+  <!-- OVERVIEW -->
+  <div class="overview">
+    <div class="overview-card">
+      <h3>What is Recursion?</h3>
+      <ul>
+        <li>A function that calls itself on a smaller instance of the same problem</li>
+        <li>Solves complex problems by divide-and-reduce logic</li>
+        <li>Execution has two phases: descent and unwinding</li>
+        <li>Every valid recursive function must terminate</li>
+      </ul>
+    </div>
+    <div class="overview-card">
+      <h3>Three Requirements</h3>
+      <ul>
+        <li><strong>Base case</strong> — a reachable stopping condition</li>
+        <li><strong>Reduction step</strong> — each call moves toward the base case</li>
+        <li><strong>Correct linkage</strong> — current call properly uses the smaller result</li>
+      </ul>
+    </div>
+    <div class="overview-card">
+      <h3>Types of Recursion</h3>
+      <ul>
+        <li>Value-producing — returns a computed result</li>
+        <li>Action-oriented — produces output (print)</li>
+        <li>Mixed — does both output and return</li>
+        <li>Multiple recursive calls — e.g. Fibonacci</li>
+      </ul>
+    </div>
+    <div class="overview-card">
+      <h3>Data it Works On</h3>
+      <ul>
+        <li>Numerical: reduce via <code>n-1</code>, <code>n//10</code></li>
+        <li>Strings: reduce via <code>s[1:]</code></li>
+        <li>Lists: reduce via <code>L[1:]</code></li>
+        <li>Tuples and nested dictionaries</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- COMPARISON TABLE -->
+  <div class="comp-table">
+    <h2>Recursion vs Iteration — At a Glance</h2>
+    <table>
+      <tr>
+        <th>Property</th>
+        <th>Recursion</th>
+        <th>Iteration</th>
+      </tr>
+      <tr class="highlight">
+        <td><strong>Mechanism</strong></td>
+        <td>Function calls itself</td>
+        <td>Loop repeats a block</td>
+      </tr>
+      <tr>
+        <td><strong>Termination</strong></td>
+        <td>Base case</td>
+        <td>Loop condition</td>
+      </tr>
+      <tr>
+        <td><strong>Stack usage</strong></td>
+        <td>Uses call stack (can overflow)</td>
+        <td>Constant — no extra stack</td>
+      </tr>
+      <tr>
+        <td><strong>Best for</strong></td>
+        <td>Self-similar / divide-reduce problems</td>
+        <td>Simple linear repetition</td>
+      </tr>
+      <tr>
+        <td><strong>Readability</strong></td>
+        <td>Elegant for natural recursions (factorial, Fibonacci)</td>
+        <td>More direct for counters, totals</td>
+      </tr>
+      <tr>
+        <td><strong>Efficiency risk</strong></td>
+        <td><span class="badge no">Higher</span> — duplicate calls possible</td>
+        <td><span class="badge yes">Lower</span> — usually preferred for large input</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>Contents</h2>
+    <div class="toc-grid">
+      <a href="#s1">1. General Forms</a>
+      <a href="#s2">2. Value-Producing Recursion</a>
+      <a href="#s3">3. Action-Oriented Recursion</a>
+      <a href="#s4">4. Mixed Recursion</a>
+      <a href="#s5">5. Descent & Unwinding Phases</a>
+      <a href="#s6">6. Statement Position</a>
+      <a href="#s7">7. Base Case Not Reachable</a>
+      <a href="#s8">8. Factorial</a>
+      <a href="#s9">9. Recursive Summation</a>
+      <a href="#s10">10. Digit Recursion</a>
+      <a href="#s11">11. Digit Counting</a>
+      <a href="#s12">12. String Recursion</a>
+      <a href="#s13">13. String Filtering & Counting</a>
+      <a href="#s14">14. List Recursion</a>
+      <a href="#s15">15. List Membership & Counting</a>
+      <a href="#s16">16. Tuple Recursion</a>
+      <a href="#s17">17. Nested Dictionary Recursion</a>
+      <a href="#s18">18. Fibonacci & Multiple Calls</a>
+      <a href="#s19">19. Mixed Output + Return Trace</a>
+      <a href="#s20">20. Common Errors</a>
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">General Recursive Forms</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Value-Producing Form</div>
+        <pre><span class="kw">def</span> <span class="fn">f</span>(x):
+    <span class="kw">if</span> base_case:
+        <span class="kw">return</span> base_value
+    <span class="kw">return</span> combine(current_part, <span class="fn">f</span>(smaller_problem))</pre>
+        <div class="concept" style="margin-top:0.8rem;">
+          <ul>
+            <li>Solves the smaller subproblem first</li>
+            <li>Uses the returned result</li>
+            <li>Combines it with the current part</li>
+            <li>Returns the final value upward</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Action-Oriented Form</div>
+        <pre><span class="kw">def</span> <span class="fn">f</span>(x):
+    <span class="kw">if</span> base_case:
+        <span class="kw">return</span>
+    work_before(x)
+    <span class="fn">f</span>(smaller_problem)
+    work_after(x)</pre>
+        <div class="concept" style="margin-top:0.8rem;">
+          <ul>
+            <li>Performs an action before recursing</li>
+            <li>Recurses on the smaller problem</li>
+            <li>Performs another action after return</li>
+            <li>Position of print changes output order</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Value-Producing Recursion</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <p>The recursive call returns a smaller answer, and the current call builds the larger answer from it.</p>
+          <ul>
+            <li>Result of recursive call is used in an <strong>expression</strong></li>
+            <li>Final answer is assembled during the unwinding phase</li>
+          </ul>
+        </div>
+        <div style="margin-top:0.8rem;">
+          <div class="block-label">Typical Examples</div>
+          <div class="concept">
+            <ul>
+              <li>Factorial</li>
+              <li>Sum of digits / list sum</li>
+              <li>List maximum</li>
+              <li>Reverse string</li>
+              <li>Counting occurrences</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo — Factorial</div>
+        <pre><span class="kw">def</span> <span class="fn">fact</span>(n):
+    <span class="kw">if</span> n == <span class="num">0</span>:
+        <span class="kw">return</span> <span class="num">1</span>
+    <span class="kw">return</span> n * <span class="fn">fact</span>(n - <span class="num">1</span>)
+
+<span class="fn">print</span>(<span class="fn">fact</span>(<span class="num">5</span>))  <span class="cm"># 120</span></pre>
+        <div class="warn" style="margin-top:0.8rem;"><strong>⚠ Key:</strong> <code>fact(n-1)</code> is used directly inside a multiplication expression — that's what makes it value-producing.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">Action-Oriented Recursion</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <p>The recursive call is placed between actions such as printing. No value is built and returned — the goal is <strong>side effects</strong> (output).</p>
+          <ul>
+            <li>Print before recursion → descending order</li>
+            <li>Print after recursion → ascending order</li>
+          </ul>
+        </div>
+        <div class="fix" style="margin-top:0.8rem;"><strong>Difference:</strong> Value-producing uses the result in an expression. Action-oriented uses the call as part of execution flow.</div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre><span class="kw">def</span> <span class="fn">show</span>(n):
+    <span class="kw">if</span> n == <span class="num">0</span>:
+        <span class="kw">return</span>
+    <span class="fn">print</span>(n, end=<span class="str">" "</span>)
+    <span class="fn">show</span>(n - <span class="num">1</span>)
+
+<span class="fn">show</span>(<span class="num">4</span>)
+<span class="cm"># Output: 4 3 2 1</span></pre>
+        <div class="mistake" style="margin-top:0.8rem;"><strong>✗ Error:</strong> <code>return print(n) + f(n-1)</code> → <code>TypeError</code> — <code>print()</code> returns <code>None</code>, which cannot be added to an integer.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Mixed Recursion — Output + Return</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <p>A function can <strong>both print output and return a computed value</strong>.</p>
+          <ul>
+            <li>Statements before the recursive call execute during descent</li>
+            <li>Statements after the recursive call execute during unwinding</li>
+            <li>The returned value accumulates during unwinding</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre><span class="kw">def</span> <span class="fn">f</span>(n):
+    <span class="kw">if</span> n == <span class="num">0</span>:
+        <span class="fn">print</span>(<span class="str">"B"</span>, end=<span class="str">" "</span>)
+        <span class="kw">return</span> <span class="num">0</span>
+    <span class="fn">print</span>(<span class="str">"A"</span> + <span class="fn">str</span>(n), end=<span class="str">" "</span>)
+    x = <span class="fn">f</span>(n - <span class="num">1</span>)
+    <span class="fn">print</span>(<span class="str">"C"</span> + <span class="fn">str</span>(n), end=<span class="str">" "</span>)
+    <span class="kw">return</span> x + n
+
+<span class="fn">print</span>(<span class="fn">f</span>(<span class="num">3</span>))
+<span class="cm"># Output: A3 A2 A1 B C1 C2 C3 6</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Descent Phase & Unwinding Phase</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><strong>Descent phase:</strong> calls keep moving toward the base case</li>
+            <li><strong>Unwinding phase:</strong> after base case is reached, calls return one by one</li>
+            <li>Code before the recursive call → runs during descent</li>
+            <li>Code after the recursive call → runs during unwinding</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo — Trace of f(3)</div>
+        <pre><span class="kw">def</span> <span class="fn">f</span>(n):
+    <span class="kw">if</span> n == <span class="num">0</span>:
+        <span class="fn">print</span>(<span class="str">"Z"</span>, end=<span class="str">" "</span>)
+        <span class="kw">return</span>
+    <span class="fn">print</span>(<span class="str">"A"</span>, n, end=<span class="str">" "</span>)
+    <span class="fn">f</span>(n - <span class="num">1</span>)
+    <span class="fn">print</span>(<span class="str">"B"</span>, n, end=<span class="str">" "</span>)
+
+<span class="fn">f</span>(<span class="num">3</span>)
+<span class="cm"># Output: A 3  A 2  A 1  Z  B 1  B 2  B 3</span>
+<span class="cm">#          ←── descent ──→     ←── unwinding ──→</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Statement Position Changes Output</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Print BEFORE Recursion → Descending</div>
+        <pre><span class="kw">def</span> <span class="fn">h</span>(n):
+    <span class="kw">if</span> n == <span class="num">0</span>:
+        <span class="kw">return</span>
+    <span class="fn">print</span>(n, end=<span class="str">" "</span>)
+    <span class="fn">h</span>(n - <span class="num">1</span>)
+
+<span class="fn">h</span>(<span class="num">5</span>)
+<span class="cm"># Output: 5 4 3 2 1</span></pre>
+      </div>
+      <div>
+        <div class="block-label">Print AFTER Recursion → Ascending</div>
+        <pre><span class="kw">def</span> <span class="fn">h</span>(n):
+    <span class="kw">if</span> n == <span class="num">0</span>:
+        <span class="kw">return</span>
+    <span class="fn">h</span>(n - <span class="num">1</span>)
+    <span class="fn">print</span>(n, end=<span class="str">" "</span>)
+
+<span class="fn">h</span>(<span class="num">5</span>)
+<span class="cm"># Output: 1 2 3 4 5</span></pre>
+        <div class="warn" style="margin-top:0.8rem;"><strong>Note:</strong> Base case and reduction step are identical. Only statement position changes the visible behaviour.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">Base Case Present but Not Reachable</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <p>A base case that exists but is never reached is just as bad as having no base case.</p>
+          <ul>
+            <li>If the reduction step moves <em>away</em> from the base case, it will never stop</li>
+            <li>Python will raise <code>RecursionError</code> when the call stack overflows</li>
+          </ul>
+        </div>
+        <div class="fix" style="margin-top:0.8rem;"><strong>✓ Rule:</strong> Recursion needs not only a base case — but a <em>reachable</em> base case via the reduction step.</div>
+      </div>
+      <div>
+        <div class="block-label">Broken Example</div>
+        <pre><span class="kw">def</span> <span class="fn">g</span>(n):
+    <span class="kw">if</span> n == <span class="num">0</span>:       <span class="cm"># base case exists</span>
+        <span class="kw">return</span> <span class="num">0</span>
+    <span class="kw">return</span> <span class="fn">g</span>(n + <span class="num">1</span>) <span class="cm"># but moves AWAY!</span>
+
+<span class="fn">print</span>(<span class="fn">g</span>(<span class="num">3</span>))
+<span class="cm"># calls: g(3)→g(4)→g(5)→...</span></pre>
+        <div class="mistake" style="margin-top:0.8rem;"><strong>✗ Result:</strong> <code>RecursionError: maximum recursion depth exceeded</code></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8 -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">Factorial — Classic Value Recursion</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Mathematical Definition</div>
+        <div class="concept">
+          <ul>
+            <li><code>n! = n × (n − 1)!</code></li>
+            <li><code>0! = 1</code> (base case)</li>
+          </ul>
+        </div>
+        <div style="margin-top:0.8rem;">
+          <div class="block-label">Trace of fact(4)</div>
+          <div class="concept">
+            <ul>
+              <li>fact(4) = 4 × fact(3)</li>
+              <li>fact(3) = 3 × fact(2)</li>
+              <li>fact(2) = 2 × fact(1)</li>
+              <li>fact(1) = 1 × fact(0) = 1</li>
+              <li>→ 4 × 3 × 2 × 1 = <strong>24</strong></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Safe Implementation</div>
+        <pre><span class="kw">def</span> <span class="fn">fact</span>(n):
+    <span class="kw">if</span> n &lt; <span class="num">0</span>:
+        <span class="kw">return</span> <span class="num">None</span>   <span class="cm"># handle invalid input</span>
+    <span class="kw">if</span> n == <span class="num">0</span>:
+        <span class="kw">return</span> <span class="num">1</span>
+    <span class="kw">return</span> n * <span class="fn">fact</span>(n - <span class="num">1</span>)
+
+<span class="fn">print</span>(<span class="fn">fact</span>(<span class="num">5</span>))   <span class="cm"># 120</span>
+<span class="fn">print</span>(<span class="fn">fact</span>(<span class="num">0</span>))   <span class="cm"># 1</span>
+<span class="fn">print</span>(<span class="fn">fact</span>(-<span class="num">3</span>))  <span class="cm"># None</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9 -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <span class="section-title">Recursive Summation (Selective)</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <p>Not every recursive sum is 1+2+…+n. The recurrence relation defines <em>what</em> gets summed.</p>
+        </div>
+        <div style="margin-top:0.8rem;">
+          <div class="block-label">Expansion of s(7)</div>
+          <div class="concept">
+            <ul>
+              <li>s(7) = 7 + s(5)</li>
+              <li>s(5) = 5 + s(3)</li>
+              <li>s(3) = 3 + s(1)</li>
+              <li>s(1) = 1</li>
+              <li>→ 7 + 5 + 3 + 1 = <strong>16</strong></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Code</div>
+        <pre><span class="kw">def</span> <span class="fn">s</span>(n):
+    <span class="kw">if</span> n &lt;= <span class="num">1</span>:
+        <span class="kw">return</span> n
+    <span class="kw">return</span> n + <span class="fn">s</span>(n - <span class="num">2</span>)  <span class="cm"># step by 2!</span>
+
+<span class="fn">print</span>(<span class="fn">s</span>(<span class="num">7</span>))  <span class="cm"># 16</span></pre>
+        <div class="warn" style="margin-top:0.8rem;"><strong>⚠ Note:</strong> This sums odd numbers only — not all integers 1 to 7. Always trace the recurrence to understand what is actually computed.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <span class="section-title">Digit Recursion</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Key Operations</div>
+        <div class="concept">
+          <ul>
+            <li><code>n % 10</code> → last digit</li>
+            <li><code>n // 10</code> → remove last digit</li>
+            <li>Print <em>before</em> recursing → reverse digit order</li>
+            <li>Print <em>after</em> recursing → original digit order</li>
+          </ul>
+        </div>
+        <div style="margin-top:0.8rem;">
+          <div class="block-label">Reverse Order</div>
+          <pre><span class="kw">def</span> <span class="fn">show1</span>(n):
+    <span class="kw">if</span> n == <span class="num">0</span>:
+        <span class="kw">return</span>
+    <span class="fn">print</span>(n % <span class="num">10</span>, end=<span class="str">" "</span>)
+    <span class="fn">show1</span>(n // <span class="num">10</span>)
+
+<span class="fn">show1</span>(<span class="num">4836</span>)  <span class="cm"># 6 3 8 4</span></pre>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Original Order</div>
+        <pre><span class="kw">def</span> <span class="fn">show2</span>(n):
+    <span class="kw">if</span> n == <span class="num">0</span>:
+        <span class="kw">return</span>
+    <span class="fn">show2</span>(n // <span class="num">10</span>)
+    <span class="fn">print</span>(n % <span class="num">10</span>, end=<span class="str">" "</span>)
+
+<span class="fn">show2</span>(<span class="num">4836</span>)  <span class="cm"># 4 8 3 6</span></pre>
+        <div class="mistake" style="margin-top:0.8rem;"><strong>✗ Common Error:</strong> Using <code>/</code> instead of <code>//</code> in digit recursion causes a float and the base case <code>n == 0</code> may never be hit.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11 -->
+  <div class="section" id="s11">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <span class="section-title">Digit-Based Counting</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <p>Recursion on numbers can count specific digits selectively using a conditional check at each step.</p>
+        </div>
+        <div style="margin-top:0.8rem;">
+          <div class="block-label">Trace of count7(77)</div>
+          <div class="concept">
+            <ul>
+              <li>77 % 10 == 7 → 1 + count7(7)</li>
+              <li>7 % 10 == 7 → 1 + count7(0)</li>
+              <li>count7(0) = 0</li>
+              <li>Total: <strong>2</strong></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Code</div>
+        <pre><span class="kw">def</span> <span class="fn">count7</span>(n):
+    <span class="kw">if</span> n == <span class="num">0</span>:
+        <span class="kw">return</span> <span class="num">0</span>
+    <span class="kw">if</span> n % <span class="num">10</span> == <span class="num">7</span>:
+        <span class="kw">return</span> <span class="num">1</span> + <span class="fn">count7</span>(n // <span class="num">10</span>)
+    <span class="kw">return</span> <span class="fn">count7</span>(n // <span class="num">10</span>)
+
+<span class="fn">print</span>(<span class="fn">count7</span>(<span class="num">7702757</span>))  <span class="cm"># 4</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12 -->
+  <div class="section" id="s12">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <span class="section-title">String Recursion — Reverse</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Key Reduction</div>
+        <div class="concept">
+          <ul>
+            <li><code>s[0]</code> → current first character</li>
+            <li><code>s[1:]</code> → remaining string (the reduction)</li>
+            <li>Base case: <code>s == ""</code></li>
+            <li>Reverse: append <code>s[0]</code> <em>after</em> the recursive result</li>
+          </ul>
+        </div>
+        <div style="margin-top:0.8rem;">
+          <div class="block-label">Trace of rev("abc")</div>
+          <div class="concept">
+            <ul>
+              <li>rev("abc") = rev("bc") + "a"</li>
+              <li>rev("bc") = rev("c") + "b"</li>
+              <li>rev("c") = rev("") + "c" = "c"</li>
+              <li>→ "c" + "b" + "a" = <strong>"cba"</strong></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Code</div>
+        <pre><span class="kw">def</span> <span class="fn">rev</span>(s):
+    <span class="kw">if</span> s == <span class="str">""</span>:
+        <span class="kw">return</span> <span class="str">""</span>
+    <span class="kw">return</span> <span class="fn">rev</span>(s[<span class="num">1</span>:]) + s[<span class="num">0</span>]
+
+<span class="fn">print</span>(<span class="fn">rev</span>(<span class="str">"python"</span>))  <span class="cm"># nohtyp</span></pre>
+        <div class="fix" style="margin-top:0.8rem;"><strong>Pattern:</strong> <code>rev(s[1:]) + s[0]</code> — the current character goes to the <em>end</em> after all smaller results unwind.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13 -->
+  <div class="section" id="s13">
+    <div class="section-header">
+      <span class="section-num">13</span>
+      <span class="section-title">String Filtering & Character Counting</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Removing a Character</div>
+        <pre><span class="kw">def</span> <span class="fn">remove_a</span>(s):
+    <span class="kw">if</span> s == <span class="str">""</span>:
+        <span class="kw">return</span> <span class="str">""</span>
+    <span class="kw">if</span> s[<span class="num">0</span>] == <span class="str">'a'</span>:
+        <span class="kw">return</span> <span class="fn">remove_a</span>(s[<span class="num">1</span>:])
+    <span class="kw">return</span> s[<span class="num">0</span>] + <span class="fn">remove_a</span>(s[<span class="num">1</span>:])
+
+<span class="fn">print</span>(<span class="fn">remove_a</span>(<span class="str">"abracadabra"</span>))
+<span class="cm"># brcdbr</span></pre>
+      </div>
+      <div>
+        <div class="block-label">Counting Occurrences</div>
+        <pre><span class="kw">def</span> <span class="fn">count_char</span>(s, ch):
+    <span class="kw">if</span> s == <span class="str">""</span>:
+        <span class="kw">return</span> <span class="num">0</span>
+    <span class="kw">if</span> s[<span class="num">0</span>] == ch:
+        <span class="kw">return</span> <span class="num">1</span> + <span class="fn">count_char</span>(s[<span class="num">1</span>:], ch)
+    <span class="kw">return</span> <span class="fn">count_char</span>(s[<span class="num">1</span>:], ch)
+
+<span class="fn">print</span>(<span class="fn">count_char</span>(<span class="str">"abracadabra"</span>, <span class="str">"a"</span>))  <span class="cm"># 5</span>
+<span class="fn">print</span>(<span class="fn">count_char</span>(<span class="str">"mississippi"</span>, <span class="str">"s"</span>))   <span class="cm"># 4</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14 -->
+  <div class="section" id="s14">
+    <div class="section-header">
+      <span class="section-num">14</span>
+      <span class="section-title">List Recursion — Sum & Maximum</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">List Sum</div>
+        <pre><span class="kw">def</span> <span class="fn">list_s</span>(L):
+    <span class="kw">if</span> L == []:
+        <span class="kw">return</span> <span class="num">0</span>
+    <span class="kw">return</span> L[<span class="num">0</span>] + <span class="fn">list_s</span>(L[<span class="num">1</span>:])
+
+<span class="fn">print</span>(<span class="fn">list_s</span>([<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>]))  <span class="cm"># 100</span></pre>
+        <div class="concept" style="margin-top:0.6rem;">
+          <ul>
+            <li>List reduction via <code>L[1:]</code> — same pattern as strings</li>
+            <li>Base: empty list returns identity value <code>0</code></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">List Maximum</div>
+        <pre><span class="kw">def</span> <span class="fn">list_m</span>(L):
+    <span class="kw">if</span> <span class="fn">len</span>(L) == <span class="num">1</span>:
+        <span class="kw">return</span> L[<span class="num">0</span>]
+    m = <span class="fn">list_m</span>(L[<span class="num">1</span>:])
+    <span class="kw">if</span> L[<span class="num">0</span>] &gt; m:
+        <span class="kw">return</span> L[<span class="num">0</span>]
+    <span class="kw">return</span> m
+
+<span class="fn">print</span>(<span class="fn">list_m</span>([<span class="num">7</span>, <span class="num">12</span>, <span class="num">4</span>, <span class="num">19</span>, <span class="num">5</span>]))  <span class="cm"># 19</span></pre>
+        <div class="fix" style="margin-top:0.6rem;"><strong>Key:</strong> The returned subresult <code>m</code> is compared and used meaningfully — classic value-producing pattern.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 15 -->
+  <div class="section" id="s15">
+    <div class="section-header">
+      <span class="section-num">15</span>
+      <span class="section-title">List Membership Search & Selective Counting</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Membership Search</div>
+        <pre><span class="kw">def</span> <span class="fn">contains</span>(L, x):
+    <span class="kw">if</span> L == []:
+        <span class="kw">return</span> <span class="kw">False</span>
+    <span class="kw">if</span> L[<span class="num">0</span>] == x:
+        <span class="kw">return</span> <span class="kw">True</span>
+    <span class="kw">return</span> <span class="fn">contains</span>(L[<span class="num">1</span>:], x)
+
+<span class="fn">print</span>(<span class="fn">contains</span>([<span class="num">4</span>,<span class="num">9</span>,<span class="num">2</span>,<span class="num">7</span>], <span class="num">7</span>))  <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="fn">contains</span>([<span class="num">4</span>,<span class="num">9</span>,<span class="num">2</span>,<span class="num">7</span>], <span class="num">8</span>))  <span class="cm"># False</span></pre>
+      </div>
+      <div>
+        <div class="block-label">Count Even Elements</div>
+        <pre><span class="kw">def</span> <span class="fn">count_even</span>(L):
+    <span class="kw">if</span> L == []:
+        <span class="kw">return</span> <span class="num">0</span>
+    <span class="kw">if</span> L[<span class="num">0</span>] % <span class="num">2</span> == <span class="num">0</span>:
+        <span class="kw">return</span> <span class="num">1</span> + <span class="fn">count_even</span>(L[<span class="num">1</span>:])
+    <span class="kw">return</span> <span class="fn">count_even</span>(L[<span class="num">1</span>:])
+
+<span class="fn">print</span>(<span class="fn">count_even</span>([<span class="num">2</span>,<span class="num">7</span>,<span class="num">4</span>,<span class="num">9</span>,<span class="num">10</span>,<span class="num">11</span>,<span class="num">6</span>]))  <span class="cm"># 4</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 16 -->
+  <div class="section" id="s16">
+    <div class="section-header">
+      <span class="section-num">16</span>
+      <span class="section-title">Tuple Recursion</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <p>Tuples support the same <code>T[1:]</code> reduction as lists and strings. Recursion is not limited to lists.</p>
+          <ul>
+            <li>Base case: empty tuple <code>()</code></li>
+            <li>Reduction: <code>T[1:]</code></li>
+            <li>Current element: <code>T[0]</code></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Sum of Tuple Elements</div>
+        <pre><span class="kw">def</span> <span class="fn">tuple_sum</span>(T):
+    <span class="kw">if</span> T == ():
+        <span class="kw">return</span> <span class="num">0</span>
+    <span class="kw">return</span> T[<span class="num">0</span>] + <span class="fn">tuple_sum</span>(T[<span class="num">1</span>:])
+
+<span class="fn">print</span>(<span class="fn">tuple_sum</span>((<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>)))  <span class="cm"># 100</span></pre>
+        <div class="fix" style="margin-top:0.8rem;"><strong>Takeaway:</strong> Recursive sequence processing works identically on strings, lists, and tuples — only the type of the base case changes.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 17 -->
+  <div class="section" id="s17">
+    <div class="section-header">
+      <span class="section-num">17</span>
+      <span class="section-title">Nested Dictionary Recursion</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <p>Flat dictionaries don't need recursion. Recursion becomes meaningful when values are themselves dictionaries (hierarchical / nested data).</p>
+          <ul>
+            <li>Check each value: if it's a <code>dict</code>, recurse into it</li>
+            <li>Otherwise, accumulate the numeric value</li>
+            <li>Uses <code>isinstance(value, dict)</code> to branch</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Summing All Nested Values</div>
+        <pre><span class="kw">def</span> <span class="fn">nested_values</span>(d):
+    total = <span class="num">0</span>
+    <span class="kw">for</span> value <span class="kw">in</span> d.<span class="fn">values</span>():
+        <span class="kw">if</span> <span class="fn">isinstance</span>(value, <span class="fn">dict</span>):
+            total += <span class="fn">nested_values</span>(value)
+        <span class="kw">else</span>:
+            total += value
+    <span class="kw">return</span> total
+
+data = {<span class="str">"a"</span>: <span class="num">10</span>, <span class="str">"b"</span>: {<span class="str">"c"</span>: <span class="num">20</span>, <span class="str">"d"</span>: <span class="num">5</span>},
+        <span class="str">"e"</span>: {<span class="str">"f"</span>: {<span class="str">"g"</span>: <span class="num">15</span>}}}
+
+<span class="fn">print</span>(<span class="fn">nested_values</span>(data))  <span class="cm"># 50</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 18 -->
+  <div class="section" id="s18">
+    <div class="section-header">
+      <span class="section-num">18</span>
+      <span class="section-title">Fibonacci — Multiple Recursive Calls</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <p>Some recursive functions call themselves <strong>more than once</strong> per step. This creates a call tree — not a linear call chain.</p>
+          <ul>
+            <li>fib(5) calls fib(4) and fib(3)</li>
+            <li>fib(3) is computed multiple times independently</li>
+            <li>This is logically correct but computationally wasteful</li>
+          </ul>
+        </div>
+        <div class="warn" style="margin-top:0.8rem;"><strong>⚠ Important:</strong> Correctness and efficiency are separate concerns. A recursive function can be mathematically elegant yet practically slow.</div>
+      </div>
+      <div>
+        <div class="block-label">Code</div>
+        <pre><span class="kw">def</span> <span class="fn">fib</span>(n):
+    <span class="kw">if</span> n &lt;= <span class="num">1</span>:
+        <span class="kw">return</span> n
+    <span class="kw">return</span> <span class="fn">fib</span>(n - <span class="num">1</span>) + <span class="fn">fib</span>(n - <span class="num">2</span>)
+
+<span class="fn">print</span>(<span class="fn">fib</span>(<span class="num">6</span>))  <span class="cm"># 8</span></pre>
+        <div class="concept" style="margin-top:0.8rem;">
+          <p><strong>Duplicate subproblems in fib(5):</strong></p>
+          <ul>
+            <li>fib(5) = fib(4) + fib(3)</li>
+            <li>fib(4) = fib(3) + fib(2)</li>
+            <li>fib(3) appears more than once → <strong>repeated work</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 19 -->
+  <div class="section" id="s19">
+    <div class="section-header">
+      <span class="section-num">19</span>
+      <span class="section-title">Mixed Output + Return — Full Trace</span>
+    </div>
+    <div class="section-body wide">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <div>
+          <div class="block-label">Code</div>
+          <pre><span class="kw">def</span> <span class="fn">f</span>(n):
+    <span class="kw">if</span> n &lt;= <span class="num">0</span>:
+        <span class="fn">print</span>(<span class="str">"X"</span>, end=<span class="str">" "</span>)
+        <span class="kw">return</span> <span class="num">1</span>
+    <span class="fn">print</span>(n, end=<span class="str">" "</span>)
+    x = <span class="fn">f</span>(n - <span class="num">2</span>)
+    <span class="fn">print</span>(n, end=<span class="str">" "</span>)
+    <span class="kw">return</span> x + n
+
+<span class="fn">print</span>(<span class="fn">f</span>(<span class="num">5</span>))
+<span class="cm"># Output: 5 3 1 X 1 3 5 10</span></pre>
+        </div>
+        <div>
+          <div class="block-label">Call Trace</div>
+          <div class="concept">
+            <ul>
+              <li>f(5) prints <strong>5</strong>, calls f(3)</li>
+              <li>f(3) prints <strong>3</strong>, calls f(1)</li>
+              <li>f(1) prints <strong>1</strong>, calls f(-1)</li>
+              <li>f(-1) prints <strong>X</strong>, returns 1</li>
+            </ul>
+          </div>
+          <div class="block-label" style="margin-top:0.8rem;">Unwinding + Return Values</div>
+          <div class="concept">
+            <ul>
+              <li>f(1): prints <strong>1</strong>, returns 1+1 = <strong>2</strong></li>
+              <li>f(3): prints <strong>3</strong>, returns 2+3 = <strong>5</strong></li>
+              <li>f(5): prints <strong>5</strong>, returns 5+5 = <strong>10</strong></li>
+              <li>Final print: <strong>10</strong></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 20 -->
+  <div class="section" id="s20">
+    <div class="section-header">
+      <span class="section-num">20</span>
+      <span class="section-title">Common Errors in Recursive Design</span>
+    </div>
+    <div class="section-body wide">
+      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem;">
+        <div>
+          <div class="block-label">Missing / Unreachable Base</div>
+          <div class="mistake"><strong>✗ Error:</strong> No base case, or reduction moves away from it → <code>RecursionError</code></div>
+          <div class="fix" style="margin-top:0.5rem;"><strong>✓ Fix:</strong> Verify the reduction step actually reaches the base case on every path.</div>
+        </div>
+        <div>
+          <div class="block-label">Mixing print() and return</div>
+          <pre><span class="kw">return</span> <span class="fn">print</span>(n) + <span class="fn">f</span>(n-<span class="num">1</span>)</pre>
+          <div class="mistake"><strong>✗ Error:</strong> <code>TypeError</code> — <code>print()</code> returns <code>None</code>, can't add to int.</div>
+          <div class="fix" style="margin-top:0.5rem;"><strong>✓ Fix:</strong> Separate print and return into different statements.</div>
+        </div>
+        <div>
+          <div class="block-label">Digit Recursion with /</div>
+          <pre>f(n / <span class="num">10</span>)  <span class="err"># ✗ float!</span>
+f(n // <span class="num">10</span>) <span class="cm"># ✓ int</span></pre>
+          <div class="mistake"><strong>✗ Error:</strong> <code>n / 10</code> produces a float — base case <code>n == 0</code> may never match.</div>
+          <div class="fix" style="margin-top:0.5rem;"><strong>✓ Fix:</strong> Always use <code>//</code> for integer digit reduction.</div>
+        </div>
+        <div>
+          <div class="block-label">Wrong Return Expression</div>
+          <div class="mistake"><strong>✗ Error:</strong> Forgetting to combine: <code>return f(smaller)</code> without including <code>current_part</code>.</div>
+          <div class="fix" style="margin-top:0.5rem;"><strong>✓ Fix:</strong> Always think: what does the current call contribute beyond the recursive result?</div>
+        </div>
+        <div>
+          <div class="block-label">Reduction Not Shrinking</div>
+          <div class="mistake"><strong>✗ Error:</strong> Sequence not actually reducing — e.g. passing <code>L</code> instead of <code>L[1:]</code>.</div>
+          <div class="fix" style="margin-top:0.5rem;"><strong>✓ Fix:</strong> Check that each recursive call receives a strictly smaller input.</div>
+        </div>
+        <div>
+          <div class="block-label">Efficiency Blindspot</div>
+          <div class="warn"><strong>⚠ Note:</strong> Short recursive code ≠ efficient code. Fibonacci recomputes fib(3) many times. Correct and efficient are separate properties.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHEAT SHEET -->
+  <div class="cheatsheet">
+    <h2>⚡ Quick-Reference Cheat Sheet</h2>
+    <div class="cs-grid">
+      <div class="cs-item"><div class="cs-code">Base case</div><div class="cs-desc">Stopping condition — must be reachable</div></div>
+      <div class="cs-item"><div class="cs-code">Reduction step</div><div class="cs-desc">Each call moves strictly toward base case</div></div>
+      <div class="cs-item"><div class="cs-code">Correct linkage</div><div class="cs-desc">Current call uses recursive result correctly</div></div>
+      <div class="cs-item"><div class="cs-code">n - 1 / n - 2</div><div class="cs-desc">Numeric reduction (factorial, Fibonacci)</div></div>
+      <div class="cs-item"><div class="cs-code">n // 10</div><div class="cs-desc">Digit-by-digit numeric reduction</div></div>
+      <div class="cs-item"><div class="cs-code">s[1:]</div><div class="cs-desc">String reduction (one char at a time)</div></div>
+      <div class="cs-item"><div class="cs-code">L[1:]</div><div class="cs-desc">List reduction (one element at a time)</div></div>
+      <div class="cs-item"><div class="cs-code">T[1:]</div><div class="cs-desc">Tuple reduction (same as list/string)</div></div>
+      <div class="cs-item"><div class="cs-code">isinstance(v, dict)</div><div class="cs-desc">Nested dict recursion — check type before recursing</div></div>
+      <div class="cs-item"><div class="cs-code">print before f()</div><div class="cs-desc">Executes during descent (top-down output)</div></div>
+      <div class="cs-item"><div class="cs-code">print after f()</div><div class="cs-desc">Executes during unwinding (bottom-up output)</div></div>
+      <div class="cs-item"><div class="cs-code">return f(smaller)</div><div class="cs-desc">Value-producing — pass result back up</div></div>
+      <div class="cs-item"><div class="cs-code">f(smaller) [no return]</div><div class="cs-desc">Action-oriented — side effects only</div></div>
+      <div class="cs-item"><div class="cs-code">x = f(n-1); return x+n</div><div class="cs-desc">Mixed — store result, then combine</div></div>
+      <div class="cs-item"><div class="cs-code">return print(n) + f()</div><div class="cs-desc">❌ TypeError — print() returns None</div></div>
+      <div class="cs-item"><div class="cs-code">n / 10 in digit recursion</div><div class="cs-desc">❌ Produces float — use // instead</div></div>
+      <div class="cs-item"><div class="cs-code">g(n + 1) with base n==0</div><div class="cs-desc">❌ Base unreachable — RecursionError</div></div>
+      <div class="cs-item"><div class="cs-code">fib(n-1) + fib(n-2)</div><div class="cs-desc">Multiple calls — correct but exponential time</div></div>
+      <div class="cs-item"><div class="cs-code">Descent phase</div><div class="cs-desc">Calls moving toward base case</div></div>
+      <div class="cs-item"><div class="cs-code">Unwinding phase</div><div class="cs-desc">Returns propagating back after base case</div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
