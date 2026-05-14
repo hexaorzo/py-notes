@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Strings — Lecture Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Code+Pro:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f14;
+    --surface: #17171f;
+    --card: #1e1e2a;
+    --accent: #f5a623;
+    --accent2: #e8415a;
+    --accent3: #4ecdc4;
+    --text: #e8e6df;
+    --muted: #8a8799;
+    --code-bg: #111118;
+    --border: #2e2e40;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    padding: 2rem 1rem;
+  }
+
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  header {
+    border-left: 5px solid var(--accent);
+    padding: 2rem 2rem 2rem 2.5rem;
+    margin-bottom: 3rem;
+    background: var(--surface);
+    border-radius: 0 12px 12px 0;
+  }
+
+  header .subject {
+    font-family: 'Source Code Pro', monospace;
+    color: var(--accent);
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.1;
+  }
+
+  header .meta {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 0.75rem;
+  }
+
+  .toc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .toc h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--accent3);
+    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+  }
+
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.4rem;
+  }
+
+  .toc a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 0.2rem 0;
+    transition: color 0.2s;
+  }
+  .toc a:hover { color: var(--accent); }
+
+  .section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+
+  .section-header {
+    background: var(--surface);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-num {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    background: rgba(245,166,35,0.12);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    min-width: 2.5rem;
+    text-align: center;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .section-body {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 640px) {
+    .section-body { grid-template-columns: 1fr; }
+    header h1 { font-size: 2rem; }
+  }
+
+  .section-body.wide {
+    grid-template-columns: 1fr;
+  }
+
+  .block-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 0.5rem;
+  }
+
+  .concept p, .concept ul {
+    font-size: 0.92rem;
+    color: #c8c6bf;
+  }
+  .concept ul { padding-left: 1.2rem; }
+  .concept li { margin-bottom: 0.25rem; }
+
+  code, .inline-code {
+    font-family: 'Source Code Pro', monospace;
+    background: rgba(78,205,196,0.1);
+    color: var(--accent3);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    font-size: 0.88em;
+  }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    color: #c8f7c5;
+  }
+
+  pre .kw  { color: #cc99ff; }
+  pre .fn  { color: #4ecdc4; }
+  pre .str { color: #f5c842; }
+  pre .cm  { color: #5a5a78; font-style: italic; }
+  pre .num { color: #f5a623; }
+
+  .mistake {
+    background: rgba(232,65,90,0.08);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 6px 6px 0;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+    color: #e8a0aa;
+    margin-top: 0.5rem;
+  }
+  .mistake strong { color: var(--accent2); }
+
+  .fix {
+    background: rgba(78,205,196,0.07);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 6px 6px 0;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+    color: #a0e8e4;
+    margin-top: 0.3rem;
+  }
+  .fix strong { color: var(--accent3); }
+
+  .divider {
+    width: 40px;
+    height: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    margin: 2.5rem auto;
+    opacity: 0.4;
+  }
+
+  .cheatsheet {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 3rem;
+  }
+
+  .cheatsheet h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: #fff;
+    margin-bottom: 1.5rem;
+  }
+
+  .cs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .cs-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+  }
+
+  .cs-item .cs-code {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.82rem;
+    color: var(--accent3);
+    margin-bottom: 0.25rem;
+  }
+
+  .cs-item .cs-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="subject">📘 Python Programming · Lecture Notes</div>
+    <h1>Strings in Python</h1>
+    <div class="meta">Topics: Basics · Slicing · Methods · Formatting · Pattern Matching · Logic Building</div>
+  </header>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>Contents</h2>
+    <div class="toc-grid">
+      <a href="#s1">1. What is a String</a>
+      <a href="#s2">2. len() & Indexing</a>
+      <a href="#s3">3. Slicing</a>
+      <a href="#s4">4. Membership: in / not in</a>
+      <a href="#s5">5. Immutability</a>
+      <a href="#s6">6. Concatenation & Comparison</a>
+      <a href="#s7">7. Built-ins: len, min, max, sorted</a>
+      <a href="#s8">8. Case Methods</a>
+      <a href="#s9">9. Whitespace: strip</a>
+      <a href="#s10">10. Searching: find, index, count</a>
+      <a href="#s11">11. replace()</a>
+      <a href="#s12">12. split() & join()</a>
+      <a href="#s13">13. startswith / endswith</a>
+      <a href="#s14">14. f-strings</a>
+      <a href="#s15">15. Pattern Matching</a>
+      <a href="#s16">16. Escape & Raw Strings</a>
+      <a href="#s17">17. Character Category Methods</a>
+      <a href="#s18">18. ord() & chr()</a>
+      <a href="#s19">19. Alignment & zfill</a>
+      <a href="#s20">20. Logic Building</a>
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">What is a String?</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>A <strong>sequence of characters</strong> — letters, digits, spaces, symbols.</li>
+            <li>Written inside <code>"..."</code> or <code>'...'</code> (be consistent).</li>
+            <li>Supports <strong>concatenation</strong> (<code>+</code>) and <strong>repetition</strong> (<code>*</code>).</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> <code>"age=" + 20</code> → TypeError</div>
+          <div class="fix"><strong>✓ Fix:</strong> <code>"age=" + str(20)</code> or use an f-string</div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Examples</div>
+        <pre><span class="kw">a</span> = <span class="str">"me"</span>
+<span class="kw">b</span> = <span class="str">"myself"</span>
+<span class="fn">print</span>(a + b)       <span class="cm"># "memyself"</span>
+<span class="fn">print</span>(a + <span class="str">" "</span> + b) <span class="cm"># "me myself"</span>
+<span class="fn">print</span>(a * <span class="num">3</span>)       <span class="cm"># "mememe"</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">len() and Indexing</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>len(s)</code> — returns the length of the string.</li>
+            <li>Indexing uses <code>[]</code>, starts from <strong>0</strong>.</li>
+            <li>Negative index: <code>-1</code> is the last character.</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> <code>s[3]</code> for <code>"abc"</code> → IndexError</div>
+          <div class="fix"><strong>✓ Fix:</strong> last valid index is <code>len(s) - 1</code></div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>s = <span class="str">"abc"</span>
+<span class="fn">print</span>(<span class="fn">len</span>(s))          <span class="cm"># 3</span>
+<span class="fn">print</span>(s[<span class="num">0</span>], s[<span class="num">1</span>], s[<span class="num">2</span>]) <span class="cm"># a b c</span>
+<span class="fn">print</span>(s[<span class="num">-1</span>], s[<span class="num">-2</span>])    <span class="cm"># c b</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">Slicing — s[start:stop:step]</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Extracts a substring <em>without</em> modifying the original.</li>
+            <li><strong>Includes</strong> start, <strong>excludes</strong> stop.</li>
+            <li>Defaults: start=0, stop=end, step=1.</li>
+            <li>Negative step reverses direction. <code>s[::-1]</code> = reversed string.</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> thinking <code>s[1:4]</code> includes index 4</div>
+          <div class="fix"><strong>✓ Fix:</strong> stop is always excluded</div>
+          <div class="mistake" style="margin-top:0.5rem;"><strong>✗ Mistake:</strong> <code>s[5:2]</code> for forward slice</div>
+          <div class="fix"><strong>✓ Fix:</strong> use <code>s[5:2:-1]</code> with negative step</div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>s = <span class="str">"abcdef"</span>
+s[<span class="num">1</span>:<span class="num">4</span>]   <span class="cm"># "bcd"</span>
+s[:<span class="num">3</span>]    <span class="cm"># "abc"</span>
+s[<span class="num">3</span>:]    <span class="cm"># "def"</span>
+s[::<span class="num">2</span>]   <span class="cm"># "ace"</span>
+s[::<span class="num">-1</span>]  <span class="cm"># "fedcba"</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Membership: in and not in</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Checks if a character or substring exists in the string.</li>
+            <li>Returns <code>True</code> or <code>False</code>. <strong>Case-sensitive.</strong></li>
+            <li>Works for both single chars and substrings.</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> <code>if "Py" == s</code> to check containment</div>
+          <div class="fix"><strong>✓ Fix:</strong> use <code>if "Py" in s</code></div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>s = <span class="str">"Programming in Python"</span>
+<span class="fn">print</span>(<span class="str">"Python"</span> <span class="kw">in</span> s)  <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="str">"python"</span> <span class="kw">in</span> s)  <span class="cm"># False</span>
+<span class="fn">print</span>(<span class="str">"Java"</span> <span class="kw">not in</span> s) <span class="cm"># True</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Strings are Immutable</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Characters <strong>cannot be changed by index</strong> after creation.</li>
+            <li>Any "modification" creates a <em>new</em> string.</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> <code>s[0] = "H"</code> → TypeError</div>
+          <div class="fix"><strong>✓ Fix:</strong> <code>s2 = "H" + s[1:]</code> or use <code>.replace()</code></div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>s = <span class="str">"hello"</span>
+<span class="cm"># s[0] = "H"  → ERROR</span>
+s2 = <span class="str">"H"</span> + s[<span class="num">1</span>:]
+<span class="fn">print</span>(s)   <span class="cm"># "hello" unchanged</span>
+<span class="fn">print</span>(s2)  <span class="cm"># "Hello"</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Concatenation, Repetition & Comparison</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>+</code> concatenates, <code>*</code> repeats.</li>
+            <li>Comparisons use <strong>lexicographic order</strong> (ASCII/Unicode codes).</li>
+            <li>Uppercase letters come <em>before</em> lowercase in ASCII → <code>"Z" &lt; "a"</code> is True.</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> <code>"20" &gt; "3"</code> → False (string comparison!)</div>
+          <div class="fix"><strong>✓ Fix:</strong> convert first: <code>int("20") &gt; int("3")</code></div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>a = <span class="str">"abc"</span>; b = <span class="str">"abd"</span>
+<span class="fn">print</span>(a + <span class="str">"XYZ"</span>)  <span class="cm"># "abcXYZ"</span>
+<span class="fn">print</span>(<span class="str">"ha"</span> * <span class="num">4</span>)    <span class="cm"># "hahahaha"</span>
+<span class="fn">print</span>(a == b)     <span class="cm"># False</span>
+<span class="fn">print</span>(a < b)      <span class="cm"># True (c &lt; d)</span>
+<span class="fn">print</span>(<span class="str">"Z"</span> < <span class="str">"a"</span>)  <span class="cm"># True (ASCII)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">Built-ins: len, min, max, sorted</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>len(s)</code> — length</li>
+            <li><code>min(s)</code>, <code>max(s)</code> — smallest/largest character (lexicographic)</li>
+            <li><code>sorted(s)</code> — returns a <em>list</em> of sorted characters</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> expecting <code>sorted(s)</code> to return a string</div>
+          <div class="fix"><strong>✓ Fix:</strong> <code>"".join(sorted(s))</code></div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>s = <span class="str">"dbca"</span>
+<span class="fn">print</span>(<span class="fn">len</span>(s))            <span class="cm"># 4</span>
+<span class="fn">print</span>(<span class="fn">min</span>(s), <span class="fn">max</span>(s))    <span class="cm"># a d</span>
+<span class="fn">print</span>(<span class="fn">sorted</span>(s))         <span class="cm"># ['a','b','c','d']</span>
+<span class="fn">print</span>(<span class="str">""</span>.<span class="fn">join</span>(<span class="fn">sorted</span>(s))) <span class="cm"># "abcd"</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8 -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">Case Methods: lower, upper, title, capitalize</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>.lower()</code> — all lowercase</li>
+            <li><code>.upper()</code> — all uppercase</li>
+            <li><code>.title()</code> — capitalizes <em>each word's</em> first letter</li>
+            <li><code>.capitalize()</code> — capitalizes only the first character</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> <code>s.lower</code> (missing parentheses)</div>
+          <div class="fix"><strong>✓ Fix:</strong> always call: <code>s.lower()</code></div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>s = <span class="str">"pYtHon proGramming"</span>
+<span class="fn">print</span>(s.<span class="fn">lower</span>())      <span class="cm"># "python programming"</span>
+<span class="fn">print</span>(s.<span class="fn">upper</span>())      <span class="cm"># "PYTHON PROGRAMMING"</span>
+<span class="fn">print</span>(s.<span class="fn">title</span>())      <span class="cm"># "Python Programming"</span>
+<span class="fn">print</span>(s.<span class="fn">capitalize</span>()) <span class="cm"># "Python programming"</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9 -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <span class="section-title">Whitespace: strip, lstrip, rstrip</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Removes leading/trailing whitespace (spaces, tabs, newlines).</li>
+            <li><code>.strip()</code> — both sides</li>
+            <li><code>.lstrip()</code> — left only &nbsp;|&nbsp; <code>.rstrip()</code> — right only</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> thinking strip() removes spaces in the middle</div>
+          <div class="fix"><strong>✓ Fix:</strong> it only affects the ends</div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>s = <span class="str">" hello world \n"</span>
+<span class="fn">print</span>(<span class="str">"["</span> + s.<span class="fn">strip</span>()  + <span class="str">"]"</span>) 
+<span class="cm"># [hello world]</span>
+<span class="fn">print</span>(<span class="str">"["</span> + s.<span class="fn">lstrip</span>() + <span class="str">"]"</span>) 
+<span class="cm"># [hello world \n]</span>
+<span class="fn">print</span>(<span class="str">"["</span> + s.<span class="fn">rstrip</span>() + <span class="str">"]"</span>) 
+<span class="cm"># [ hello world]</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <span class="section-title">Searching: find, rfind, index, count</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>.find(sub)</code> — first index, or <code>-1</code> if not found (safe)</li>
+            <li><code>.rfind(sub)</code> — last occurrence</li>
+            <li><code>.index(sub)</code> — like find, but raises error if not found</li>
+            <li><code>.count(sub)</code> — counts all occurrences</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> <code>if s.find("x"):</code> — 0 is falsy!</div>
+          <div class="fix"><strong>✓ Fix:</strong> <code>if s.find("x") != -1:</code> or <code>"x" in s</code></div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>s = <span class="str">"banana"</span>
+<span class="fn">print</span>(s.<span class="fn">find</span>(<span class="str">"na"</span>))   <span class="cm"># 2</span>
+<span class="fn">print</span>(s.<span class="fn">rfind</span>(<span class="str">"na"</span>))  <span class="cm"># 4</span>
+<span class="fn">print</span>(s.<span class="fn">count</span>(<span class="str">"na"</span>))  <span class="cm"># 2</span>
+<span class="fn">print</span>(s.<span class="fn">find</span>(<span class="str">"x"</span>))   <span class="cm"># -1</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11 -->
+  <div class="section" id="s11">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <span class="section-title">replace(old, new, count)</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Replaces occurrences of <em>old</em> with <em>new</em>.</li>
+            <li>Optional <code>count</code> limits how many replacements are made.</li>
+            <li>Returns a <em>new string</em> (immutability).</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> expecting replace() to modify original</div>
+          <div class="fix"><strong>✓ Fix:</strong> <code>s = s.replace(...)</code></div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>s = <span class="str">"one one one"</span>
+<span class="fn">print</span>(s.<span class="fn">replace</span>(<span class="str">"one"</span>, <span class="str">"1"</span>))    
+<span class="cm"># "1 1 1"</span>
+<span class="fn">print</span>(s.<span class="fn">replace</span>(<span class="str">"one"</span>, <span class="str">"1"</span>, <span class="num">2</span>)) 
+<span class="cm"># "1 1 one"</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12 -->
+  <div class="section" id="s12">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <span class="section-title">split() and join()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>.split(sep)</code> — string → list of pieces</li>
+            <li><code>split()</code> with no arg splits on any whitespace (handles multiple spaces)</li>
+            <li><code>"sep".join(list)</code> — list → string</li>
+            <li>Use <code>.strip()</code> after splitting to clean tokens.</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> <code>parts.join(" | ")</code></div>
+          <div class="fix"><strong>✓ Fix:</strong> <code>" | ".join(parts)</code> — join is a string method</div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>line = <span class="str">"CSE, SAARC, Delhi"</span>
+parts = line.<span class="fn">split</span>(<span class="str">","</span>)
+clean = [p.<span class="fn">strip</span>() <span class="kw">for</span> p <span class="kw">in</span> parts]
+result = <span class="str">" | "</span>.<span class="fn">join</span>(clean)
+<span class="fn">print</span>(result) <span class="cm"># "CSE | SAARC | Delhi"</span>
+
+<span class="cm"># split() vs split(" ")</span>
+<span class="str">" IIT Delhi CSE "</span>.<span class="fn">split</span>()
+<span class="cm"># ['IIT', 'Delhi', 'CSE']</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13 -->
+  <div class="section" id="s13">
+    <div class="section-header">
+      <span class="section-num">13</span>
+      <span class="section-title">startswith() and endswith()</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Safer than slicing for prefix/suffix checks.</li>
+            <li>Can pass a <strong>tuple</strong> to check multiple options at once.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>s = <span class="str">"report_final.pdf"</span>
+<span class="fn">print</span>(s.<span class="fn">endswith</span>(<span class="str">".pdf"</span>))           <span class="cm"># True</span>
+<span class="fn">print</span>(s.<span class="fn">startswith</span>(<span class="str">"report"</span>))        <span class="cm"># True</span>
+<span class="fn">print</span>(s.<span class="fn">endswith</span>((<span class="str">".pdf"</span>, <span class="str">".docx"</span>))) <span class="cm"># True</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14 -->
+  <div class="section" id="s14">
+    <div class="section-header">
+      <span class="section-num">14</span>
+      <span class="section-title">f-strings (Formatted String Literals)</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Inserts values and expressions directly inside <code>{}</code>.</li>
+            <li>Eliminates type-conversion issues like <code>str(n)</code>.</li>
+            <li>Any valid Python expression can go inside <code>{}</code>.</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> forgetting the <code>f</code> prefix</div>
+          <div class="fix"><strong>✓ Fix:</strong> <code>f"..."</code> is required</div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>name = <span class="str">"Raj"</span>
+score = <span class="num">92</span>
+<span class="fn">print</span>(<span class="str">f"{name} scored {score} marks"</span>)
+<span class="cm"># "Raj scored 92 marks"</span>
+<span class="fn">print</span>(<span class="str">f"square = {score * score}"</span>)
+<span class="cm"># "square = 8464"</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 15 -->
+  <div class="section" id="s15">
+    <div class="section-header">
+      <span class="section-num">15</span>
+      <span class="section-title">Pattern Matching (No Imports Needed)</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li>Beginner-level pattern matching with: <code>in</code>, <code>find()</code>, <code>startswith()</code>, <code>endswith()</code></li>
+            <li>Split-based validation is cleaner than regex for beginners.</li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> treating <code>"@" in email</code> as full validation</div>
+          <div class="fix"><strong>✓ Fix:</strong> also check one <code>@</code>, non-empty local part, and <code>.</code> in domain</div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Basic Email Validator</div>
+        <pre>email = <span class="str">"abc@sau.ac.in"</span>
+<span class="kw">if</span> <span class="str">"@"</span> <span class="kw">in</span> email:
+    parts = email.<span class="fn">split</span>(<span class="str">"@"</span>)
+    <span class="kw">if</span> (<span class="fn">len</span>(parts) == <span class="num">2</span> <span class="kw">and</span>
+        parts[<span class="num">0</span>] != <span class="str">""</span> <span class="kw">and</span>
+        <span class="str">"."</span> <span class="kw">in</span> parts[<span class="num">1</span>]):
+        <span class="fn">print</span>(<span class="str">"Valid format"</span>)
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="str">"Invalid"</span>)</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 16 -->
+  <div class="section" id="s16">
+    <div class="section-header">
+      <span class="section-num">16</span>
+      <span class="section-title">Escape Sequences & Raw Strings</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Escape Sequences</div>
+        <div class="concept">
+          <ul>
+            <li><code>\n</code> — newline</li>
+            <li><code>\t</code> — tab</li>
+            <li><code>\\</code> — literal backslash</li>
+            <li><code>\"</code>, <code>\'</code> — quotes inside strings</li>
+          </ul>
+        </div>
+        <div style="margin-top:0.75rem;">
+          <div class="block-label">Raw Strings</div>
+          <div class="concept"><p>Prefix with <code>r"..."</code> — backslashes are treated literally. Great for file paths.</p></div>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> <code>"C:\new\test"</code> → <code>\n</code> becomes newline!</div>
+          <div class="fix"><strong>✓ Fix:</strong> <code>"C:\\new\\test"</code> or <code>r"C:\new\test"</code></div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre>s1 = <span class="str">"Line1\nLine2"</span>   <span class="cm"># two lines</span>
+s2 = <span class="str">"A\tB\tC"</span>       <span class="cm"># tab-separated</span>
+s3 = <span class="str">"He said: \"Hi\""</span>
+
+path1 = <span class="str">"C:\\new\\test"</span>
+path2 = <span class="kw">r</span><span class="str">"C:\new\test"</span>
+<span class="cm"># path1 == path2 → True</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 17 -->
+  <div class="section" id="s17">
+    <div class="section-header">
+      <span class="section-num">17</span>
+      <span class="section-title">Character Category Methods</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Methods (return True/False)</div>
+        <div class="concept">
+          <ul>
+            <li><code>.isalpha()</code> — only letters</li>
+            <li><code>.isdigit()</code> — only digits</li>
+            <li><code>.isalnum()</code> — letters or digits</li>
+            <li><code>.isspace()</code> — spaces/tabs only</li>
+            <li><code>.islower()</code> / <code>.isupper()</code></li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="mistake"><strong>✗ Mistake:</strong> <code>"12.5".isdigit()</code> → False (<code>.</code> is not a digit)</div>
+          <div class="fix"><strong>✓ Fix:</strong> for negative numbers, check <code>s[0]=='-' and s[1:].isdigit()</code></div>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre><span class="str">"Raj"</span>.<span class="fn">isalpha</span>()   <span class="cm"># True</span>
+<span class="str">"123"</span>.<span class="fn">isdigit</span>()   <span class="cm"># True</span>
+<span class="str">"12.5"</span>.<span class="fn">isdigit</span>()  <span class="cm"># False</span>
+<span class="str">"Raj123"</span>.<span class="fn">isalnum</span>()<span class="cm"># True</span>
+<span class="str">"PYTHON"</span>.<span class="fn">isupper</span>() <span class="cm"># True</span>
+<span class="str">"python"</span>.<span class="fn">islower</span>() <span class="cm"># True</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 18 -->
+  <div class="section" id="s18">
+    <div class="section-header">
+      <span class="section-num">18</span>
+      <span class="section-title">ord() and chr() — ASCII / Unicode</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Concept</div>
+        <div class="concept">
+          <ul>
+            <li><code>ord(ch)</code> — character → integer code</li>
+            <li><code>chr(n)</code> — integer code → character</li>
+            <li>Uppercase (A=65) and lowercase (a=97) have different codes.</li>
+            <li>Useful for ciphers, shifts, understanding comparisons.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="block-label">Demo</div>
+        <pre><span class="fn">print</span>(<span class="fn">ord</span>(<span class="str">'A'</span>))  <span class="cm"># 65</span>
+<span class="fn">print</span>(<span class="fn">ord</span>(<span class="str">'a'</span>))  <span class="cm"># 97</span>
+<span class="fn">print</span>(<span class="fn">chr</span>(<span class="num">65</span>))   <span class="cm"># 'A'</span>
+<span class="fn">print</span>(<span class="fn">chr</span>(<span class="num">97</span>))   <span class="cm"># 'a'</span>
+<span class="fn">print</span>(<span class="fn">ord</span>(<span class="str">'Z'</span>) < <span class="fn">ord</span>(<span class="str">'a'</span>))
+<span class="cm"># True (90 &lt; 97)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 19 -->
+  <div class="section" id="s19">
+    <div class="section-header">
+      <span class="section-num">19</span>
+      <span class="section-title">Alignment, zfill & removeprefix/removesuffix</span>
+    </div>
+    <div class="section-body">
+      <div>
+        <div class="block-label">Alignment</div>
+        <pre>s = <span class="str">"Python"</span>
+<span class="fn">print</span>(<span class="str">"["</span> + s.<span class="fn">center</span>(<span class="num">12</span>) + <span class="str">"]"</span>)
+<span class="cm"># [   Python   ]</span>
+<span class="fn">print</span>(<span class="str">"["</span> + s.<span class="fn">ljust</span>(<span class="num">12</span>)  + <span class="str">"]"</span>)
+<span class="cm"># [Python      ]</span>
+<span class="fn">print</span>(<span class="str">"["</span> + s.<span class="fn">rjust</span>(<span class="num">12</span>)  + <span class="str">"]"</span>)
+<span class="cm"># [      Python]</span></pre>
+      </div>
+      <div>
+        <div class="block-label">zfill & removeprefix / removesuffix</div>
+        <pre><span class="str">"7"</span>.<span class="fn">zfill</span>(<span class="num">3</span>)       <span class="cm"># "007"</span>
+<span class="str">"42"</span>.<span class="fn">zfill</span>(<span class="num">5</span>)      <span class="cm"># "00042"</span>
+<span class="str">"-9"</span>.<span class="fn">zfill</span>(<span class="num">4</span>)      <span class="cm"># "-009"</span>
+
+<span class="str">"unhappy"</span>.<span class="fn">removeprefix</span>(<span class="str">"un"</span>)  
+<span class="cm"># "happy"</span>
+<span class="str">"report.pdf"</span>.<span class="fn">removesuffix</span>(<span class="str">".pdf"</span>)
+<span class="cm"># "report"</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 20 -->
+  <div class="section" id="s20">
+    <div class="section-header">
+      <span class="section-num">20</span>
+      <span class="section-title">Logic Building — Manual Traversal</span>
+    </div>
+    <div class="section-body wide">
+      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
+        <div>
+          <div class="block-label">Palindrome</div>
+          <pre>s = <span class="str">"Madam"</span>
+<span class="kw">if</span> s.<span class="fn">lower</span>() == s.<span class="fn">lower</span>()[::<span class="num">-1</span>]:
+    <span class="fn">print</span>(<span class="str">"Palindrome"</span>)</pre>
+        </div>
+        <div>
+          <div class="block-label">Count Char Types</div>
+          <pre>v = c = d = sp = 0
+<span class="kw">for</span> ch <span class="kw">in</span> s:
+  <span class="kw">if</span> ch.<span class="fn">isalpha</span>():
+    <span class="kw">if</span> ch <span class="kw">in</span> <span class="str">"AEIOUaeiou"</span>:
+      v += <span class="num">1</span>
+    <span class="kw">else</span>: c += <span class="num">1</span>
+  <span class="kw">elif</span> ch.<span class="fn">isdigit</span>(): d += <span class="num">1</span>
+  <span class="kw">elif</span> ch == <span class="str">' '</span>: sp += <span class="num">1</span></pre>
+        </div>
+        <div>
+          <div class="block-label">Word Count (No split)</div>
+          <pre>wds = <span class="num">0</span>; in_wd = <span class="kw">False</span>
+<span class="kw">for</span> ch <span class="kw">in</span> s:
+  <span class="kw">if</span> ch != <span class="str">' '</span> <span class="kw">and not</span> in_wd:
+    wds += <span class="num">1</span>; in_wd = <span class="kw">True</span>
+  <span class="kw">elif</span> ch == <span class="str">' '</span>:
+    in_wd = <span class="kw">False</span>
+<span class="fn">print</span>(wds)</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cheat Sheet -->
+  <div class="cheatsheet">
+    <h2>⚡ Quick-Reference Cheat Sheet</h2>
+    <div class="cs-grid">
+      <div class="cs-item"><div class="cs-code">len(s)</div><div class="cs-desc">Length of string</div></div>
+      <div class="cs-item"><div class="cs-code">s[i] / s[-1]</div><div class="cs-desc">Index / last char</div></div>
+      <div class="cs-item"><div class="cs-code">s[a:b:c]</div><div class="cs-desc">Slice (stop excluded)</div></div>
+      <div class="cs-item"><div class="cs-code">s[::-1]</div><div class="cs-desc">Reverse string</div></div>
+      <div class="cs-item"><div class="cs-code">"x" in s</div><div class="cs-desc">Substring check</div></div>
+      <div class="cs-item"><div class="cs-code">s.lower() / .upper()</div><div class="cs-desc">Case conversion</div></div>
+      <div class="cs-item"><div class="cs-code">s.strip()</div><div class="cs-desc">Remove whitespace (ends)</div></div>
+      <div class="cs-item"><div class="cs-code">s.find("x")</div><div class="cs-desc">First index or -1</div></div>
+      <div class="cs-item"><div class="cs-code">s.count("x")</div><div class="cs-desc">Count occurrences</div></div>
+      <div class="cs-item"><div class="cs-code">s.replace(a, b)</div><div class="cs-desc">Returns new string</div></div>
+      <div class="cs-item"><div class="cs-code">s.split(",")</div><div class="cs-desc">String → list</div></div>
+      <div class="cs-item"><div class="cs-code">",".join(lst)</div><div class="cs-desc">List → string</div></div>
+      <div class="cs-item"><div class="cs-code">s.startswith(p)</div><div class="cs-desc">Prefix check</div></div>
+      <div class="cs-item"><div class="cs-code">s.endswith(p)</div><div class="cs-desc">Suffix check (tuple OK)</div></div>
+      <div class="cs-item"><div class="cs-code">f"{var}"</div><div class="cs-desc">f-string formatting</div></div>
+      <div class="cs-item"><div class="cs-code">ord(ch) / chr(n)</div><div class="cs-desc">Char ↔ ASCII code</div></div>
+      <div class="cs-item"><div class="cs-code">s.isalpha() / .isdigit()</div><div class="cs-desc">Category checks</div></div>
+      <div class="cs-item"><div class="cs-code">"n".zfill(3)</div><div class="cs-desc">Zero-pad → "00n"</div></div>
+      <div class="cs-item"><div class="cs-code">sorted(s) / min / max</div><div class="cs-desc">Work on characters</div></div>
+      <div class="cs-item"><div class="cs-code">r"path\to\file"</div><div class="cs-desc">Raw string (no escapes)</div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
