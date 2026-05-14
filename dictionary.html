@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Dictionary — Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1826;
+    --surface2: #221f33;
+    --accent: #f5a623;
+    --accent2: #7c6af7;
+    --accent3: #3ecf8e;
+    --text: #e8e6f0;
+    --muted: #7b7a8e;
+    --code-bg: #12111e;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #12111e 0%, #1e1a38 50%, #0f1a2e 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 64px 48px 52px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '{}';
+    position: absolute;
+    right: 60px; top: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 180px;
+    color: rgba(124,106,247,0.06);
+    font-weight: 600;
+    line-height: 1;
+    pointer-events: none;
+  }
+  .hero-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(42px, 6vw, 72px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: #fff;
+    margin-bottom: 18px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero-sub {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 520px;
+  }
+  .tag-row {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px;
+  }
+  .tag {
+    background: rgba(124,106,247,0.12);
+    border: 1px solid rgba(124,106,247,0.25);
+    color: var(--accent2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  /* LAYOUT */
+  .content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* SECTIONS */
+  .section {
+    margin-top: 56px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .section-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .section-dot.purple { background: var(--accent2); }
+  .section-dot.green { background: var(--accent3); }
+
+  /* CARDS */
+  .card-grid {
+    display: grid;
+    gap: 16px;
+  }
+  .card-grid.two { grid-template-columns: 1fr 1fr; }
+  .card-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 12px 12px 0 0;
+  }
+  .card.green::after { background: linear-gradient(90deg, var(--accent3), #2b9ee0); }
+  .card.purple::after { background: linear-gradient(90deg, var(--accent2), #c47af5); }
+  .card.red::after { background: linear-gradient(90deg, #f56c6c, #f5a623); }
+
+  .card h3 {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .card.green h3 { color: var(--accent3); }
+  .card.purple h3 { color: var(--accent2); }
+  .card.red h3 { color: #f56c6c; }
+
+  .card ul {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .card ul li {
+    font-size: 13.5px;
+    color: #c8c6d8;
+    padding-left: 16px;
+    position: relative;
+  }
+  .card ul li::before {
+    content: '›';
+    position: absolute; left: 0;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .card.green ul li::before { color: var(--accent3); }
+  .card.purple ul li::before { color: var(--accent2); }
+  .card.red ul li::before { color: #f56c6c; }
+
+  /* CODE BLOCKS */
+  .code-card {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+  }
+  .code-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+  .code-dots {
+    display: flex; gap: 6px;
+  }
+  .code-dots span {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .code-dots span:nth-child(1) { background: #f56c6c; }
+  .code-dots span:nth-child(2) { background: #f5a623; }
+  .code-dots span:nth-child(3) { background: var(--accent3); }
+
+  pre {
+    padding: 20px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #c8c6d8;
+    overflow-x: auto;
+  }
+  .kw { color: #c47af5; }
+  .fn { color: var(--accent3); }
+  .str { color: var(--accent); }
+  .num { color: #79d4f0; }
+  .cm { color: #4a4860; }
+  .out { color: var(--muted); }
+  .out-label { color: #f56c6c; font-size: 11px; letter-spacing: 1px; display: block; margin-bottom: 4px; margin-top: 8px; }
+
+  /* COMPARISON TABLE */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  .compare-table th {
+    background: var(--surface2);
+    color: var(--muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 11px;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .compare-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    color: #c8c6d8;
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .compare-table td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+    font-weight: 600;
+  }
+  .yes { color: var(--accent3); }
+  .no { color: #f56c6c; }
+
+  /* METHOD TABLE */
+  .method-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .method-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .method-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent3);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .method-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ALERT / CALLOUT */
+  .callout {
+    background: rgba(245,166,35,0.07);
+    border: 1px solid rgba(245,166,35,0.2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 16px 20px;
+    font-size: 13.5px;
+    color: #d4c9a8;
+    margin: 16px 0;
+  }
+  .callout strong { color: var(--accent); }
+
+  .callout.red {
+    background: rgba(245,108,108,0.07);
+    border-color: rgba(245,108,108,0.2);
+    border-left-color: #f56c6c;
+    color: #d4aaaa;
+  }
+  .callout.red strong { color: #f56c6c; }
+
+  /* MISTAKES */
+  .mistake-list {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .mistake-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 13.5px;
+    color: #c8c6d8;
+  }
+  .mistake-icon {
+    font-size: 15px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* SUMMARY BOX */
+  .summary-box {
+    background: linear-gradient(135deg, #1a1632 0%, #161228 100%);
+    border: 1px solid rgba(124,106,247,0.2);
+    border-radius: 16px;
+    padding: 36px;
+    margin-top: 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  .summary-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at top right, rgba(124,106,247,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .summary-box h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+  .summary-pills {
+    display: flex; flex-wrap: wrap; gap: 10px;
+  }
+  .pill {
+    background: rgba(124,106,247,0.15);
+    border: 1px solid rgba(124,106,247,0.3);
+    color: #b8b0f0;
+    font-size: 13px;
+    padding: 7px 16px;
+    border-radius: 30px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .pill.orange {
+    background: rgba(245,166,35,0.12);
+    border-color: rgba(245,166,35,0.25);
+    color: #d4b87a;
+  }
+  .pill.green {
+    background: rgba(62,207,142,0.12);
+    border-color: rgba(62,207,142,0.25);
+    color: #7dd4a8;
+  }
+
+  @media (max-width: 700px) {
+    .card-grid.two, .card-grid.three, .method-grid { grid-template-columns: 1fr; }
+    .hero { padding: 40px 24px 36px; }
+    .content { padding: 0 20px; }
+    .hero::before { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="content">
+    <div class="hero-label">Python Notes &nbsp;·&nbsp; Chapter</div>
+    <h1>Python <span>Dictionary</span></h1>
+    <p class="hero-sub">A mutable mapping type that stores key-value pairs — the go-to structure when data is naturally associative rather than positional.</p>
+    <div class="tag-row">
+      <span class="tag">mutable</span>
+      <span class="tag">mapping</span>
+      <span class="tag">key → value</span>
+      <span class="tag">hashable keys</span>
+      <span class="tag">insertion order</span>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- 1. WHY DICTIONARY -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <div class="section-dot"></div>
+      <span class="section-title">Why Dictionary is Needed</span>
+    </div>
+    <div class="callout">
+      <strong>Problem with parallel lists:</strong> Storing student grades in separate <code>names[]</code> and <code>grades[]</code> lists forces index-based searching — fragile, hard to maintain, and hard to read.
+    </div>
+    <div class="card-grid two">
+      <div class="card red">
+        <h3>Problems (Parallel Lists)</h3>
+        <ul>
+          <li>Data spread across multiple structures</li>
+          <li>Index consistency must always be maintained</li>
+          <li>Code becomes indirect and error-prone</li>
+          <li>Readability becomes weak</li>
+          <li>Updates can break other lists</li>
+        </ul>
+      </div>
+      <div class="card green">
+        <h3>Dictionary Solves This</h3>
+        <ul>
+          <li>Meaningful key gives associated info directly</li>
+          <li>No index management required</li>
+          <li>Cleaner, more readable code</li>
+          <li>Easier updates — one place to change</li>
+          <li>Natural modeling of real-world data</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. WHAT IS A DICTIONARY -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <div class="section-dot purple"></div>
+      <span class="section-title">What is a Dictionary?</span>
+    </div>
+    <div class="card-grid two">
+      <div class="card purple">
+        <h3>Core Properties</h3>
+        <ul>
+          <li>Collection of key-value pairs</li>
+          <li>Mapping type (not a sequence)</li>
+          <li>Access is by key, not by position</li>
+          <li>Keys are unique; values may repeat</li>
+          <li>Mutable — can be changed after creation</li>
+          <li>Preserves insertion order (Python 3.7+)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Natural Examples</h3>
+        <ul>
+          <li>student name → grade</li>
+          <li>product code → price</li>
+          <li>city → population</li>
+          <li>word → frequency count</li>
+          <li>username → profile</li>
+          <li>country → capital</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. CREATING -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <div class="section-dot"></div>
+      <span class="section-title">Creating Dictionaries</span>
+    </div>
+    <div class="code-card">
+      <div class="code-header">
+        <span class="code-label">CREATION STYLES</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre><span class="cm"># Brace notation (most common)</span>
+d1 = {<span class="str">"name"</span>: <span class="str">"Aman"</span>, <span class="str">"age"</span>: <span class="num">20</span>}
+
+<span class="cm"># Integer keys</span>
+d2 = {<span class="num">1</span>: <span class="str">"one"</span>, <span class="num">2</span>: <span class="str">"two"</span>, <span class="num">3</span>: <span class="str">"three"</span>}
+
+<span class="cm"># From list of pairs</span>
+d3 = <span class="fn">dict</span>([(<span class="str">"a"</span>, <span class="num">1</span>), (<span class="str">"b"</span>, <span class="num">2</span>)])
+
+<span class="cm"># Keyword arguments</span>
+d4 = <span class="fn">dict</span>(name=<span class="str">"Aman"</span>, age=<span class="num">20</span>, city=<span class="str">"Jaipur"</span>)
+
+<span class="cm"># Empty dictionary</span>
+d5 = {}
+
+<span class="cm"># fromkeys — all keys with same initial value</span>
+d6 = <span class="fn">dict</span>.<span class="fn">fromkeys</span>([<span class="str">"a"</span>, <span class="str">"b"</span>, <span class="str">"c"</span>], <span class="num">0</span>)
+<span class="cm"># → {'a': 0, 'b': 0, 'c': 0}</span></pre>
+    </div>
+    <div class="callout">
+      <strong>Duplicate key rule:</strong> If a key appears twice in a literal, the <strong>later value replaces the earlier one</strong>. Only one entry is kept.
+    </div>
+  </div>
+
+  <!-- 4. ACCESSING -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <div class="section-dot green"></div>
+      <span class="section-title">Accessing Values</span>
+    </div>
+    <div class="code-card">
+      <div class="code-header">
+        <span class="code-label">ACCESS METHODS</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre><span class="cm"># Direct access — raises KeyError if key missing</span>
+grades = {<span class="str">"Ana"</span>: <span class="str">"B"</span>, <span class="str">"Matt"</span>: <span class="str">"A"</span>, <span class="str">"John"</span>: <span class="str">"B"</span>}
+<span class="fn">print</span>(grades[<span class="str">"John"</span>])   <span class="cm"># → B</span>
+
+<span class="cm"># get() — safe access, returns None or default if missing</span>
+car = {<span class="str">"model"</span>: <span class="str">"i20"</span>, <span class="str">"company"</span>: <span class="str">"Hyundai"</span>}
+<span class="fn">print</span>(car.<span class="fn">get</span>(<span class="str">"color"</span>))              <span class="cm"># → None</span>
+<span class="fn">print</span>(car.<span class="fn">get</span>(<span class="str">"color"</span>, <span class="str">"Not Available"</span>))  <span class="cm"># → Not Available</span></pre>
+    </div>
+    <div class="card-grid two">
+      <div class="card">
+        <h3>d[key]  — Direct</h3>
+        <ul>
+          <li>Use when key is <strong>certainly present</strong></li>
+          <li>Raises <code>KeyError</code> if key is missing</li>
+          <li>Fast and concise</li>
+        </ul>
+      </div>
+      <div class="card green">
+        <h3>d.get(key, default) — Safe</h3>
+        <ul>
+          <li>Use when key may or may not exist</li>
+          <li>Returns <code>None</code> if no default given</li>
+          <li>Preferred in defensive code</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. MODIFYING -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <div class="section-dot"></div>
+      <span class="section-title">Adding, Updating & Deleting</span>
+    </div>
+    <div class="code-card">
+      <div class="code-header">
+        <span class="code-label">MUTATION OPERATIONS</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre><span class="cm"># Add new entry</span>
+grades[<span class="str">"Grace"</span>] = <span class="str">"A"</span>
+
+<span class="cm"># Update existing entry</span>
+grades[<span class="str">"Grace"</span>] = <span class="str">"C"</span>   <span class="cm"># replaces, does NOT move position</span>
+
+<span class="cm"># Delete an entry</span>
+<span class="kw">del</span> grades[<span class="str">"Ana"</span>]         <span class="cm"># raises KeyError if key absent</span>
+
+<span class="cm"># Membership — checks KEYS only</span>
+<span class="str">"John"</span> <span class="kw">in</span> grades          <span class="cm"># → True</span>
+<span class="str">"B"</span>    <span class="kw">in</span> grades          <span class="cm"># → False (values not checked)</span></pre>
+    </div>
+    <div class="callout">
+      <strong>Insertion order rule:</strong> Updating an existing key's value does NOT change its position. Deleting a key and reinserting it moves it to the <strong>end</strong>.
+    </div>
+  </div>
+
+  <!-- 6. TRAVERSAL -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <div class="section-dot purple"></div>
+      <span class="section-title">Traversal — keys(), values(), items()</span>
+    </div>
+    <div class="code-card">
+      <div class="code-header">
+        <span class="code-label">LOOP STYLES</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre>grades = {<span class="str">"Ana"</span>: <span class="str">"B"</span>, <span class="str">"Matt"</span>: <span class="str">"A"</span>, <span class="str">"John"</span>: <span class="str">"B"</span>}
+
+<span class="cm"># Default iteration — over keys</span>
+<span class="kw">for</span> k <span class="kw">in</span> grades:
+    <span class="fn">print</span>(k)              <span class="cm"># Ana, Matt, John</span>
+
+<span class="cm"># Explicit key iteration</span>
+<span class="kw">for</span> k <span class="kw">in</span> grades.<span class="fn">keys</span>():
+    <span class="fn">print</span>(k)
+
+<span class="cm"># Value iteration</span>
+<span class="kw">for</span> v <span class="kw">in</span> grades.<span class="fn">values</span>():
+    <span class="fn">print</span>(v)              <span class="cm"># B, A, B</span>
+
+<span class="cm"># Key-value pairs (most useful)</span>
+<span class="kw">for</span> k, v <span class="kw">in</span> grades.<span class="fn">items</span>():
+    <span class="fn">print</span>(k, <span class="str">"→"</span>, v)    <span class="cm"># Ana → B ...</span></pre>
+    </div>
+  </div>
+
+  <!-- 7. COMPARISON TABLE -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <div class="section-dot green"></div>
+      <span class="section-title">Dictionary vs List, Tuple, Set</span>
+    </div>
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Ordered</th>
+            <th>Mutable</th>
+            <th>Access by</th>
+            <th>Duplicates</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>list</td>
+            <td class="yes">✓ Yes</td>
+            <td class="yes">✓ Yes</td>
+            <td>Integer index</td>
+            <td class="yes">✓ Allowed</td>
+          </tr>
+          <tr>
+            <td>tuple</td>
+            <td class="yes">✓ Yes</td>
+            <td class="no">✗ No</td>
+            <td>Integer index</td>
+            <td class="yes">✓ Allowed</td>
+          </tr>
+          <tr>
+            <td>set</td>
+            <td class="no">✗ No</td>
+            <td class="yes">✓ Yes</td>
+            <td>Membership</td>
+            <td class="no">✗ Removed</td>
+          </tr>
+          <tr>
+            <td>dict</td>
+            <td class="yes">✓ Insertion</td>
+            <td class="yes">✓ Yes</td>
+            <td>Key</td>
+            <td>Keys unique / Values ok</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 8. KEYS & VALUES RULES -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <div class="section-dot"></div>
+      <span class="section-title">Valid Keys and Values</span>
+    </div>
+    <div class="card-grid two">
+      <div class="card">
+        <h3>Keys — Stricter Rules</h3>
+        <ul>
+          <li>Must be <strong>unique</strong> and <strong>hashable</strong></li>
+          <li>✅ int, float, str, bool, tuple (all-hashable)</li>
+          <li>❌ list — not hashable</li>
+          <li>❌ set — not hashable</li>
+          <li>❌ tuple containing a list — not hashable</li>
+        </ul>
+      </div>
+      <div class="card green">
+        <h3>Values — Very Flexible</h3>
+        <ul>
+          <li>Can be any type</li>
+          <li>int, str, bool, float</li>
+          <li>list, tuple, set</li>
+          <li>Another dictionary (nesting)</li>
+          <li>Functions, objects — almost anything</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. NESTED -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <div class="section-dot purple"></div>
+      <span class="section-title">Nested Dictionaries</span>
+    </div>
+    <div class="code-card">
+      <div class="code-header">
+        <span class="code-label">NESTED ACCESS</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre>grades = {
+    <span class="str">"Ana"</span>: {<span class="str">"mq"</span>: [<span class="num">5</span>, <span class="num">4</span>, <span class="num">4</span>], <span class="str">"fin"</span>: <span class="str">"B"</span>},
+    <span class="str">"Bob"</span>: {<span class="str">"mq"</span>: [<span class="num">6</span>, <span class="num">7</span>, <span class="num">8</span>], <span class="str">"fin"</span>: <span class="str">"A"</span>}
+}
+
+grades[<span class="str">"Ana"</span>]          <span class="cm"># → {'mq': [5,4,4], 'fin': 'B'}</span>
+grades[<span class="str">"Ana"</span>][<span class="str">"mq"</span>]    <span class="cm"># → [5, 4, 4]</span>
+grades[<span class="str">"Ana"</span>][<span class="str">"mq"</span>][<span class="num">0</span>]  <span class="cm"># → 5</span>
+grades[<span class="str">"Bob"</span>][<span class="str">"fin"</span>]   <span class="cm"># → A</span></pre>
+    </div>
+    <div class="callout"><strong>Rule:</strong> Each <code>[key]</code> step goes one level deeper into the structure.</div>
+  </div>
+
+  <!-- 10. METHODS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <div class="section-dot green"></div>
+      <span class="section-title">Important Methods</span>
+    </div>
+    <div class="method-grid">
+      <div class="method-item">
+        <div class="method-name">d.get(key, default)</div>
+        <div class="method-desc">Safely retrieve value; returns default (or None) if key is missing — no KeyError.</div>
+      </div>
+      <div class="method-item">
+        <div class="method-name">d.keys()</div>
+        <div class="method-desc">Returns a view of all keys in insertion order.</div>
+      </div>
+      <div class="method-item">
+        <div class="method-name">d.values()</div>
+        <div class="method-desc">Returns a view of all values (may contain duplicates).</div>
+      </div>
+      <div class="method-item">
+        <div class="method-name">d.items()</div>
+        <div class="method-desc">Returns a view of (key, value) tuples — most useful for loops.</div>
+      </div>
+      <div class="method-item">
+        <div class="method-name">d.update(other)</div>
+        <div class="method-desc">Merges another dict into d. Existing keys are updated; new keys are inserted.</div>
+      </div>
+      <div class="method-item">
+        <div class="method-name">d.pop(key)</div>
+        <div class="method-desc">Removes key and returns its value. Raises KeyError if key is absent.</div>
+      </div>
+      <div class="method-item">
+        <div class="method-name">d.popitem()</div>
+        <div class="method-desc">Removes and returns the last inserted (key, value) pair.</div>
+      </div>
+      <div class="method-item">
+        <div class="method-name">d.copy()</div>
+        <div class="method-desc">Returns a shallow independent copy — use instead of plain assignment to avoid aliasing.</div>
+      </div>
+      <div class="method-item">
+        <div class="method-name">d.clear()</div>
+        <div class="method-desc">Removes all entries. Dictionary becomes empty {}.</div>
+      </div>
+      <div class="method-item">
+        <div class="method-name">dict.fromkeys(keys, val)</div>
+        <div class="method-desc">Class method — creates a new dict from an iterable of keys, all with the same value.</div>
+      </div>
+    </div>
+    <div class="code-card" style="margin-top:16px">
+      <div class="code-header">
+        <span class="code-label">COMPREHENSION</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre><span class="cm"># Dictionary comprehension</span>
+squares = {x: x * x <span class="kw">for</span> x <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">6</span>)}
+<span class="cm"># → {1: 1, 2: 4, 3: 9, 4: 16, 5: 25}</span>
+
+evens = {x: x*x <span class="kw">for</span> x <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">11</span>) <span class="kw">if</span> x % <span class="num">2</span> == <span class="num">0</span>}
+<span class="cm"># → {2: 4, 4: 16, 6: 36, 8: 64, 10: 100}</span></pre>
+    </div>
+  </div>
+
+  <!-- 11. COPY vs ALIAS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <div class="section-dot"></div>
+      <span class="section-title">Assignment vs Copy</span>
+    </div>
+    <div class="code-card">
+      <div class="code-header">
+        <span class="code-label">ALIASING TRAP</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre><span class="cm"># ❌ Aliasing — both names point to same dict</span>
+d1 = {<span class="str">"a"</span>: <span class="num">1</span>, <span class="str">"b"</span>: <span class="num">2</span>}
+d2 = d1
+d2[<span class="str">"c"</span>] = <span class="num">3</span>
+<span class="fn">print</span>(d1)   <span class="cm"># → {'a': 1, 'b': 2, 'c': 3}  ← d1 also changed!</span>
+
+<span class="cm"># ✅ Shallow copy — independent dictionary</span>
+d1 = {<span class="str">"a"</span>: <span class="num">1</span>, <span class="str">"b"</span>: <span class="num">2</span>}
+d2 = d1.<span class="fn">copy</span>()
+d2[<span class="str">"c"</span>] = <span class="num">3</span>
+<span class="fn">print</span>(d1)   <span class="cm"># → {'a': 1, 'b': 2}  ← d1 unchanged</span></pre>
+    </div>
+  </div>
+
+  <!-- 12. COMMON MISTAKES -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <div class="section-dot" style="background:#f56c6c"></div>
+      <span class="section-title">Common Mistakes</span>
+    </div>
+    <div class="mistake-list">
+      <div class="mistake-item"><span class="mistake-icon">⚠️</span> Accessing a dictionary by integer position instead of a key</div>
+      <div class="mistake-item"><span class="mistake-icon">⚠️</span> Forgetting that keys must be unique — duplicate keys silently overwrite</div>
+      <div class="mistake-item"><span class="mistake-icon">⚠️</span> Using <code>in</code> to check a value — it only checks keys</div>
+      <div class="mistake-item"><span class="mistake-icon">⚠️</span> Using a list or set as a key — they are not hashable</div>
+      <div class="mistake-item"><span class="mistake-icon">⚠️</span> Assuming mutation methods like <code>update()</code> return a new dictionary (they return None)</div>
+      <div class="mistake-item"><span class="mistake-icon">⚠️</span> Using direct indexing (<code>d[key]</code>) when the key might be absent — causes KeyError; use <code>get()</code></div>
+      <div class="mistake-item"><span class="mistake-icon">⚠️</span> Using plain assignment instead of <code>copy()</code> — leads to aliasing bugs</div>
+      <div class="mistake-item"><span class="mistake-icon">⚠️</span> Misunderstanding nested access — each <code>[]</code> goes one level deeper</div>
+      <div class="mistake-item"><span class="mistake-icon">⚠️</span> Assuming deleting and reinserting a key keeps its original position — it moves to the end</div>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary-box">
+    <h2>Quick Summary</h2>
+    <p style="color:var(--muted); font-size:13.5px; margin-bottom:20px;">Everything to remember about Python dictionaries at a glance.</p>
+    <div class="summary-pills">
+      <span class="pill orange">mutable mapping</span>
+      <span class="pill orange">key → value pairs</span>
+      <span class="pill">keys must be hashable</span>
+      <span class="pill">keys unique</span>
+      <span class="pill orange">values can repeat</span>
+      <span class="pill">preserves insertion order</span>
+      <span class="pill">update ≠ reposition</span>
+      <span class="pill orange">delete+reinsert → end</span>
+      <span class="pill green">d[key] — direct access</span>
+      <span class="pill green">d.get(k, default) — safe</span>
+      <span class="pill green">d.keys() d.values() d.items()</span>
+      <span class="pill">copy() for independence</span>
+      <span class="pill orange">in checks keys only</span>
+      <span class="pill green">{k:v for ...} comprehension</span>
+      <span class="pill">great for counting & grouping</span>
+      <span class="pill">nested dicts for rich records</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
